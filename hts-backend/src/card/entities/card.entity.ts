@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
 @Schema({ collection: 'cards', discriminatorKey: 'cardType' })
-export class BaseCard extends Document {
+export class Card extends Document {
     @Prop()
     name: string;
 
@@ -16,4 +16,4 @@ export class BaseCard extends Document {
     isPlayable: boolean;
 }
 
-export const BaseCardSchema = SchemaFactory.createForClass(BaseCard);
+export const CardSchema = SchemaFactory.createForClass(Card);
