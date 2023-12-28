@@ -8,6 +8,9 @@ export class Player extends Document {
     @Prop()
     username: string;
 
+    @Prop({default: false})
+    isHost: boolean;
+
     @Prop({ default: 0 })
     actionPoints: number;
 

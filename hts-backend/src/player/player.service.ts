@@ -12,7 +12,10 @@ export class PlayerService {
   ){}
 
   create(createPlayerDto: CreatePlayerDto) {
-    return this.model.create({createPlayerDto})
+    if (createPlayerDto.session){
+      return this.model.create({createPlayerDto})
+    }
+    //this.sessionService.create()
   }
 
   async findAll() {
