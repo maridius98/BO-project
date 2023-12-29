@@ -9,7 +9,7 @@ export class SessionGateway {
 
   @SubscribeMessage('createSession')
   create(@MessageBody() createSessionDto: CreateSessionDto) {
-    return this.sessionService.create(createSessionDto);
+    return "this.sessionService.create(createSessionDto);";
   }
 
   @SubscribeMessage('findAllSession')
@@ -19,7 +19,7 @@ export class SessionGateway {
 
   @SubscribeMessage('findOneSession')
   findOne(@MessageBody() id: number) {
-    return this.sessionService.findOne(id);
+    return "this.sessionService.findOne(id)";
   }
 
   @SubscribeMessage('updateSession')

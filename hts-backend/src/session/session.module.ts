@@ -9,5 +9,6 @@ import { SessionController } from './session.controller';
   imports: [MongooseModule.forFeature([{ name: 'Session', schema: SessionSchema }])],
   providers: [SessionGateway, SessionService],
   controllers: [SessionController],
+  exports: [SessionService]
 })
 export class SessionModule {}

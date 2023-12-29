@@ -1,23 +1,32 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreatePlayerDto } from './dto/create-player.dto';
 import { UpdatePlayerDto } from './dto/update-player.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Player } from './entities/player.entity';
 import { Model } from 'mongoose';
+import { SessionService } from 'src/session/session.service';
+import { Session } from 'src/session/entities/session.entity';
 
 @Injectable()
 export class PlayerService {
   constructor(
-    @InjectModel('Player') private readonly model: Model<Player>
+    @InjectModel('Player') private readonly model: Model<Player>,
+    private readonly sessionService: SessionService
   ){}
 
-  create(createPlayerDto: CreatePlayerDto) {
-    if (createPlayerDto.session){
-      return this.model.create({createPlayerDto})
+  async create(createPlayerDto: CreatePlayerDto) {
+    let session: Session;
+    if (!createPlayerDto.session) {
+      createPlayerDto.session = (session = await this.sessionService.create())._id;
+    } else if (!(session = await this.sessionService.findOne(createPlayerDto.session)).$isEmpty) {
+      throw new NotFoundException("Session not found");
     }
-    //this.sessionService.create()
+    const newPlayer = new this.model(createPlayerDto);
+    session.players.push(newPlayer);
+    await session.save();
+    return await newPlayer.save();
   }
-
+  
   async findAll() {
     return await this.model.find();
   }

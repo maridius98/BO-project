@@ -1,0 +1,10 @@
+POST http://localhost:3000/player
+Content-Type: application/json
+
+{
+  "session": "658e0cb3599f5fbf0ca27d87",
+  "username": "Jovana 3"
+}
+
+###
+GET http://localhost:3000/player

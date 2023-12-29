@@ -5,7 +5,7 @@ import { Card } from "src/card/entities/card.entity";
 
 @Schema()
 export class Session extends Document {
-    @Prop()
+    @Prop({default: 0})
     turn: number;
 
     @Prop({ type: [{ type: Types.ObjectId, ref: 'Card'}]})

@@ -7,17 +7,17 @@ export class SessionController {
     constructor(private readonly service: SessionService) {}
 
     @Post()
-    create(@Body() dto: CreateSessionDto) {
-      return this.service.create(dto);
+    async create() {
+      return await this.service.create();
     }
   
     @Get()
-    findAll() {
-      return this.service.findAll();
+    async findAll() {
+      return await this.service.findAll();
     }
   
     @Get(':id')
-    findOne(@Param('id') id: string) {
-      return this.service.findOne(+id);
+    async findOne(@Param('id') id: string) {
+      return await this.service.findOne(id);
     }
 }

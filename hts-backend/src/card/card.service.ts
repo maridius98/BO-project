@@ -18,6 +18,7 @@ import { MagicCardDto } from './dto/create-magic-card.dto';
 @Injectable()
 export class CardService {
   constructor(
+    @InjectModel('Card') private readonly cardModel: Model<Card>,
     @InjectModel('MonsterCard') private readonly monsterCardModel: Model<MonsterCard>,
     @InjectModel('ModifierCard') private readonly modifierCardModel: Model<ModifierCard>,
     @InjectModel('MagicCard') private readonly magicCardModel: Model<MagicCard>,
@@ -86,8 +87,8 @@ export class CardService {
     return createdChallengeCard.save();
   }
 
-  findAll() {
-    // Implement the logic to retrieve all cards
+  async findAll() {
+    return await this.cardModel.find().exec()
   }
 
   findOne(id: string) {

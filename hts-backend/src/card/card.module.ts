@@ -12,12 +12,13 @@ import { ChallengeCardSchema } from './entities/challengeCard.entity';
 @Module({
   imports: [
     MongooseModule.forFeature([
-      { name: 'Card', schema: CardSchema },
-      { name: 'MonsterCard', schema: MonsterCardSchema, discriminators: [{ name: 'Card', schema: CardSchema }] },
-      { name: 'ModifierCard', schema: ModifierCardSchema, discriminators: [{ name: 'Card', schema: CardSchema }] },
-      { name: 'MagicCard', schema: MagicCardSchema, discriminators: [{ name: 'Card', schema: CardSchema }] },
-      { name: 'HeroCard', schema: HeroCardSchema, discriminators: [{ name: 'Card', schema: CardSchema }] },
-      { name: 'ChallengeCard', schema: ChallengeCardSchema, discriminators: [{ name: 'Card', schema: CardSchema }] },
+      { name: 'Card', schema: CardSchema, discriminators: [
+        { name: 'MonsterCard', schema: MonsterCardSchema },
+        { name: 'ModifierCard', schema: ModifierCardSchema },
+        { name: 'MagicCard', schema: MagicCardSchema },
+        { name: 'HeroCard', schema: HeroCardSchema },
+        { name: 'ChallengeCard', schema: ChallengeCardSchema },
+      ]},
     ]),
   ],
   controllers: [CardController],

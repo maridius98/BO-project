@@ -13,8 +13,8 @@ export class CardController {
   }
 
   @Get()
-  findAll() {
-    return this.cardService.findAll();
+  async findAll() {
+    return await this.cardService.findAll();
   }
 
   @Get(':id')

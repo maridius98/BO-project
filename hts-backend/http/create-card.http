@@ -2,11 +2,13 @@ POST http://localhost:3000/card
 Content-Type: application/json
 
 {
-  "name": "Fire Dragon",
+  "name": "Fire Dragon 2",
   "description": "A powerful dragon",
   "imageURL": "dragon.jpg",
-  "isPlayable": true,
   "defeatRoll": 10,
   "victoryRoll": 20,
   "effects": ["Fire Breath", "Tail Swipe"]
 }
+
+### 
+GET http://localhost:3000/card

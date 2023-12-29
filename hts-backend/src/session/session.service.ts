@@ -1,19 +1,24 @@
 import { Injectable } from '@nestjs/common';
 import { CreateSessionDto } from './dto/create-session.dto';
 import { UpdateSessionDto } from './dto/update-session.dto';
+import { InjectModel } from '@nestjs/mongoose';
+import { Session } from './entities/session.entity';
+import { Model } from 'mongoose';
 
 @Injectable()
 export class SessionService {
-  create(createSessionDto: CreateSessionDto) {
-    return 'This action adds a new session';
+  constructor(@InjectModel('Session') private readonly model: Model<Session>){}
+  async create() {
+    const newSession = new this.model(); // No need to pass in any arguments
+    return await newSession.save();
   }
 
-  findAll() {
-    return `This action returns all session`;
+  async findAll() {
+    return await this.model.find().exec();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} session`;
+  async findOne(id: string) {
+    return await this.model.findById(id).exec();
   }
 
   update(id: number, updateSessionDto: UpdateSessionDto) {
