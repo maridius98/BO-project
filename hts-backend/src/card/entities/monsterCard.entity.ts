@@ -8,9 +8,6 @@ export class MonsterCard extends Card {
 
     @Prop()
     victoryRoll: number;
-
-    @Prop()
-    effects: string[]; 
     
     @Prop({default: false})
     isPlayable: boolean;

@@ -14,6 +14,7 @@ import { ModifierCardDto } from './dto/create-modifier-card.dto';
 import { ChallengeCardDto } from './dto/create-challenge-card.dto';
 import { HeroCardDto } from './dto/create-hero-card.dto';
 import { MagicCardDto } from './dto/create-magic-card.dto';
+import { CardDataLayer } from './card.data-layer';
 
 @Injectable()
 export class CardService {
@@ -24,8 +25,9 @@ export class CardService {
     @InjectModel('MagicCard') private readonly magicCardModel: Model<MagicCard>,
     @InjectModel('HeroCard') private readonly heroCardModel: Model<HeroCard>,
     @InjectModel('ChallengeCard') private readonly challengeCardModel: Model<ChallengeCard>,
+    private readonly cardDataLayer: CardDataLayer,
   ) {}
-
+    //refaktorisati u strategy
   async create(createCardDto: CreateCardDto): Promise<CreateCardDto> {
     if (this.isMonsterCardDto(createCardDto)) {
       return this.createMonsterCard(createCardDto);
@@ -42,6 +44,18 @@ export class CardService {
     }
   }
 
+  async getPlayableCards(){
+    return await this.cardModel.find({isPlayable: true}).lean().exec();
+  }
+
+  async getMonsterCards(){
+    return await this.monsterCardModel.find().lean().exec();
+  }
+
+  async getShuffledCards(){
+    return this.cardDataLayer.shuffle(await this.findAll());
+  }
+
   private isMonsterCardDto(dto: CreateCardDto): dto is MonsterCardDto {
     return (dto as MonsterCardDto).defeatRoll !== undefined;
   }
@@ -55,7 +69,7 @@ export class CardService {
   }
 
   private isHeroCardDto(dto: CreateCardDto): dto is HeroCardDto {
-    return (dto as HeroCardDto).defeatRoll !== undefined;
+    return (dto as HeroCardDto).victoryRoll !== undefined;
   }
 
   private isChallengeCardDto(dto: CreateCardDto): dto is ChallengeCardDto {
@@ -88,11 +102,13 @@ export class CardService {
   }
 
   async findAll() {
-    return await this.cardModel.find().exec()
+    return await this.cardModel.find().lean().exec()
   }
 
-  findOne(id: string) {
-    // Implement the logic to retrieve a specific card by ID
+  async findOne(id: string, target: [{effectIndex: number, target: string}]) {
+    const card = await this.cardModel.findById(id);
+    this.cardDataLayer.populateEffects(card, target);
+    return card;
   }
 
   update(id: string, updateCardDto: UpdateCardDto) {

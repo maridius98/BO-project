@@ -5,14 +5,23 @@ import { Card } from "src/card/entities/card.entity";
 
 @Schema()
 export class Session extends Document {
+    @Prop()
+    code: string;
+
     @Prop({default: 0})
     turn: number;
+
+    @Prop({default : 0})
+    roll: number;
 
     @Prop({ type: [{ type: Types.ObjectId, ref: 'Card'}]})
     discardPile: Card[];
 
     @Prop({ type: [{ type: Types.ObjectId, ref: 'Card'}]})
     deck: Card[];
+
+    @Prop({ type: [{ type: Types.ObjectId, ref: 'Card'}]})
+    monsterDeck: Card[]
 
     @Prop({ type: [{ type: Types.ObjectId, ref: 'Card'}]})
     monsters: Card[]

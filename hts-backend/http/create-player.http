@@ -2,8 +2,8 @@ POST http://localhost:3000/player
 Content-Type: application/json
 
 {
-  "session": "658e0cb3599f5fbf0ca27d87",
-  "username": "Jovana 3"
+  "session": "658e8c556b3d239e2b5c07a2",
+  "username": "Milos 2"
 }
 
 ###

@@ -7,6 +7,9 @@ export class Card extends Document {
     name: string;
 
     @Prop()
+    effects: string[];
+
+    @Prop()
     description: string;
 
     @Prop()
