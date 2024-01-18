@@ -3,30 +3,30 @@ import { SessionService } from './session.service';
 import { CreateSessionDto } from './dto/create-session.dto';
 import { UpdateSessionDto } from './dto/update-session.dto';
 import { Server } from 'socket.io';
-import { CreatePlayerDto, CreatePlayerSesssionDto } from 'src/player/dto/create-player.dto';
+import { CreatePlayerDto} from 'src/player/dto/create-player.dto';
 import { PlayerService } from 'src/player/player.service';
 import { PlayCardDto } from './dto/play-card.dto';
 import { CardService } from 'src/card/card.service';
+import { Inject, forwardRef } from '@nestjs/common';
 
 @WebSocketGateway()
 export class SessionGateway {
   @WebSocketServer() server : Server;
 
   constructor(private readonly sessionService: SessionService,
+    @Inject(forwardRef(() => PlayerService))
     private readonly playerService: PlayerService,
     private readonly cardService: CardService) {}
 
   @SubscribeMessage('createSession')
   async create(@MessageBody() createPlayerDto: CreatePlayerDto) {
-    const sessionCode = Math.random().toString(32).substring(7);
-    const playerSessionDto: CreatePlayerSesssionDto = {...createPlayerDto, code: sessionCode};
-    const player = await this.playerService.create(playerSessionDto);
-    this.server.emit("createdSession", player, sessionCode);
+    const player = await this.playerService.create(createPlayerDto);
+    this.server.emit("createdSession", player, player.session.code);
   }
 
   @SubscribeMessage('joinSession')
-  async joinSession(@MessageBody() createPlayerSesssionDto: CreatePlayerSesssionDto) {
-    const player = await this.playerService.create(createPlayerSesssionDto);
+  async joinSession(@MessageBody() CreatePlayerDto: CreatePlayerDto) {
+    const player = await this.playerService.create(CreatePlayerDto);
     return await this.sessionService.findOne(player.session._id);
   }
 
@@ -55,4 +55,5 @@ export class SessionGateway {
   remove(@MessageBody() id: number) {
     return this.sessionService.remove(id);
   }
+
 }

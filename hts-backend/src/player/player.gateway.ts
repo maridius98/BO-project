@@ -18,17 +18,17 @@ export class PlayerGateway {
   }
 
   @SubscribeMessage('findOnePlayer')
-  findOne(@MessageBody() id: number) {
+  findOne(@MessageBody() id: string) {
     return this.playerService.findOne(id);
   }
 
   @SubscribeMessage('updatePlayer')
   update(@MessageBody() updatePlayerDto: UpdatePlayerDto) {
-    return this.playerService.update(updatePlayerDto.id, updatePlayerDto);
+    //return this.playerService.update(updatePlayerDto.id, updatePlayerDto);
   }
 
   @SubscribeMessage('removePlayer')
-  remove(@MessageBody() id: number) {
+  remove(@MessageBody() id: string) {
     return this.playerService.remove(id);
   }
 }

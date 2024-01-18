@@ -105,9 +105,11 @@ export class CardService {
     return await this.cardModel.find().lean().exec()
   }
 
-  async findOne(id: string, target: [{effectIndex: number, target: string}]) {
+  async findOne(id: string, target?: [{effectIndex: number, target: string}]) {
     const card = await this.cardModel.findById(id);
-    this.cardDataLayer.populateEffects(card, target);
+    if (target){
+      this.cardDataLayer.populateEffects(card, target);
+    }
     return card;
   }
 

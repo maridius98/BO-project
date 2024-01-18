@@ -18,13 +18,21 @@ export class SessionService {
     private readonly sessionDataLayer: SessionDataLayer,
   ){}
 
-  async create(code: string) {
+  async create() {
+    let code = this.randomCode()
+    while (await this.findByCode(code)){
+      code = this.randomCode()
+    }
     const newSession = new this.model(code);
     return await newSession.save();
   }
 
   async findAll() {
     return await this.model.find().lean().exec();
+  }
+
+  async findByCode(code: string){
+    return await this.model.findOne({code: code}).lean().exec()
   }
 
   async findOne(id: string) {
@@ -46,5 +54,9 @@ export class SessionService {
 
   remove(id: number) {
     return `This action removes a #${id} session`;
+  }
+
+  private randomCode(){
+    return Math.random().toString(32).substring(7);
   }
 }
