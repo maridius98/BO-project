@@ -1,5 +1,5 @@
 export class CreatePlayerDto {
-    username: string;
+    username?: string;
     session?: string;
     code?: string;
 }

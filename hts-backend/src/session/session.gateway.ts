@@ -27,7 +27,8 @@ export class SessionGateway {
   @SubscribeMessage('joinSession')
   async joinSession(@MessageBody() CreatePlayerDto: CreatePlayerDto) {
     const player = await this.playerService.create(CreatePlayerDto);
-    return await this.sessionService.findOne(player.session._id);
+    const session = await this.sessionService.findOne(player.session._id);
+    this.server.emit("joinedSession", session)
   }
 
   @SubscribeMessage('startSession')

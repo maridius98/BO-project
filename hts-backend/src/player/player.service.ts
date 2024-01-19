@@ -19,15 +19,16 @@ export class PlayerService {
 
   async create(createPlayerDto: CreatePlayerDto) {
     let session: Session;
-    if (!createPlayerDto.session) {
-      createPlayerDto.session = (session = await this.sessionService.create())._id;
-    } else if (!(session = await this.sessionService.findOne(createPlayerDto.session)).$isEmpty) {
-      throw new NotFoundException("Session not found");
+    if (!createPlayerDto.code) {
+      session = await this.sessionService.create();
+    } else {
+      session = await this.sessionService.findByCode(createPlayerDto.code);
     }
-    const newPlayer = new this.model(createPlayerDto);
-    session.players.push(newPlayer);
+    createPlayerDto.session = session._id;
+    const player = new this.model(createPlayerDto);
+    session.players.push(player);
     await session.save();
-    return await newPlayer.save();
+    return await player.save();
   }
   
   async findAll() {
