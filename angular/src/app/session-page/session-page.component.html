@@ -1,0 +1,16 @@
+<div>
+    <label for="username">Username:</label>
+    <input type="text" id="username" [(ngModel)]="username" />
+
+    <label for="sessionCode">Session Code:</label>
+    <input type="text" id="sessionCode" [(ngModel)]="sessionCode" />
+
+    <button (click)="onJoinSession()">Join Session</button>
+    <button (click)="onCreateSession()">Create Session</button>
+
+    <div *ngIf="sessionData">
+        <h2>Session Data</h2>
+        <p>Session ID: {{ sessionData._id }}</p>
+        <!-- Add other properties you want to display -->
+    </div>
+</div>
