@@ -32,7 +32,8 @@ export class SessionPageComponent implements OnDestroy{
   }
 
   onCreateSession() {
-    const createPlayerDto = { username: this.username, sessionCode: this.sessionCode };
+    const createPlayerDto = { username: this.username };
+    console.log(createPlayerDto);
     this.sessionService.createSession(createPlayerDto);
   }
 

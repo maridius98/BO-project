@@ -23,7 +23,7 @@ export class SessionService {
     while (await this.findByCode(code)){
       code = this.randomCode()
     }
-    const newSession = new this.model(code);
+    const newSession = new this.model({code});
     return await newSession.save();
   }
 

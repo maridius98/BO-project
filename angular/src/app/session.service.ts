@@ -22,11 +22,11 @@ export class SessionService implements OnInit {
   }
 
   joinSession(createPlayerDto: CreatePlayerDto){
-    this.socket.emit('createSession', createPlayerDto);
+    this.socket.emit('joinSession', createPlayerDto);
   }
 
   createSession(createPlayerDto: CreatePlayerDto){
-    this.socket.emit('joinSession', createPlayerDto);
+    this.socket.emit('createSession', createPlayerDto);
   }
 
   getMessage() {

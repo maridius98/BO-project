@@ -7,11 +7,23 @@ import { CreatePlayerDto} from 'src/player/dto/create-player.dto';
 import { PlayerService } from 'src/player/player.service';
 import { PlayCardDto } from './dto/play-card.dto';
 import { CardService } from 'src/card/card.service';
-import { Inject, forwardRef } from '@nestjs/common';
+import { Inject, OnModuleInit, forwardRef } from '@nestjs/common';
 
-@WebSocketGateway()
-export class SessionGateway {
-  @WebSocketServer() server : Server;
+@WebSocketGateway({
+  cors: {
+    origin: ['http://localhost:4200']
+  }
+})
+export class SessionGateway implements OnModuleInit {
+  @WebSocketServer()
+  server: Server;
+
+  onModuleInit() {
+    this.server.on('connection', (socket) => {
+      console.log(socket.id);
+      console.log('Connected');
+    });
+  }
 
   constructor(private readonly sessionService: SessionService,
     @Inject(forwardRef(() => PlayerService))
@@ -20,6 +32,7 @@ export class SessionGateway {
 
   @SubscribeMessage('createSession')
   async create(@MessageBody() createPlayerDto: CreatePlayerDto) {
+    console.log(JSON.stringify(createPlayerDto));
     const player = await this.playerService.create(createPlayerDto);
     this.server.emit("createdSession", player, player.session.code);
   }
