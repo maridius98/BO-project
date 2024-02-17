@@ -1,11 +1,7 @@
 import { Component, OnDestroy } from '@angular/core';
 import { SessionService } from '../session.service';
-import { FormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { RouterOutlet } from '@angular/router';
-import { SocketIoModule } from 'ngx-socket-io';
-import { SocketService } from '../socket.service';
 
 @Component({
   selector: 'app-session-page',
@@ -13,31 +9,17 @@ import { SocketService } from '../socket.service';
   templateUrl: './session-page.component.html',
   styleUrls: ['./session-page.component.css']
 })
-export class SessionPageComponent implements OnDestroy{
-  username: string = '';
-  sessionCode: string = '';
-  sessionData: any; 
-
+export class SessionPageComponent{
   private sessionDataSubscription: Subscription;
+  sessionData: any; 
+  sessionCode: string = '';
 
-  constructor(private sessionService: SessionService) {
+  constructor(private sessionService: SessionService, private router: Router) {
     this.sessionDataSubscription = this.sessionService.sessionData$.subscribe(data => {
       this.sessionData = data;
     });
+    this.sessionCode=sessionService.getSessionCode();
   }
 
-  onJoinSession() {
-    const createPlayerDto = { username: this.username, sessionCode: this.sessionCode };
-    this.sessionService.joinSession(createPlayerDto);
-  }
 
-  onCreateSession() {
-    const createPlayerDto = { username: this.username };
-    console.log(createPlayerDto);
-    this.sessionService.createSession(createPlayerDto);
-  }
-
-  ngOnDestroy(){
-    this.sessionDataSubscription.unsubscribe();
-  }
 }

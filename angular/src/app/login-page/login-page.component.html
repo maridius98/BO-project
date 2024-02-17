@@ -1,0 +1,100 @@
+<div class="image-container">
+  <audio controls autoplay unmuted loop>
+    <source src="../../assets/loginAudio.mp3" type="audio/mpeg">
+  </audio>
+  <div class="container">
+    <div class="bubbles">
+      <span style="--i:11;"></span>
+      <span style="--i:12;"></span>
+      <span style="--i:24;"></span>
+      <span style="--i:10;"></span>
+      <span style="--i:14;"></span>
+      <span style="--i:23;"></span>
+      <span style="--i:18;"></span>
+      <span style="--i:16;"></span>
+      <span style="--i:19;"></span>
+      <span style="--i:20;"></span>
+      <span style="--i:22;"></span>
+      <span style="--i:25;"></span>
+      <span style="--i:18;"></span>
+      <span style="--i:21;"></span>
+      <span style="--i:15;"></span>
+      <span style="--i:13;"></span>
+      <span style="--i:26;"></span>
+      <span style="--i:17;"></span>
+      <span style="--i:13;"></span>
+      <span style="--i:28;"></span>
+      <span style="--i:11;"></span>
+      <span style="--i:12;"></span>
+      <span style="--i:24;"></span>
+      <span style="--i:10;"></span>
+      <span style="--i:14;"></span>
+      <span style="--i:23;"></span>
+      <span style="--i:18;"></span>
+      <span style="--i:16;"></span>
+      <span style="--i:19;"></span>
+      <span style="--i:20;"></span>
+      <span style="--i:22;"></span>
+      <span style="--i:25;"></span>
+      <span style="--i:18;"></span>
+      <span style="--i:21;"></span>
+      <span style="--i:15;"></span>
+      <span style="--i:13;"></span>
+      <span style="--i:26;"></span>
+      <span style="--i:17;"></span>
+      <span style="--i:13;"></span>
+      <span style="--i:28;"></span>
+      <span style="--i:11;"></span>
+      <span style="--i:12;"></span>
+      <span style="--i:24;"></span>
+      <span style="--i:10;"></span>
+      <span style="--i:14;"></span>
+      <span style="--i:23;"></span>
+      <span style="--i:18;"></span>
+      <span style="--i:16;"></span>
+      <span style="--i:19;"></span>
+      <span style="--i:20;"></span>
+      <span style="--i:22;"></span>
+    </div>
+    
+    <div class="middle-container">
+      <div class="logo-image-container">
+        <img class="logo-image" src="../../assets/headingTransparent.jpg" alt="Opis slike">
+      </div>
+
+      <div class="tab-container">
+        <div class="buttons">
+          <label>
+            <input type="radio" name="check" [(ngModel)]="selectedCheckbox" [value]="true">
+            <span></span>
+            <i class="fa-solid fa-plus"></i>
+          </label>
+
+          <label>
+            <input type="radio" name="check" [(ngModel)]="selectedCheckbox" [value]="false">
+            <span></span>
+            <i class="fa-solid fa-arrow-right-to-bracket"></i>
+          </label>
+        </div>
+
+        <div class="form">
+          <div class="input-box">
+            <input type="text" id="username" [(ngModel)]="username">
+            <span>Username</span>
+            <i>.</i>
+          </div>
+
+          <div class="input-box" id="hide-div" *ngIf="!selectedCheckbox" [ngClass]="{'fade-in-out': !selectedCheckbox, 'collapse-fade-out': selectedCheckbox, 'initial-hidden': selectedCheckbox}">
+            <input type="text" id="sessionCode" [(ngModel)]="sessionCode">
+            <span>Session Code</span>
+            <i>.</i>
+          </div>
+
+          <button class="session-buttons" *ngIf="selectedCheckbox" id="create-session-button" (click)="onCreateSession()"><span>Create Session</span></button>
+          
+          <button class="session-buttons" *ngIf="!selectedCheckbox" id="join-session-button" (click)="onJoinSession()"><span>Join Session</span></button>
+        </div>
+    </div>
+  </div>
+</div>
+
