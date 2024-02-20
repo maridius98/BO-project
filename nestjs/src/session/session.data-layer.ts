@@ -6,6 +6,7 @@ import { MonsterCard } from "src/card/entities/monsterCard.entity";
 import { Player } from "src/player/entities/player.entity";
 import { CardExecData } from "src/card/card.data-layer";
 import { HeroCard } from "src/card/entities/heroCard.entity";
+import { PersonalSession } from "./entities/personalSession";
 
 @Injectable()
 export class SessionDataLayer {
@@ -25,6 +26,12 @@ export class SessionDataLayer {
             }
         })
         return session;
+    }
+
+    getSplitSessions(session: Session) {
+        const splitSessions = new Map<string, PersonalSession>();
+        splitSessions.set(session.players[0]._id, new PersonalSession(session, 0));
+        splitSessions.set(session.players[1]._id, new PersonalSession(session, 1));
     }
 
     playCard(cardExecData: CardExecData){

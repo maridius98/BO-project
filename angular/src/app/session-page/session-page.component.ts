@@ -12,7 +12,7 @@ import { Subscription } from 'rxjs';
 export class SessionPageComponent{
   private sessionDataSubscription: Subscription;
   sessionData: any; 
-  sessionCode: string = '';
+  sessionCode: string | undefined = '';
 
   constructor(private sessionService: SessionService, private router: Router) {
     this.sessionDataSubscription = this.sessionService.sessionData$.subscribe(data => {

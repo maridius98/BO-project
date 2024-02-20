@@ -9,6 +9,7 @@ import { SessionDataLayer } from './session.data-layer';
 import { Player } from 'src/player/entities/player.entity';
 import { Card } from 'src/card/entities/card.entity';
 import { CardExecData } from 'src/card/card.data-layer';
+import { PersonalSession } from './entities/personalSession';
 
 @Injectable()
 export class SessionService {
@@ -44,7 +45,9 @@ export class SessionService {
     const cards = await this.cardService.getPlayableCards();
     const monsters = await this.cardService.getMonsterCards();
     const generatedSession = this.sessionDataLayer.generateSession(monsters, cards, session);
+    const splitSessions = this.sessionDataLayer.getSplitSessions(generatedSession)
     await generatedSession.save();
+    return splitSessions;
   }
 
   async update(cardExecData: CardExecData) {

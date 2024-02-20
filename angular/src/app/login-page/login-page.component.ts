@@ -39,7 +39,7 @@ export class LoginPageComponent implements OnDestroy{
       else{
         console.log("greska pri pravljenju sesije");
       }
-    },100);
+    },100); 
   }
 
   onCreateSession() {

@@ -1,25 +1,26 @@
-import { Injectable, OnInit } from '@angular/core';
+import { Injectable, OnDestroy, OnInit } from '@angular/core';
 import { map } from 'rxjs/operators';
 import { CreatePlayerDto } from './login-page/create-player.dto';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Socket } from 'ngx-socket-io';
+import { IPlayer, ISession } from './interfaces';
 
 @Injectable({
   providedIn: 'root'
 })
-export class SessionService implements OnInit {
-  private sessionDataSubject = new BehaviorSubject<any>(null);
+export class SessionService {
   private playerUsername:string='';
   private sessionCode:string='';
-
-  sessionData$: Observable<any> = this.sessionDataSubject.asObservable();
+  private playerId = '';
+  player$ = new BehaviorSubject<IPlayer | null> (null);
+  sessionData$ = new BehaviorSubject<ISession | null> (null);
 
   constructor(private socket: Socket) { }
 
-  ngOnInit(){
-    this.socket.fromEvent('joinedSession').pipe(map(data => data))
-      .subscribe((sessionData: any) => {
-        this.sessionDataSubject.next(sessionData);
+  sub() {
+    this.socket.fromEvent(this.playerId).pipe(map(data => data as ISession))
+      .subscribe((data : ISession) => {
+        this.sessionData$.next(data);
       });
   }
 
@@ -27,25 +28,28 @@ export class SessionService implements OnInit {
     return this.playerUsername;
   }
 
-  getSessionCode():string{
-    return this.sessionCode;
+  getSessionCode() {
+    try {
+      return this.sessionData$.getValue()!.code;
+    } catch (ex) {
+      console.log(ex, " this is probably undefined!");
+      return '';
+    }
   }
 
-  joinSession(createPlayerDto: CreatePlayerDto){
-    this.socket.emit('joinSession', createPlayerDto);
-    if(createPlayerDto.username)this.playerUsername=createPlayerDto.username;
+  async joinSession(createPlayerDto: CreatePlayerDto){
+    this.playerId = await this.socket.emit('joinSession', createPlayerDto);
+    this.sub();
   }
 
-  createSession(createPlayerDto: CreatePlayerDto){
-    this.socket.emit('createSession', createPlayerDto);
-    this.socket.fromEvent('createdSession').subscribe((data: any) => {
-      console.log(data);
-      this.playerUsername = data.username;
-      this.sessionCode = data.session;
-    });
+  async createSession(createPlayerDto: CreatePlayerDto){
+    this.playerId = await this.socket.emit('createSession', createPlayerDto);
+    this.sub();
   }
 
-  getMessage() {
-    return this.socket.fromEvent('message').pipe(map(data => data));
+  async startSession() {
+    if (this.player$.getValue()?.isHost) {
+      await this.socket.emit('startSession', this.getSessionCode());
+    }
   }
 }
