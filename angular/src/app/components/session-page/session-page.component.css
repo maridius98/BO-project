@@ -1,0 +1,147 @@
+.pageContainer{
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    z-index: 0;
+    background-color: rgb(42, 31, 41);
+    display: flex;
+    flex-direction: row;
+
+}
+
+.leftSideContainer{
+    width: 20%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.centerContainer{
+    width: 80%;
+    height: 100%;
+    background-color: aliceblue;
+    display: flex;
+    flex-direction: row;
+}
+
+.boardContainer{
+    width: 80%;
+    height: 100%;
+}
+
+.handContainer{
+    width: 20%;
+    height: 100%;
+}
+
+.oponentDice{
+    height: 10%;
+    width: 100%;
+
+}
+
+.sideCards{
+    width: 100%;
+    height: 80%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.discardPile{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.discardPile div{
+    margin-top: 20px;
+    height: 200px;
+    width: 100px;
+    border-radius: 20px;
+    background-color: green;
+}
+
+.monsterCards div{
+    margin-top: 10px;
+    width: 200px;
+    height: 100px;
+    border-radius: 20px;
+    background-color: green;
+}
+
+.oponentDice{
+    position: relative;
+    width: 100%;
+    display:flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: end;
+
+}
+
+.oponentDice .dices{
+    filter: blur(2px);
+}
+
+.myDice{
+    height: 10%;
+    width: 100%;
+    display:flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: start;
+    gap: 50px;
+}
+
+.myDice .dices{
+    cursor: pointer;
+}
+
+.myDice .dices label{
+    cursor: pointer;
+}
+
+.dices{
+    gap: 40px;
+    
+    display:flex;
+    flex-direction: row;
+    position: relative;
+  
+}
+
+.dices label{
+    width: 40px;
+    height:40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+   
+}
+
+.dices label span{
+    position: absolute;
+    width: 70px;
+    height: 70px;
+    background: linear-gradient(#555353, #363535, #303020);
+    border: 2px solid #222;
+    border-radius: 6px;
+    box-shadow: inset 0 5px 1px rgba(0, 0, 0, 0.35),
+    0 5px 5px rgba(0, 0, 0, 0.5),
+    0 15px 25px rgba(0, 0, 0, 0.35);
+    
+}
+
+
+.dices label h1
+{
+    position: relative;
+    z-index: 10;
+    font-size: 2em;
+    color: #fff;
+    font-weight: 200;
+    padding-top: 5px;
+}
