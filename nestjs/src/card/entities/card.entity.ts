@@ -9,6 +9,9 @@ export class Card extends Document {
     @Prop()
     effects: string[];
 
+    @Prop({default: false})
+    usedEffect: boolean;
+
     @Prop()
     description: string;
 
@@ -17,6 +20,8 @@ export class Card extends Document {
 
     @Prop({default: true})
     isPlayable: boolean;
+
+    cardType: string;
 }
 
 export const CardSchema = SchemaFactory.createForClass(Card);

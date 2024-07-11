@@ -3,18 +3,31 @@ import { Card } from "./entities/card.entity";
 import { Player } from "src/player/entities/player.entity";
 import { Session } from "src/session/entities/session.entity";
 import { HeroCard } from "./entities/heroCard.entity";
+import { State } from "src/utility";
 
 export interface CardExecData {
     card: Card;
     player: Player;
     session: Session;
+    index: number;
+    targets?: number[];
 }
 
 interface Command {
-    exec(value: number, target: Player): Session;
+    state: State;
+    target: Player;
+    exec(value: number | number[], target: Player): Session;
 }
 
-class Draw implements Command {
+class Target {
+    target: Player
+    constructor(target: Player) {
+        this.target = target;
+    }
+}
+
+class Draw extends Target implements Command {
+    state = State.makeMove;
     exec(value: number, target: Player){
         for (let i = 0; i < value; i ++){
             target.hand.push(target.session.deck.pop());
@@ -23,41 +36,50 @@ class Draw implements Command {
     }
 }
 
-/*class Discard implements Command {
-    exec(value, target){
-        player = database.fetch(target);
-        for (let i = 0; i < value; i++){
-            Player.hand.push(session.deck.pop());
+class Discard extends Target implements Command {
+    state = State.selectDiscard;
+    exec(value: number[], target: Player){
+        for (const index in value) {
+            target.session.discardPile.push(target.hand[index])
         }
+        target.hand.filter((_, index) => !value.includes(index));
+        return target.session;
     }
 }
 
-class Sacrifice implements Command {
-    exec(value, target){
-        return {}
+class Sacrifice extends Target implements Command {
+    state = State.selectSacrifice;
+    exec(value: number[], target: Player){
+        for (const index in value) {
+            target.session.discardPile.push(target.field[index])
+        }
+        target.field.filter((_, index) => !value.includes(index));
+        return target.session;
     }
 }
 
-class Destroy implements Command {
-    exec(value, target){
-
+class Destroy extends Target implements Command {
+    state = State.selectDestroy;
+    exec(value: number[], target: Player){
+        for (const index in value) {
+            target.session.discardPile.push(target.field[index])
+        }
+        target.field.filter((_, index) => !value.includes(index));
+        return target.session;
     }
 }
-*/
 
 class CommandFactory {
-    build(commandName: string): Command{
+    build(commandName: string, target: Player): Command {
         switch (commandName) {
             case "Draw":
-                return new Draw();
-/*
+                return new Draw(target);
             case "Discard":
-                return new Discard();
+                return new Discard(target);
             case "Sacrifice":
-                return new Sacrifice();
+                return new Sacrifice(target);
             case "Destroy":
-                return new Destroy();
-*/
+                return new Destroy(target);
             }
     }
 }
@@ -78,14 +100,47 @@ export class CardDataLayer{
         return shuffledCards;
     }
 
-    playEffect(cardExecData: CardExecData){
-        cardExecData.card.effects.forEach(effect => {
-            const [commandName, value, target] = effect.split(";");
-            const command = this.commandFactory.build(commandName);
-            const player = cardExecData.session.players.find(p => {p.id == target});
-            cardExecData.session = command.exec(Number(value), player);
-        })
+    playEffect(cardExecData: CardExecData) {
+        if (cardExecData.card instanceof HeroCard) {
+            if (cardExecData.session.roll < cardExecData.card.victoryRoll)
+                cardExecData.session.state = State.makeMove;
+                return cardExecData.session
+        }
+        const effect = cardExecData.card.effects[cardExecData.index]
+        const [commandName, target, value] = effect.split(";");
+        let player: Player;
+        if (target === "self") {
+            player = cardExecData.session.players.find(p => {p === player});
+        } else {
+            player = cardExecData.session.players.find(p => {p != player})
+        }
+        const command = this.commandFactory.build(commandName, player);
+        if (cardExecData.targets) {
+            if (cardExecData.targets.length > Number(value)) {
+                throw new Error("Unplayable");
+            }
+        }
+        command.exec(cardExecData.targets || Number(value), player);
+        if (cardExecData.index + 1 < cardExecData.card.effects.length) {
+            cardExecData.session.state = this.setNextState(cardExecData, cardExecData.index + 1)
+        } else {
+            if (cardExecData.player.actionPoints > 1) {
+                cardExecData.session.state = State.makeMove;
+                cardExecData.player.actionPoints--;
+            }
+        }
         return cardExecData.session;
+    }
+
+    startEffect(cardExecData: CardExecData) {
+        cardExecData.session.state = this.setNextState(cardExecData, 0);
+        cardExecData.card.usedEffect = true;
+        return cardExecData.session;
+    }
+
+    setNextState(cardExecData: CardExecData, index: number) {
+        const effect = cardExecData.card.effects[index];
+        return this.commandFactory.build(effect.split(";")[0]).state;
     }
 
     playCard(cardExecData: CardExecData){
@@ -94,25 +149,10 @@ export class CardDataLayer{
         });
         if (cardExecData.card instanceof HeroCard){
             cardExecData.player.field.push(cardExecData.card);
-            cardExecData.session.roll = this.rollNumber(6, 2); 
         } else {
             cardExecData.session.discardPile.push(cardExecData.card);
         }
-        return cardExecData;
+        return cardExecData.session;
     }
 
-    rollNumber(diceSize: number, diceCount: number){
-        let sum = 0;
-        for (let i = 0; i < diceCount; i++){
-            sum += Math.floor(Math.random() * diceSize + 1);
-        }
-        return sum;
-    }
-
-    populateEffects(card: Card, target: [{effectIndex: number, target: string}]){
-        target.forEach(p => {
-            card.effects[p.effectIndex] += p.target;
-        })
-        return card;
-    }
 }

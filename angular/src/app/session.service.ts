@@ -3,7 +3,7 @@ import { map } from 'rxjs/operators';
 import { CreatePlayerDto } from './login-page/create-player.dto';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Socket } from 'ngx-socket-io';
-import { IPlayer, ISession } from './interfaces';
+import { IPlayer, ISession, Lobby } from './interfaces';
 
 @Injectable({
   providedIn: 'root'
@@ -13,7 +13,7 @@ export class SessionService {
   private sessionCode:string='';
   private playerId = '';
   player$ = new BehaviorSubject<IPlayer | null> (null);
-  sessionData$ = new BehaviorSubject<ISession | null> (null);
+  sessionData$ = new BehaviorSubject<ISession | Lobby | null> (null);
 
   constructor(private socket: Socket) { }
 

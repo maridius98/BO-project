@@ -1,15 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { CreateSessionDto } from './dto/create-session.dto';
-import { UpdateSessionDto } from './dto/update-session.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Session } from './entities/session.entity';
 import { Model } from 'mongoose';
 import { CardService } from 'src/card/card.service';
 import { SessionDataLayer } from './session.data-layer';
-import { Player } from 'src/player/entities/player.entity';
-import { Card } from 'src/card/entities/card.entity';
-import { CardExecData } from 'src/card/card.data-layer';
-import { PersonalSession } from './entities/personalSession';
+import { CardDataLayer, CardExecData } from 'src/card/card.data-layer';
 
 @Injectable()
 export class SessionService {
@@ -17,6 +12,7 @@ export class SessionService {
     @InjectModel('Session') private readonly model: Model<Session>,
     private readonly cardService: CardService,
     private readonly sessionDataLayer: SessionDataLayer,
+    private readonly cardDataLayer: CardDataLayer
   ){}
 
   async create() {
@@ -40,19 +36,31 @@ export class SessionService {
     return await this.model.findById(id).lean().exec();
   }
 
-  async fetchSessionData(id: string){
+  async createSessionData(id: string){
     const session = await this.findOne(id);
     const cards = await this.cardService.getPlayableCards();
     const monsters = await this.cardService.getMonsterCards();
     const generatedSession = this.sessionDataLayer.generateSession(monsters, cards, session);
-    const splitSessions = this.sessionDataLayer.getSplitSessions(generatedSession)
-    await generatedSession.save();
-    return splitSessions;
+    return generatedSession;
   }
 
-  async update(cardExecData: CardExecData) {
-    const updatedSession = this.sessionDataLayer.playCard(cardExecData);
-    return await updatedSession.save();
+  async playCard(cardExecData: CardExecData) {
+    const session = this.cardDataLayer.playCard(cardExecData);
+    return await this.update(session);
+  }
+
+  async playEffect(cardExecData: CardExecData) {
+    const session = this.cardDataLayer.playEffect(cardExecData);
+    return await this.update(session);
+  }
+
+  async startEffect(cardExecData: CardExecData) {
+    const session = this.cardDataLayer.startEffect(cardExecData);
+    return await this.update(session);
+  }
+
+  async update(session: Session) {
+    return await session.save();
   }
 
   remove(id: number) {

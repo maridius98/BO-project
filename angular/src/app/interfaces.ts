@@ -1,12 +1,15 @@
-export interface ISession { 
-    _id?: string;
-    code: string;
+export interface ISession extends Lobby { 
     turn: number;
     roll: number;
     discardPile: ICard[];
     deckSize: number;
     monsterDeckSize: number;
     monsters: ICard[];
+}
+
+export interface Lobby {
+    _id?: string;
+    code: string;
     player: IPlayer;
     opponent: IOpponent;
 }
@@ -17,6 +20,7 @@ export interface ICard  {
     description: string;
     imageURL: string;
     isPlayable: boolean;
+    cardType: string;
 }
 
 export interface IPlayer {
