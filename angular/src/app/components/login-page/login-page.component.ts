@@ -32,7 +32,7 @@ export class LoginPageComponent implements OnDestroy{
 
   onJoinSession() {
     const createPlayerDto = { username: this.username, sessionCode: this.sessionCode };
-    this.sessionService.joinSession(createPlayerDto);
+    this.sessionService.joinLobby(createPlayerDto);
     setTimeout(()=>{
       if(this.sessionService.getPlayerUsername() && this.sessionService.getSessionCode())
       {
@@ -50,7 +50,7 @@ export class LoginPageComponent implements OnDestroy{
   onCreateSession() {
     const createPlayerDto = { username: this.username };
     
-    this.sessionService.createSession(createPlayerDto);
+    this.sessionService.createLobby(createPlayerDto);
 
     console.log(this.sessionService);
     setTimeout(()=>{

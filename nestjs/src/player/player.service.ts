@@ -24,7 +24,7 @@ export class PlayerService {
     } else {
       session = await this.sessionService.findByCode(createPlayerDto.code);
     }
-    createPlayerDto.session = session._id;
+    createPlayerDto.session = session;
     const player = new this.model(createPlayerDto);
     session.players.push(player);
     await session.save();

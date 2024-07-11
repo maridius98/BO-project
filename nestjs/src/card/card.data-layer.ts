@@ -140,7 +140,7 @@ export class CardDataLayer{
 
     setNextState(cardExecData: CardExecData, index: number) {
         const effect = cardExecData.card.effects[index];
-        return this.commandFactory.build(effect.split(";")[0]).state;
+        return this.commandFactory.build(effect.split(";")[0], cardExecData.player).state;
     }
 
     playCard(cardExecData: CardExecData){

@@ -13,44 +13,54 @@ export class SessionService {
   private sessionCode:string='';
   private playerId = '';
   player$ = new BehaviorSubject<IPlayer | null> (null);
-  sessionData$ = new BehaviorSubject<ISession | Lobby | null> (null);
+  lobbyData$ = new BehaviorSubject<Lobby | null> (null);
+  sessionData$ = new BehaviorSubject<ISession | null> (null);
 
   constructor(private socket: Socket) { }
 
   sub() {
-    this.socket.fromEvent(this.playerId).pipe(map(data => data as ISession))
+    this.socket.fromEvent(`lobby:${this.playerId}`).pipe(map(data => data as Lobby))
+      .subscribe((data : Lobby) => {
+        this.lobbyData$.next(data);
+      });
+
+    this.socket.fromEvent(`session:${this.playerId}`).pipe(map(data => data as ISession))
       .subscribe((data : ISession) => {
         this.sessionData$.next(data);
       });
+  }
+
+  getSessionCode(): string {
+    return this.sessionCode;
   }
 
   getPlayerUsername():string{
     return this.playerUsername;
   }
 
-  getSessionCode() {
-    try {
-      return this.sessionData$.getValue()!.code;
-    } catch (ex) {
-      console.log(ex, " this is probably undefined!");
-      return '';
-    }
-  }
-
-  async joinSession(createPlayerDto: CreatePlayerDto){
-    this.playerId = await this.socket.emit('joinSession', createPlayerDto);
+  async joinLobby(createPlayerDto: CreatePlayerDto){
+    const joinLobbyReponse = await this.socket.emit('joinLobby', createPlayerDto);
+    this.player$.next(joinLobbyReponse[0])
+    const player = this.player$.getValue()
+    this.playerId = player!._id!;
+    this.sessionCode = joinLobbyReponse[1]
     this.sub();
   }
 
-  async createSession(createPlayerDto: CreatePlayerDto){
-    this.playerId = await this.socket.emit('createSession', createPlayerDto);
-    
-    this.sub();
+  async createLobby(createPlayerDto: CreatePlayerDto){
+    await this.socket.emit('createLobby', createPlayerDto, (res: any) => {
+      console.log(res)
+      this.player$.next(res[0])
+      const player = this.player$.getValue()
+      this.playerId = player!._id!;
+      this.sessionCode = res[1]
+      this.sub();
+    });
   }
 
-  async startSession() {
-    if (this.player$.getValue()?.isHost) {
-      await this.socket.emit('startSession', this.getSessionCode());
+  async startLobby() {
+    if (this.player$.getValue()?.isHost && this.lobbyData$.getValue()?.opponent) {
+      await this.socket.emit('startSession', this.sessionCode);
     }
   }
 }

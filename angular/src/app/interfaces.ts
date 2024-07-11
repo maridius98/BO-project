@@ -11,7 +11,7 @@ export interface Lobby {
     _id?: string;
     code: string;
     player: IPlayer;
-    opponent: IOpponent;
+    opponent?: IOpponent;
 }
 
 export interface ICard  {
@@ -27,14 +27,14 @@ export interface IPlayer {
     _id?: string;
     username: string;
     isHost: boolean;
-    actionPoints: number;
-    hand: ICard[];
-    field: ICard[];
+    actionPoints?: number;
+    hand?: ICard[];
+    field?: ICard[];
 }
 
 export interface IOpponent {
     username: string;
-    actionPoints: number;
-    handSize: number;
-    field: ICard[];
+    actionPoints?: number;
+    handSize?: number;
+    field?: ICard[];
 }

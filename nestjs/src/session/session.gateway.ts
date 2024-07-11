@@ -11,6 +11,7 @@ import { State, rollNumber } from 'src/utility';
 import { SessionDataLayer } from './session.data-layer';
 import { Session } from './entities/session.entity';
 import { HeroCard } from 'src/card/entities/heroCard.entity';
+import { stringifySafe } from 'src/utility';
 import { CardDataLayer } from 'src/card/card.data-layer';
 
 @WebSocketGateway({
@@ -36,19 +37,19 @@ export class SessionGateway implements OnModuleInit {
     private readonly sessionDataLayer: SessionDataLayer
     ) {}
 
-  @SubscribeMessage('createSession')
+  @SubscribeMessage('createLobby')
   async create(@MessageBody() createPlayerDto: CreatePlayerDto) {
-    console.log(JSON.stringify(createPlayerDto));
     const player = await this.playerService.create(createPlayerDto);
-    return player._id;
+    console.log(stringifySafe(player));
+    return [stringifySafe(player), player.session.code];
   }
 
-  @SubscribeMessage('joinSession')
-  async joinSession(@MessageBody() CreatePlayerDto: CreatePlayerDto) {
+  @SubscribeMessage('joinLobby')
+  async joinLobby(@MessageBody() CreatePlayerDto: CreatePlayerDto) {
     const player = await this.playerService.create(CreatePlayerDto);
     const session = await this.sessionService.findOne(player.session._id);
-    this.server.emit(session.players[0]._id, session);
-    return player._id;
+    this.server.emit(`lobby:${session.players[0]._id}`, session);
+    return [player, player.session.code];
   }
 
   @SubscribeMessage('startSession')
@@ -113,7 +114,7 @@ export class SessionGateway implements OnModuleInit {
   emitToAllClients(session: Session) {
     const splitSessions = this.sessionDataLayer.getSplitSessions(session);
     for (const [id, session] of splitSessions) {
-      this.server.emit(id, session);
+      this.server.emit(`session:${id}`, session);
     }
   }
 
