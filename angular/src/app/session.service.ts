@@ -48,12 +48,13 @@ export class SessionService {
   }
 
   async createLobby(createPlayerDto: CreatePlayerDto){
-    await this.socket.emit('createLobby', createPlayerDto, (res: any) => {
+    await this.socket.emit('createLobby', createPlayerDto, (res: string[]) => {
       console.log(res)
-      this.player$.next(res[0])
+      this.player$.next(JSON.parse(res[0]))
       const player = this.player$.getValue()
       this.playerId = player!._id!;
-      this.sessionCode = res[1]
+      this.sessionCode = res[1];
+      console.log(player);
       this.sub();
     });
   }
