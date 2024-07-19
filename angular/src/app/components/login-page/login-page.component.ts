@@ -26,20 +26,32 @@ export class LoginPageComponent implements OnDestroy{
     this.valueChanged.emit({param:0});
   }
 
+  playAudio() {
+    const audio = new Audio('../assets/loginAudio.mp3');
+    audio.autoplay = true;
+    audio.muted = false;
+    audio.loop = true;
+
+    audio.play().catch(error => {
+      console.error('Error playing audio:', error);
+    });
+  }
+
   selectTab(tab: string) {
     this.selectedTab = tab;
   }
 
   onJoinSession() {
-    const createPlayerDto = { username: this.username, sessionCode: this.sessionCode };
+    const createPlayerDto = { username: this.username, code: this.sessionCode };
     this.sessionService.joinLobby(createPlayerDto);
     setTimeout(()=>{
-      if(this.sessionService.getPlayerUsername() && this.sessionService.getSessionCode())
+      if(this.sessionService.getPlayerUsername()!=undefined && this.sessionService.getSessionCode())
       {
         this.isLoading=true;
         setTimeout(()=>{
-          this.valueChanged.emit({param:2});
-        },5000);        
+          this.valueChanged.emit({param:1});
+          this.playAudio();
+        },5000);      
       }
       else{
         console.log("greska pri pravljenju sesije");
@@ -54,11 +66,12 @@ export class LoginPageComponent implements OnDestroy{
 
     console.log(this.sessionService);
     setTimeout(()=>{
-      if(this.sessionService.getPlayerUsername() && this.sessionService.getSessionCode())
+      if(this.sessionService.getPlayerUsername()!=undefined && this.sessionService.getSessionCode())
       {
         this.isLoading=true;
         setTimeout(()=>{
           this.valueChanged.emit({param:1});
+          this.playAudio();
         },5000);  
       }
       else{
