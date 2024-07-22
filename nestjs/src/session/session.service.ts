@@ -29,7 +29,7 @@ export class SessionService {
   }
 
   async findByCode(code: string){
-    return await this.model.findOne({code: code}).lean().exec()
+    return await this.model.findOne({code: code}).exec()
   }
 
   async findOne(id: string) {
