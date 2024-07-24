@@ -7,12 +7,13 @@ import { PlayerService } from 'src/player/player.service';
 import { PlayCardDto } from './dto/play-card.dto';
 import { CardService } from 'src/card/card.service';
 import { Inject, OnModuleInit, forwardRef } from '@nestjs/common';
-import { State, rollNumber } from 'src/utility';
+import { State, cleanOutput, rollNumber } from 'src/utility';
 import { SessionDataLayer } from './session.data-layer';
 import { Session } from './entities/session.entity';
 import { HeroCard } from 'src/card/entities/heroCard.entity';
-import { stringifySafe } from 'src/utility';
+import { stringifySafe, validateModel} from 'src/utility';
 import { CardDataLayer } from 'src/card/card.data-layer';
+import { IPlayer, Lobby } from 'src/fe.intefaces';
 
 @WebSocketGateway({
   cors: {
@@ -39,17 +40,18 @@ export class SessionGateway implements OnModuleInit {
 
   @SubscribeMessage('createLobby')
   async create(@MessageBody() createPlayerDto: CreatePlayerDto) {
+    createPlayerDto.isHost = true;
     const player = await this.playerService.create(createPlayerDto);
-    //console.log(stringifySafe(player));
-    return [stringifySafe(player), player.session.code];
+    return [cleanOutput(player, IPlayer), player.session.code];
   }
 
   @SubscribeMessage('joinLobby')
   async joinLobby(@MessageBody() CreatePlayerDto: CreatePlayerDto) {
     const player = await this.playerService.create(CreatePlayerDto);
     const session = await this.sessionService.findOne(player.session._id);
-    this.server.emit(`lobby:${session.players[0]._id}`, session);
-    return [stringifySafe(player), player.session.code];
+    const opponentID = session.players.find(p => p._id != player._id)._id.toString();
+    this.server.emit(`lobby:${opponentID}`, cleanOutput(session, Lobby));
+    return [cleanOutput(player, IPlayer), player.session.code];
   }
 
   @SubscribeMessage('startSession')

@@ -33,7 +33,7 @@ export class SessionService {
   }
 
   async findOne(id: string) {
-    return await this.model.findById(id).lean().exec();
+    return await this.model.findById(id).populate('players').exec();
   }
 
   async createSessionData(id: string){
