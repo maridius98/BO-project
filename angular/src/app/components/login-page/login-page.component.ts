@@ -45,7 +45,7 @@ export class LoginPageComponent implements OnDestroy{
     const createPlayerDto = { username: this.username, code: this.sessionCode };
     this.sessionService.joinLobby(createPlayerDto);
     setTimeout(()=>{
-      if(this.sessionService.getPlayerUsername()/*!=undefined*/ && this.sessionService.getSessionCode())
+      if(this.sessionService.getPlayerUsername() && this.sessionService.getSessionCode())
       {
         this.isLoading=true;
         setTimeout(()=>{
@@ -66,7 +66,7 @@ export class LoginPageComponent implements OnDestroy{
 
     console.log(this.sessionService);
     setTimeout(()=>{
-      if(this.sessionService.getPlayerUsername()/*!=undefined*/ && this.sessionService.getSessionCode())
+      if(this.sessionService.getPlayerUsername() && this.sessionService.getSessionCode())
       {
         this.isLoading=true;
         setTimeout(()=>{
