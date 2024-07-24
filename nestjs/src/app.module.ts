@@ -11,7 +11,7 @@ import { MongooseModule } from '@nestjs/mongoose';
     SessionModule,
     PlayerModule,
     CardModule,
-    MongooseModule.forRoot('mongodb://127.0.0.1:27019')
+    MongooseModule.forRoot('mongodb://127.0.0.1:27019'),
   ],
   controllers: [AppController],
   providers: [AppService],

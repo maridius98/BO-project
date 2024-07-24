@@ -3,11 +3,11 @@ import { Card } from './card.entity';
 
 @Schema({ collection: 'cards', discriminatorKey: 'cardType' })
 export class ChallengeCard extends Card {
-    @Prop()
-    positiveModifier: number;
+  @Prop()
+  positiveModifier: number;
 
-    @Prop()
-    class: string;
+  @Prop()
+  class: string;
 }
 
 export const ChallengeCardSchema = SchemaFactory.createForClass(ChallengeCard);
