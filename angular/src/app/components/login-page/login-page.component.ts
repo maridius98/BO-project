@@ -45,18 +45,18 @@ export class LoginPageComponent implements OnDestroy{
     const createPlayerDto = { username: this.username, code: this.sessionCode };
     this.sessionService.joinLobby(createPlayerDto);
     setTimeout(()=>{
-      if(this.sessionService.getPlayerUsername()!=undefined && this.sessionService.getSessionCode())
+      if(this.sessionService.getPlayerUsername()/*!=undefined*/ && this.sessionService.getSessionCode())
       {
         this.isLoading=true;
         setTimeout(()=>{
           this.valueChanged.emit({param:1});
           this.playAudio();
-        },5000);      
+        },2000);      
       }
       else{
         console.log("greska pri pravljenju sesije");
       }
-    },100);
+    },200);
   }
 
   onCreateSession() {
@@ -66,18 +66,18 @@ export class LoginPageComponent implements OnDestroy{
 
     console.log(this.sessionService);
     setTimeout(()=>{
-      if(this.sessionService.getPlayerUsername()!=undefined && this.sessionService.getSessionCode())
+      if(this.sessionService.getPlayerUsername()/*!=undefined*/ && this.sessionService.getSessionCode())
       {
         this.isLoading=true;
         setTimeout(()=>{
           this.valueChanged.emit({param:1});
           this.playAudio();
-        },5000);  
+        },2000);  
       }
       else{
         console.log(this.sessionService.getSessionCode());
       }
-    },100);
+    },200);
   }
 
   ngOnDestroy(){

@@ -9,7 +9,7 @@ import { CreatePlayerDto } from './components/login-page/create-player.dto';
   providedIn: 'root'
 })
 export class SessionService {
-  private playerUsername:string | undefined='';
+  private playerUsername:string='';
   private sessionCode:string='';
   private playerId = '';
   player$ = new BehaviorSubject<IPlayer | null> (null);
@@ -35,7 +35,7 @@ export class SessionService {
     return this.sessionCode;
   }
 
-  getPlayerUsername():string | undefined{
+  getPlayerUsername():string{
     return this.playerUsername;
   }
 
@@ -45,6 +45,7 @@ export class SessionService {
       this.player$.next(JSON.parse(res[0]));
       const player = this.player$.getValue();
       this.playerId = player!._id!;
+      this.playerUsername = player!.username;
       this.sessionCode = res[1];
       this.sub();
     });    
@@ -52,13 +53,11 @@ export class SessionService {
 
   async createLobby(createPlayerDto: CreatePlayerDto){
     await this.socket.emit('createLobby', createPlayerDto, (res: string[]) => {
-      console.log(res)
       this.player$.next(JSON.parse(res[0]))
       const player = this.player$.getValue()
       this.playerId = player!._id!;
       this.sessionCode = res[1];
-      console.log(player);
-      this.playerUsername=player?.username;
+      this.playerUsername=player!.username;
       this.sub();
     });
   }
