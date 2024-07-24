@@ -40,7 +40,7 @@ export class SessionGateway implements OnModuleInit {
   @SubscribeMessage('createLobby')
   async create(@MessageBody() createPlayerDto: CreatePlayerDto) {
     const player = await this.playerService.create(createPlayerDto);
-    console.log(stringifySafe(player));
+    //console.log(stringifySafe(player));
     return [stringifySafe(player), player.session.code];
   }
 
@@ -49,7 +49,7 @@ export class SessionGateway implements OnModuleInit {
     const player = await this.playerService.create(CreatePlayerDto);
     const session = await this.sessionService.findOne(player.session._id);
     this.server.emit(`lobby:${session.players[0]._id}`, session);
-    return [player, player.session.code];
+    return [stringifySafe(player), player.session.code];
   }
 
   @SubscribeMessage('startSession')

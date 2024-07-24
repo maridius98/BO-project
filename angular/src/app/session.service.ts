@@ -19,6 +19,7 @@ export class SessionService {
   constructor(private socket: Socket) { }
 
   sub() {
+    console.log("id: "+this.playerId);
     this.socket.fromEvent(`lobby:${this.playerId}`).pipe(map(data => data as Lobby))
       .subscribe((data : Lobby) => {
         this.lobbyData$.next(data);
@@ -39,22 +40,24 @@ export class SessionService {
   }
 
   async joinLobby(createPlayerDto: CreatePlayerDto){
-    const joinLobbyReponse = await this.socket.emit('joinLobby', createPlayerDto);
-    this.player$.next(joinLobbyReponse[0])
-    const player = this.player$.getValue()
-    this.playerId = player!._id!;
-    this.sessionCode = joinLobbyReponse[1]
-    this.sub();
+    console.log(createPlayerDto);
+    await this.socket.emit('joinLobby', createPlayerDto, (res: string[]) => {
+      this.player$.next(JSON.parse(res[0]));
+      const player = this.player$.getValue();
+      this.playerId = player!._id!;
+      this.playerUsername = player!.username;
+      this.sessionCode = res[1];
+      this.sub();
+    });    
   }
 
   async createLobby(createPlayerDto: CreatePlayerDto){
     await this.socket.emit('createLobby', createPlayerDto, (res: string[]) => {
-      console.log(res)
       this.player$.next(JSON.parse(res[0]))
       const player = this.player$.getValue()
       this.playerId = player!._id!;
       this.sessionCode = res[1];
-      console.log(player);
+      this.playerUsername=player!.username;
       this.sub();
     });
   }

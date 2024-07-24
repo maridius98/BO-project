@@ -112,10 +112,15 @@
             <span>Session Code</span>
             <i>.</i>
           </div>
-
-          <button class="session-buttons" *ngIf="selectedCheckbox" id="create-session-button" (click)="onCreateSession()"><span>Create Session</span></button>
-          
-          <button class="session-buttons" *ngIf="!selectedCheckbox" id="join-session-button" (click)="onJoinSession()"><span>Join Session</span></button>
+          <!-- <label (click)="playAudio()"> -->
+            <button class="session-buttons" *ngIf="selectedCheckbox" id="create-session-button" (click)="onCreateSession()"><span>Create Session</span></button>
+            <!-- <audio controls autoplay unmuted loop>
+              <source src="../assets/loginAudio.mp3" type="audio/mpeg">
+            </audio> -->
+          <!-- </label> -->
+          <!-- <label (click)="playAudio()"> -->
+            <button class="session-buttons" *ngIf="!selectedCheckbox" id="join-session-button" (click)="onJoinSession()"><span>Join Session</span></button>
+          <!-- </label> -->
         </div>
     </div>
   </div>
