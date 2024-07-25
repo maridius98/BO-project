@@ -13,17 +13,21 @@ import { CardDataLayer } from './card.data-layer';
 @Module({
   imports: [
     MongooseModule.forFeature([
-      { name: 'Card', schema: CardSchema, discriminators: [
-        { name: 'MonsterCard', schema: MonsterCardSchema },
-        { name: 'ModifierCard', schema: ModifierCardSchema },
-        { name: 'MagicCard', schema: MagicCardSchema },
-        { name: 'HeroCard', schema: HeroCardSchema },
-        { name: 'ChallengeCard', schema: ChallengeCardSchema },
-      ]},
+      {
+        name: 'Card',
+        schema: CardSchema,
+        discriminators: [
+          { name: 'MonsterCard', schema: MonsterCardSchema },
+          { name: 'ModifierCard', schema: ModifierCardSchema },
+          { name: 'MagicCard', schema: MagicCardSchema },
+          { name: 'HeroCard', schema: HeroCardSchema },
+          { name: 'ChallengeCard', schema: ChallengeCardSchema },
+        ],
+      },
     ]),
   ],
   controllers: [CardController],
   providers: [CardService, CardDataLayer],
-  exports: [CardService, CardDataLayer]
+  exports: [CardService, CardDataLayer],
 })
 export class CardModule {}

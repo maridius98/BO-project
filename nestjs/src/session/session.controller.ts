@@ -4,20 +4,20 @@ import { CreateSessionDto } from './dto/create-session.dto';
 
 @Controller('session')
 export class SessionController {
-    constructor(private readonly service: SessionService) {}
+  constructor(private readonly service: SessionService) {}
 
-    @Post()
-    async create() {
-      return await this.service.create();
-    }
-  
-    @Get()
-    async findAll() {
-      return await this.service.findAll();
-    }
-  
-    @Get(':id')
-    async findOne(@Param('id') id: string) {
-      return await this.service.findOne(id);
-    }
+  @Post()
+  async create() {
+    return await this.service.create();
+  }
+
+  @Get()
+  async findAll() {
+    return await this.service.findAll();
+  }
+
+  @Get(':id')
+  async findOne(@Param('id') id: string) {
+    return await this.service.findOne(id);
+  }
 }

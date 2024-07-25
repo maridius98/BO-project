@@ -7,11 +7,11 @@ export interface ISession extends Lobby {
   monsters: ICard[];
 }
 
-export interface Lobby {
-  _id?: string;
-  code: string;
-  player: IPlayer;
-  opponent?: IOpponent;
+export class Lobby {
+  _id: string = undefined;
+  code: string = undefined;
+  player: IPlayer = undefined;
+  opponent?: IOpponent = undefined;
 }
 
 export interface ICard {
@@ -23,11 +23,11 @@ export interface ICard {
   cardType: string;
 }
 
-export interface IPlayer {
-  _id?: string;
-  username: string;
-  isHost: boolean;
-  actionPoints?: number;
+export class IPlayer {
+  _id: string = undefined;
+  username: string = undefined;
+  isHost: boolean = undefined;
+  actionPoints?: number = 0;
   hand?: ICard[];
   field?: ICard[];
 }

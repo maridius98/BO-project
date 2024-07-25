@@ -20,14 +20,19 @@ import { CardDataLayer } from './card.data-layer';
 export class CardService {
   constructor(
     @InjectModel('Card') private readonly cardModel: Model<Card>,
-    @InjectModel('MonsterCard') private readonly monsterCardModel: Model<MonsterCard>,
-    @InjectModel('ModifierCard') private readonly modifierCardModel: Model<ModifierCard>,
-    @InjectModel('MagicCard') private readonly magicCardModel: Model<MagicCard>,
-    @InjectModel('HeroCard') private readonly heroCardModel: Model<HeroCard>,
-    @InjectModel('ChallengeCard') private readonly challengeCardModel: Model<ChallengeCard>,
+    @InjectModel('MonsterCard')
+    private readonly monsterCardModel: Model<MonsterCard>,
+    @InjectModel('ModifierCard')
+    private readonly modifierCardModel: Model<ModifierCard>,
+    @InjectModel('MagicCard')
+    private readonly magicCardModel: Model<MagicCard>,
+    @InjectModel('HeroCard')
+    private readonly heroCardModel: Model<HeroCard>,
+    @InjectModel('ChallengeCard')
+    private readonly challengeCardModel: Model<ChallengeCard>,
     private readonly cardDataLayer: CardDataLayer,
   ) {}
-    //refaktorisati u strategy
+  //refaktorisati u strategy
   async create(createCardDto: CreateCardDto): Promise<CreateCardDto> {
     if (this.isMonsterCardDto(createCardDto)) {
       return this.createMonsterCard(createCardDto);
@@ -44,15 +49,15 @@ export class CardService {
     }
   }
 
-  async getPlayableCards(){
-    return await this.cardModel.find({isPlayable: true}).lean().exec();
+  async getPlayableCards() {
+    return await this.cardModel.find({ isPlayable: true }).lean().exec();
   }
 
-  async getMonsterCards(){
+  async getMonsterCards() {
     return await this.monsterCardModel.find().lean().exec();
   }
 
-  async getShuffledCards(){
+  async getShuffledCards() {
     return this.cardDataLayer.shuffle(await this.findAll());
   }
 
@@ -76,33 +81,43 @@ export class CardService {
     return (dto as ChallengeCardDto).positiveModifier !== undefined;
   }
 
-  private async createMonsterCard(createCardDto: MonsterCardDto): Promise<MonsterCardDto> {
+  private async createMonsterCard(
+    createCardDto: MonsterCardDto,
+  ): Promise<MonsterCardDto> {
     const createdMonsterCard = new this.monsterCardModel(createCardDto);
     return createdMonsterCard.save();
   }
 
-  private async createModifierCard(createCardDto: ModifierCardDto): Promise<ModifierCardDto> {
+  private async createModifierCard(
+    createCardDto: ModifierCardDto,
+  ): Promise<ModifierCardDto> {
     const createdModifierCard = new this.modifierCardModel(createCardDto);
     return createdModifierCard.save();
   }
 
-  private async createMagicCard(createCardDto: MagicCardDto): Promise<MagicCardDto> {
+  private async createMagicCard(
+    createCardDto: MagicCardDto,
+  ): Promise<MagicCardDto> {
     const createdMagicCard = new this.magicCardModel(createCardDto);
     return createdMagicCard.save();
   }
 
-  private async createHeroCard(createCardDto: HeroCardDto): Promise<HeroCardDto> {
+  private async createHeroCard(
+    createCardDto: HeroCardDto,
+  ): Promise<HeroCardDto> {
     const createdHeroCard = new this.heroCardModel(createCardDto);
     return createdHeroCard.save();
   }
 
-  private async createChallengeCard(createCardDto: ChallengeCardDto): Promise<ChallengeCardDto> {
+  private async createChallengeCard(
+    createCardDto: ChallengeCardDto,
+  ): Promise<ChallengeCardDto> {
     const createdChallengeCard = new this.challengeCardModel(createCardDto);
     return createdChallengeCard.save();
   }
 
   async findAll() {
-    return await this.cardModel.find().lean().exec()
+    return await this.cardModel.find().lean().exec();
   }
 
   async findOne(id: string) {

@@ -10,9 +10,9 @@ import { SessionModule } from 'src/session/session.module';
   imports: [
     MongooseModule.forFeature([{ name: 'Player', schema: PlayerSchema }]),
     forwardRef(() => SessionModule),
-],
+  ],
   providers: [PlayerGateway, PlayerService],
   controllers: [PlayerController],
-  exports: [PlayerService]
+  exports: [PlayerService],
 })
 export class PlayerModule {}

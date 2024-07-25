@@ -5,21 +5,19 @@ import { SessionPageComponent } from './components/session-page/session-page.com
 
 const routes: Routes = [
   {
-      path: '',
-      redirectTo: '/login',
-      pathMatch: 'full'
-    },
-    {
-      path: 'login',
-      component: LoginPageComponent
-    },
-    { path: 'session-page', 
-      component: SessionPageComponent
-    }
+    path: '',
+    redirectTo: '/login',
+    pathMatch: 'full',
+  },
+  {
+    path: 'login',
+    component: LoginPageComponent,
+  },
+  { path: 'session-page', component: SessionPageComponent },
 ];
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
-export class AppRoutingModule { }
+export class AppRoutingModule {}

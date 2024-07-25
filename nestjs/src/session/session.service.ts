@@ -12,15 +12,15 @@ export class SessionService {
     @InjectModel('Session') private readonly model: Model<Session>,
     private readonly cardService: CardService,
     private readonly sessionDataLayer: SessionDataLayer,
-    private readonly cardDataLayer: CardDataLayer
-  ){}
+    private readonly cardDataLayer: CardDataLayer,
+  ) {}
 
   async create() {
-    let code = this.randomCode()
-    while (await this.findByCode(code)){
-      code = this.randomCode()
+    let code = this.randomCode();
+    while (await this.findByCode(code)) {
+      code = this.randomCode();
     }
-    const newSession = new this.model({code});
+    const newSession = new this.model({ code });
     return await newSession.save();
   }
 
@@ -28,19 +28,23 @@ export class SessionService {
     return await this.model.find().lean().exec();
   }
 
-  async findByCode(code: string){
-    return await this.model.findOne({code: code}).exec()
+  async findByCode(code: string) {
+    return await this.model.findOne({ code: code }).exec();
   }
 
   async findOne(id: string) {
-    return await this.model.findById(id).lean().exec();
+    return await this.model.findById(id).populate('players').exec();
   }
 
-  async createSessionData(id: string){
+  async createSessionData(id: string) {
     const session = await this.findOne(id);
     const cards = await this.cardService.getPlayableCards();
     const monsters = await this.cardService.getMonsterCards();
-    const generatedSession = this.sessionDataLayer.generateSession(monsters, cards, session);
+    const generatedSession = this.sessionDataLayer.generateSession(
+      monsters,
+      cards,
+      session,
+    );
     return generatedSession;
   }
 
@@ -67,7 +71,7 @@ export class SessionService {
     return `This action removes a #${id} session`;
   }
 
-  private randomCode(){
+  private randomCode() {
     return Math.random().toString(32).substring(7);
   }
 }

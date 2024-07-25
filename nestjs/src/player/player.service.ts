@@ -1,4 +1,9 @@
-import { Inject, Injectable, NotFoundException, forwardRef } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  NotFoundException,
+  forwardRef,
+} from '@nestjs/common';
 import { CreatePlayerDto } from './dto/create-player.dto';
 import { UpdatePlayerDto } from './dto/update-player.dto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -10,12 +15,12 @@ import { Session } from 'src/session/entities/session.entity';
 @Injectable()
 export class PlayerService {
   constructor(
-    @InjectModel('Player') 
+    @InjectModel('Player')
     private readonly model: Model<Player>,
 
     @Inject(forwardRef(() => SessionService))
-    private readonly sessionService: SessionService
-  ){};
+    private readonly sessionService: SessionService,
+  ) {}
 
   async create(createPlayerDto: CreatePlayerDto) {
     let session: Session;
@@ -30,7 +35,7 @@ export class PlayerService {
     await session.save();
     return await player.save();
   }
-  
+
   async findAll() {
     return await this.model.find();
   }

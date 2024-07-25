@@ -4,15 +4,15 @@ import { CreatePlayerDto } from './dto/create-player.dto';
 
 @Controller('player')
 export class PlayerController {
-    constructor(private readonly service: PlayerService){}
+  constructor(private readonly service: PlayerService) {}
 
-    @Post()
-    create(@Body() createPlayerDto: CreatePlayerDto) {
-        return this.service.create(createPlayerDto);
-    }
+  @Post()
+  create(@Body() createPlayerDto: CreatePlayerDto) {
+    return this.service.create(createPlayerDto);
+  }
 
-    @Get()
-    async findAll(){
-        return await this.service.findAll();
-    }
+  @Get()
+  async findAll() {
+    return await this.service.findAll();
+  }
 }

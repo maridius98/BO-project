@@ -12,10 +12,10 @@ import { CardModule } from 'src/card/card.module';
   imports: [
     MongooseModule.forFeature([{ name: 'Session', schema: SessionSchema }]),
     forwardRef(() => PlayerModule),
-    CardModule
+    CardModule,
   ],
   providers: [SessionGateway, SessionService, SessionDataLayer],
   controllers: [SessionController],
-  exports: [SessionService, SessionDataLayer]
+  exports: [SessionService, SessionDataLayer],
 })
 export class SessionModule {}
