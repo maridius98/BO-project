@@ -7,19 +7,16 @@ import { Subscription } from 'rxjs';
   selector: 'app-session-page',
   standalone: false,
   templateUrl: './session-page.component.html',
-  styleUrls: ['./session-page.component.css']
+  styleUrls: ['./session-page.component.css'],
 })
-export class SessionPageComponent{
+export class SessionPageComponent {
+  prva: number = 0;
+  druga: number = 0;
+  prvaOponent: number = 0;
+  drugaOponent: number = 0;
 
-  prva:number=0;
-  druga:number=0;
-  prvaOponent:number=0;
-  drugaOponent:number=0;
-
-  
   DiceRoll() {
     this.prva = Math.floor(Math.random() * 6) + 1;
     this.druga = Math.floor(Math.random() * 6) + 1;
   }
-
 }

@@ -55,9 +55,7 @@ export class SessionGateway implements OnModuleInit {
   async joinLobby(@MessageBody() CreatePlayerDto: CreatePlayerDto) {
     const player = await this.playerService.create(CreatePlayerDto);
     const session = await this.sessionService.findOne(player.session._id);
-    const opponentID = session.players
-      .find((p) => p._id != player._id)
-      ._id.toString();
+    const opponentID = session.players[0]._id.toString();
     this.server.emit(`lobby:${opponentID}`, cleanOutput(session, Lobby));
     return [cleanOutput(player, IPlayer), player.session.code];
   }
