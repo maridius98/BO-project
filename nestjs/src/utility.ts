@@ -30,9 +30,12 @@ export function stringifySafe<T>(obj: T) {
   });
 }
 
-export function validateModel<T>(input: Document, type: { new (): T }): T {
+export function validateModel<T>(input: Document | object, type: { new (): T }): T {
   const instance = new type();
-  const objectInput = input.toObject();
+  let objectInput = input;
+  if (input instanceof Document) {
+    objectInput = input.toObject();
+  }
   Object.getOwnPropertyNames(objectInput).forEach((key) => {
     if (Object.getOwnPropertyNames(instance).includes(key)) {
       instance[key] = objectInput[key];

@@ -55,17 +55,16 @@ export class SessionGateway implements OnModuleInit {
   async joinLobby(@MessageBody() CreatePlayerDto: CreatePlayerDto) {
     const player = await this.playerService.create(CreatePlayerDto);
     const session = await this.sessionService.findOne(player.session._id);
-    const opponentID = session.players[0]._id.toString();
-    this.server.emit(`lobby:${opponentID}`, cleanOutput(session, Lobby));
-    return [cleanOutput(player, IPlayer), player.session.code];
+    const opponent = session.players[0];
+    const opponentID = opponent._id.toString();
+    this.server.emit(`lobby:${opponentID}`, cleanOutput(player, IPlayer));
+    return [cleanOutput(player, IPlayer), cleanOutput(opponent, IPlayer), player.session.code];
   }
 
-  @SubscribeMessage('startSession')
+  @SubscribeMessage('startGame')
   async startSession(@MessageBody() code: string) {
     const session = await this.sessionService.findByCode(code);
-    const generatedSession = await this.sessionService.createSessionData(
-      session._id,
-    );
+    const generatedSession = await this.sessionService.createSessionData(session._id);
     this.emitToAllClients(generatedSession);
   }
 
@@ -88,9 +87,7 @@ export class SessionGateway implements OnModuleInit {
 
   @SubscribeMessage('resolveRoll')
   async resolveRoll(@MessageBody() playCardDto: PlayCardDto) {
-    const card = (await this.cardService.findOne(
-      playCardDto.cardId,
-    )) as HeroCard;
+    const card = (await this.cardService.findOne(playCardDto.cardId)) as HeroCard;
     const player = await this.playerService.findOne(playCardDto.playerId);
     const session = await this.sessionService.findOne(player.session._id);
     if (card.usedEffect) {

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { SessionService } from '../../session.service';
+import { SessionService } from '../../lobby.service';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 

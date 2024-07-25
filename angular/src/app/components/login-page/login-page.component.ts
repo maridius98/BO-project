@@ -8,7 +8,7 @@ import {
   Output,
   Renderer2,
 } from '@angular/core';
-import { SessionService } from '../../session.service';
+import { SessionService } from '../../lobby.service';
 import { Subscription } from 'rxjs';
 import { Router } from '@angular/router';
 
