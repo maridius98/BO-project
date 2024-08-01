@@ -1,44 +1,186 @@
 <div class="pageContainer">
 
     <div class="leftSideContainer">
-        <div class="oponentDice">
+        <!-- <div class="oponentDice">
             <div class="dices">
                 <div class="dice1"><label><span></span><h1>{{prvaOponent}}</h1></label></div>
                 <div class="dice2"><label><span></span><h1>{{drugaOponent}}</h1></label></div>
             </div>
-        </div>
+        </div> -->
         <div class="sideCards">
             <div class="monsterCards">
-                <div class="monster1">
-
+                <div class="monster">
+                    Monster1
                 </div>
-                <div class="monster2">
-
+                <div class="monster">
+                    Monster2
                 </div>
-                <div class="monster3">
-
+                <div class="monster">
+                    Monster3
+                </div>
+                <div class="monster">
+                    MonsterPile
                 </div>
             </div>
-            <div class="discardPile">
+            <div class="playCardPiles">
+                <div class="freshPile">
+                    FreshPile
+                </div>
+                <div class="discardPile">
+                    DiscardPile
+                </div>
+            </div>
+            <!-- <div class="discardPile">
                 <div>
                     
                 </div>
-            </div>
+            </div> -->
         </div>
-        <div class="myDice">
+        <!-- <div class="myDice">
             <div class="dices" (click)="DiceRoll()">
                 <div class="dice1"><label><span></span><h1>{{prva}}</h1></label></div>
                 <div class="dice2"><label><span></span><h1>{{druga}}</h1></label></div>
             </div>
-        </div>
+        </div> -->
+        
     </div>
     <div class="centerContainer">
-        <div class="boardContainer">
-            
-        </div>  
-        <div class="handContainer">
-            
+        <div class="board">
+            <div class="opponentSection">
+                
+
+                <div class="boardContainer">
+
+                    <div class="playCard">
+
+                    </div>
+                    <div class="playCard">
+
+                    </div>
+                    <div class="playCard">
+
+                    </div>
+                    <div class="playCard">
+
+                    </div>
+                    <div class="playCard">
+
+                    </div>
+                    <div class="playCard">
+
+                    </div>
+                    <div class="playCard">
+
+                    </div>
+                    <div class="monsterBordContainer">
+                        <div class="monster">
+
+                        </div>
+                    </div>
+                    
+                </div>
+                <div class="multipleFunctionDiv">
+                    <div class="opponentHand">
+                        <div class="container">
+                            <div class="card" style="--i: -4;"></div>
+                            <div class="card" style="--i: -3;"></div>
+                            <div class="card" style="--i: -2;"></div>
+                            <div class="card" style="--i: -1;"></div>
+                            <div class="card" style="--i: 0;"></div>
+                            <div class="card" style="--i: 1;"></div>
+                            <div class="card" style="--i: 2;"></div>
+                            <div class="card" style="--i: 3;"></div>
+                            <div class="card" style="--i: 4;"></div>
+                        </div>
+                    </div>
+                    <div class="additionalOpponentDataSection">
+                        <div class="actionPointsDiv">
+                            <div class="actionOpponentPoints">
+                                {{opponentActionPoints}}
+                            </div>    
+                        </div>
+                        <div class="opponentDice">
+                            <div class="dices" (click)="DiceRoll()">
+                                <img class="diceImg" [src]="'assets/dice' + prvaOpponent + '.png'" alt="Dice {{prvaOpponent}}">
+                                <img class="diceImg" [src]="'../../assets/dice' + drugaOpponent + '.png'" alt="Dice {{drugaOpponent}}">
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+            <div class="playerSection">
+                <div class="boardContainer">
+
+                    <div class="playCard">
+
+                    </div>
+                    <div class="playCard">
+
+                    </div>
+                    <div class="playCard">
+
+                    </div>
+                    <div class="playCard">
+
+                    </div>
+                    <div class="playCard">
+
+                    </div>
+                    <div class="playCard">
+
+                    </div>
+                    <div class="playCard">
+
+                    </div>
+                    <div class="monsterBordContainer">
+                        <div class="monster">
+
+                        </div>
+                    </div>
+                    
+                </div>
+                <div class="multipleFunctionDiv">
+                    <div class="hand">
+                        <div class="container">
+                            <div class="card" style="--i: -4;"></div>
+                            <div class="card" style="--i: -3;"></div>
+                            <div class="card" style="--i: -2;"></div>
+                            <div class="card" style="--i: -1;"></div>
+                            <div class="card" style="--i: 0;"></div>
+                            <div class="card" style="--i: 1;"></div>
+                            <div class="card" style="--i: 2;"></div>
+                            <div class="card" style="--i: 3;"></div>
+                            <div class="card" style="--i: 4;"></div>
+                        </div>
+                    </div>
+                    <div class="additionalDataSection">
+                        <div class="actionPointsDiv">
+                            <div class="actionPoints">
+                                {{playerActionPoints}}
+                            </div>    
+                        </div>
+                        <div class="myDice">
+                            <div class="dices" (click)="DiceRoll()">
+                                <img class="diceImg" [src]="'assets/dice' + prva + '.png'" alt="Dice {{prva}}">
+                                <img class="diceImg" [src]="'../../assets/dice' + druga + '.png'" alt="Dice {{druga}}">
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
         </div>
+        
+        <!-- <div class="rightSideContainer">
+            <div class="opponentActionPoints">
+    
+            </div>
+            
+            <div class="playerActionPoints">
+    
+            </div>
+        </div> -->
     </div>
     
 </div>

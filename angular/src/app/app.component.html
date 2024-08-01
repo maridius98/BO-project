@@ -2,5 +2,5 @@
 <div>
     <app-login-page *ngIf="receivedValue.param==0" (valueChanged)="handleValueChanged($event)"></app-login-page>
     <app-session-page *ngIf="receivedValue.param==2"></app-session-page>
-    <app-lobby-page *ngIf="receivedValue.param==1"></app-lobby-page>
+    <app-lobby-page *ngIf="receivedValue.param==1" (valueChanged)="handleValueChanged($event)"></app-lobby-page>
 </div>

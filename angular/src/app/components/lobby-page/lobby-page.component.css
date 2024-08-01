@@ -3,8 +3,83 @@ video{
     width: 100%;
     height: 100%;
     overflow: hidden;
-    z-index: 0;
+    z-index: -1;
     /* filter: blur(5px); */
+}
+
+.playerIconDiv{
+  height: 100%;
+  width: 50%;
+  padding-right: 50px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: end;
+  padding-top: 2vh;
+  color: #d2d2d2ed;
+  font-size: 3vh;
+}
+
+.player-username{
+  text-align: right;
+  width: 50%;
+  padding: 10px;
+  border-bottom: 1px solid #f4f4f4ab;
+
+  border-right: 1px solid #f4f4f4ab;
+  box-shadow: 10px 10px 20px -3px #4fc3dc;
+}
+
+.opponent-username{
+  text-align:left;
+  width: 50%;
+  padding: 10px;
+  border-bottom: 1px solid #f4f4f4ab;
+  border-left: 1px solid #f4f4f4ab;
+  box-shadow: -10px 10px 20px -3px #ff2d75;
+}
+
+.randomText{
+  color: rgb(224, 224, 224);
+  font-size: 2em;
+}
+
+.opponentIconDiv{
+  height: 100%;
+  width: 50%;
+  padding-top: 2vh;
+  padding-left: 50px;
+  display: flex;
+  flex-direction: column;
+  align-items: baseline;
+  justify-content: center;
+  color: #d2d2d2ed;
+  font-size: 3vh;
+}
+#button{
+  text-shadow: 0 0 10px #f2a2be00,
+    0 0 20px #f2a2be00,
+    0 0 40px #f2a2be00,
+    0 0 80px #f2a2be00,
+    0 0 120px #f2a2be00;
+  transition: transform 0.8s ease-in-out;
+  margin-right:0px;
+  margin-top: 10px;
+}
+#button:hover{
+
+  cursor: pointer;
+  transform: scale(1.3);
+  color: #f4f4f4;
+  text-shadow: 0 0 10px #ff2d7681,
+    0 0 20px #ff2d7681,
+    0 0 40px #ff2d7681,
+    0 0 80px #ff2d7681,
+    0 0 120px #ff2d7681;
+}
+
+img{
+  height: 50%;
 }
 
 .video-container{
@@ -12,7 +87,7 @@ video{
     width: 100%;
     height: 100vh;
     overflow: hidden;
-    z-index: 0;
+    z-index: -1;
     background: black;
 }
 
@@ -23,7 +98,7 @@ video{
     width: 100%;
     height: 100%;
     /* background-color: #b978d05a; */
-     z-index: 1;
+    z-index: 0;
     display: flex;
     flex-direction: column-reverse;
     justify-content: end;
@@ -31,7 +106,7 @@ video{
 }
 
 section{
-    z-index: 200;
+    z-index: 10;
     position: absolute;
     top:0;
     left: 50%;
@@ -52,12 +127,14 @@ section{
   }
   
   section .loader{
+    z-index: 15;
     position: relative;
     width: 120px;
     height: 120px;
   }
   
   section .loader span{
+    z-index: 20;
     position:absolute;
     top: 0px;
     left:-60px;
@@ -87,35 +164,34 @@ section{
   }
 
   .codeBoxBody{
-    display: flex;
+    display:flex;
     justify-content: center;
     align-items: center;
     position: relative;
   }
 
   .codeBox{
-    
     position: relative;
     width: 1200px;
     height: 100px;
     display: flex;
+    flex-direction: row;
     justify-content: center;
     align-items: center;
   }
 
   .codeBox h2{
     padding-top: 30px;
-    z-index: 100;
-    color: rgb(222, 222, 222);
-    font-size: 4em;
+    color: rgb(232, 231, 231);
+    font-size: 2.5em;
     margin-top: 20px;
-    font-weight: 300;
+    font-weight: 200;
     letter-spacing: 0.05em;
-    text-shadow: 0 0 10px #ff2d76af,
-    0 0 20px #ff2d76af,
-    0 0 40px #ff2d76af,
-    0 0 80px #ff2d76af,
-    0 0 120px #ff2d76af;
+    text-shadow: 0 0 10px #ff2d7681,
+    0 0 20px #ff2d7681,
+    0 0 40px #ff2d7681,
+    0 0 80px #ff2d7681,
+    0 0 120px #ff2d7681;
   }
 
 
@@ -139,33 +215,42 @@ section{
     background: rgba(0, 0, 0, 0.7);
 }
 
+.hourglass-inactive{
+  width: 100%;
+  height: 60vh;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
 .hourglass{
     width: 100%;
     height: 60vh;
 }
 
 .message{
-    width: 100%;
-    height: 20vh;
-    background: rgba(0, 0, 0, 0.7);
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  width: 100%;
+  height: 20vh;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
 
 }
 
 .messageText{
-  color: rgb(222, 222, 222);
-    font-size: 3em;
-    margin-top: 20px;
-    font-weight: 250;
-    letter-spacing: 0.05em;
-    text-shadow: 0 0 10px #ff2d76af,
-    0 0 20px #ff2d76af,
-    0 0 40px #ff2d76af,
-    0 0 80px #ff2d76af,
-    0 0 120px #ff2d76af;
-    margin-right: 20px;
+  color: rgb(238, 238, 238);
+  font-size: 2.5em;
+  margin-top: 20px;
+  font-weight: 200;
+  letter-spacing: 0.05em;
+  text-shadow: 0 0 10px #ff2d7681,
+  0 0 20px #ff2d7681,
+  0 0 40px #ff2d7681,
+  0 0 80px #ff2d7681,
+  0 0 120px #ff2d7681;
+  margin-right: 20px;
 }
 
 .jumping{
@@ -175,20 +260,20 @@ section{
 }
 
 .jumping span{
-  width: 13px;
-  height: 13px;
+  width: 10px;
+  height: 10px;
   
   margin-top: 2em;
   margin-left: 10px;
-  background-color: rgb(222, 222, 222);
+  background-color: rgb(238, 238, 238);
   border-radius: 50%;
   display: inline-block;
 
-  box-shadow: 0 0 10px #ff2d76af,
-  0 0 20px #ff2d76af,
-  0 0 40px #ff2d76af,
-  0 0 80px #ff2d76af,
-  0 0 120px #ff2d76af;
+  box-shadow: 0 0 10px #ff2d7681,
+  0 0 20px #ff2d7681,
+  0 0 40px #ff2d7681,
+  0 0 80px #ff2d7681,
+  0 0 120px #ff2d7681;
 
   animation-name: jumpingDots;
   animation-duration: 1.2s;
