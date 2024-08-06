@@ -18,9 +18,11 @@
                 <div class="monster">
                     Monster3
                 </div>
-                <div class="monster">
-                    MonsterPile
-                </div>
+            </div>
+            <div class="actionPointsDiv">
+                <div [ngStyle]="{'background-color': actionPoints>=1 ? (turn==1 ? '#4fc3dc':'#ff2d75') : '#43434382'}"></div>
+                <div [ngStyle]="{'background-color': actionPoints>=2 ? (turn==1 ? '#4fc3dc':'#ff2d75') : '#43434382'}"></div>
+                <div [ngStyle]="{'background-color': actionPoints>=3 ? (turn==1 ? '#4fc3dc':'#ff2d75') : '#43434382'}"></div>
             </div>
             <div class="playCardPiles">
                 <div class="freshPile">
@@ -28,6 +30,12 @@
                 </div>
                 <div class="discardPile">
                     DiscardPile
+                </div>
+                <div  [ngClass]="{'pickedCard': true, 'show': showPickedCard&&myTurn}">
+                    <div (click)="chooseCard()">
+                        Choose
+                    </div>
+                    {{selectedValue}}
                 </div>
             </div>
             <!-- <div class="discardPile">
@@ -82,23 +90,10 @@
                 <div class="multipleFunctionDiv">
                     <div class="opponentHand">
                         <div class="container">
-                            <div class="card" style="--i: -4;"></div>
-                            <div class="card" style="--i: -3;"></div>
-                            <div class="card" style="--i: -2;"></div>
-                            <div class="card" style="--i: -1;"></div>
-                            <div class="card" style="--i: 0;"></div>
-                            <div class="card" style="--i: 1;"></div>
-                            <div class="card" style="--i: 2;"></div>
-                            <div class="card" style="--i: 3;"></div>
-                            <div class="card" style="--i: 4;"></div>
+                            <div *ngFor="let i of range(opponentHandNumber)" class="card" [style.--i]="i-opponentHandNumber/2" >{{i}}</div>
                         </div>
                     </div>
                     <div class="additionalOpponentDataSection">
-                        <div class="actionPointsDiv">
-                            <div class="actionOpponentPoints">
-                                {{opponentActionPoints}}
-                            </div>    
-                        </div>
                         <div class="opponentDice">
                             <div class="dices" (click)="DiceRoll()">
                                 <img class="diceImg" [src]="'assets/dice' + prvaOpponent + '.png'" alt="Dice {{prvaOpponent}}">
@@ -143,23 +138,18 @@
                 <div class="multipleFunctionDiv">
                     <div class="hand">
                         <div class="container">
-                            <div class="card" style="--i: -4;"></div>
-                            <div class="card" style="--i: -3;"></div>
-                            <div class="card" style="--i: -2;"></div>
-                            <div class="card" style="--i: -1;"></div>
-                            <div class="card" style="--i: 0;"></div>
-                            <div class="card" style="--i: 1;"></div>
-                            <div class="card" style="--i: 2;"></div>
-                            <div class="card" style="--i: 3;"></div>
-                            <div class="card" style="--i: 4;"></div>
+                            <div *ngFor="let i of range(playerHandNumber)" class="card" [style.--i]="i-playerHandNumber/2" (click)="onCardClick(i)">{{i}}</div>
+                            <!-- <div class="card" style="--i: -3;">2</div>
+                            <div class="card" style="--i: -2;">3</div>
+                            <div class="card" style="--i: -1;">4</div>
+                            <div class="card" style="--i: 0;">5</div>
+                            <div class="card" style="--i: 1;">6</div>
+                            <div class="card" style="--i: 2;">7</div>
+                            <div class="card" style="--i: 3;">8</div>
+                            <div class="card" style="--i: 4;">9</div> -->
                         </div>
                     </div>
                     <div class="additionalDataSection">
-                        <div class="actionPointsDiv">
-                            <div class="actionPoints">
-                                {{playerActionPoints}}
-                            </div>    
-                        </div>
                         <div class="myDice">
                             <div class="dices" (click)="DiceRoll()">
                                 <img class="diceImg" [src]="'assets/dice' + prva + '.png'" alt="Dice {{prva}}">

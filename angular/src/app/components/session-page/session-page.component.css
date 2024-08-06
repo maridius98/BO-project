@@ -57,28 +57,6 @@
     height: 100%;
 }
 
-.actionPoints{
-    margin: 5px;
-    height: 90px;
-    width: 90px;
-    background-color: rgb(255, 118, 118);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    
-}
-
-.actionOpponentPoints{
-    margin: 5px;
-    height: 90px;
-    width: 90px;
-    background-color: rgb(255, 118, 118);
-    display: flex;
-    flex-direction: column-reverse;
-    align-items: center;
-    justify-content: center;
-    transform: rotate(-180deg);
-}
 
 
 .opponentDice{
@@ -98,8 +76,43 @@
     align-items: center;
 }
 
+.pickedCard{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgb(255, 255, 255); /* Poluprovidna pozadina */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgb(0, 0, 0);
+    font-size: 24px;
+    z-index: 1; /* Postavljanje sloja iznad ostalih */
+    opacity: 0; /* Početno stanje */
+    visibility: hidden; /* Sakriva element */
+    transition: opacity 0.5s ease, visibility 0.5s ease; /* Tranzicija */
+}
+
+.pickedCard div{
+    cursor: pointer;
+    position: absolute;
+    z-index: 2;
+    background-color: red;
+    opacity: 0;
+}
+
+.pickedCard:hover div{
+ opacity: 1;
+}
+
+.pickedCard.show {
+  opacity: 1; /* Vidljivost */
+  visibility: visible; /* Prikazuje element */
+}
 
 .playCardPiles{
+    position: relative;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -128,16 +141,20 @@
 
 .actionPointsDiv{
     width: 100%;
+    height: 10%;
     display: flex;
-    justify-content:center;
+    flex-direction: row;
     align-items: center;
+    justify-content: space-evenly;
 }
 
-.actionOpponetPoints{
-    width: 100%;
-    display: flex;
-    justify-content:center;
-    align-items: center;
+.actionPointsDiv div{
+    height: 20px;
+    border-radius: 50%;
+    width: 20px;
+    box-shadow: 0 0 0 2px #fcfcfcba,
+  0 0 20px #fcfcfcac,
+  0 0 40px #fcfcfc82;
 }
 
 .monsterBordContainer{
@@ -147,11 +164,18 @@
 }
 
 .multipleFunctionDiv{
+    
     display: flex;
     flex-direction: row;
     justify-content: center;
     align-items: center;
     width: 100%;
+}
+.opponentSection .multipleFunctionDiv{
+    margin-bottom: 5%;
+}
+.playerSection .multipleFunctionDiv{
+    margin-top: 5%;
 }
 .hand{
     width: 80%;
@@ -188,7 +212,7 @@
 }
 
 .container .card{
-    transform: rotate(calc(var(--i)*1deg)) translate(calc(var(--i)*70px),-10px);
+    transform: rotate(calc(var(--i)*0.5deg)) translate(calc(var(--i)*70px),-10px);
 }
 
 .container .card:hover{

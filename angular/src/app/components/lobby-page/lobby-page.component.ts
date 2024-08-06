@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { SessionService } from '../../lobby.service';
 import { Router } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { BehaviorSubject, Subscription } from 'rxjs';
 import { IPlayer, ISession } from '../../interfaces';
 
 @Component({
@@ -13,6 +13,7 @@ export class LobbyPageComponent {
   @Output() valueChanged = new EventEmitter<{ param: number }>();
   private sessionDataSubscription: Subscription;
   private sessionInfo: ISession | undefined;
+  opponent$ = new BehaviorSubject<IPlayer | null>(null);
   playVideo: boolean = false;
   sessionData: any;
   isLoading: boolean = true;
@@ -54,6 +55,7 @@ export class LobbyPageComponent {
     this.sessionCode = sessionService.getSessionCode();
     this.playerUsername = this.sessionService.getPlayerUsername();
     this.host=this.sessionService.isHost();
+    this.opponent$ = this.sessionService.opponent$;
     setTimeout(() => {
       this.playVideo = true;
       this.isLoading = false;
