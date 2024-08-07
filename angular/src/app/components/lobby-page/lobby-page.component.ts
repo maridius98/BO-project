@@ -1,8 +1,7 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { SessionService } from '../../lobby.service';
-import { Router } from '@angular/router';
-import { BehaviorSubject, Subscription } from 'rxjs';
-import { IPlayer, ISession } from '../../interfaces';
+import { BehaviorSubject } from 'rxjs';
+import { IPlayer } from '../../interfaces';
 
 @Component({
   selector: 'app-lobby-page',
@@ -11,94 +10,72 @@ import { IPlayer, ISession } from '../../interfaces';
 })
 export class LobbyPageComponent {
   @Output() valueChanged = new EventEmitter<{ param: number }>();
-  private sessionDataSubscription: Subscription;
-  private sessionInfo: ISession | undefined;
-  opponent$ = new BehaviorSubject<IPlayer | null>(null);
+  opponent$: BehaviorSubject<IPlayer | null>;
+  player$: BehaviorSubject<IPlayer | null>;
   playVideo: boolean = false;
-  sessionData: any;
   isLoading: boolean = true;
+  isHost: boolean = false;
   sessionCode: string = '';
   ready: boolean = false;
-  opponentUsername:string='';
-  playerUsername:string='';
-  host:boolean=false;
+  playerUsername: string = '';
   waitingMessages: string[] = [
-    "Sharpening your swords",
-    "Gathering heroes",
-    "Preparing the battlefield",
-    "Strategizing your moves",
-    "Summoning mystical creatures",
-    "Loading epic adventures",
-    "Assembling your party",
-    "Rolling the dice of destiny",
-    "Setting up traps and treasures",
-    "Finalizing game setup"
+    'Sharpening your swords',
+    'Gathering heroes',
+    'Preparing the battlefield',
+    'Strategizing your moves',
+    'Summoning mystical creatures',
+    'Loading epic adventures',
+    'Assembling your party',
+    'Rolling the dice of destiny',
+    'Setting up traps and treasures',
+    'Finalizing game setup',
   ];
-  loadingSentence:string='';
-  randomIndex:number = 0;
-
+  loadingSentence: string = '';
 
   generateRandomNumber(): number {
-    return Math.floor(Math.random() * 10); // Generiše broj između 0 i 9
+    return Math.floor(Math.random() * 10);
   }
 
-  constructor(private sessionService: SessionService, private router: Router) {
-    this.sessionDataSubscription = this.sessionService.session$.subscribe(
-      (data) => {
-        this.sessionData = data;
-      }
-      
-    );
+  constructor(private sessionService: SessionService) {
+    this.opponent$ = sessionService.opponent$;
+    this.player$ = sessionService.player$;
+    this.isHost = this.player$.getValue()!.isHost;
     this.valueChanged.emit({ param: 1 });
-    this.randomIndex = this.generateRandomNumber();
-    this.loadingSentence = this.waitingMessages[this.randomIndex];
+    this.loadingSentence = this.waitingMessages[this.generateRandomNumber()];
     this.sessionCode = sessionService.getSessionCode();
-    this.playerUsername = this.sessionService.getPlayerUsername();
-    this.host=this.sessionService.isHost();
-    this.opponent$ = this.sessionService.opponent$;
+
     setTimeout(() => {
       this.playVideo = true;
       this.isLoading = false;
-      this.sessionService.opponentData$.subscribe(data =>{
+      this.sessionService.opponent$.subscribe((data) => {
         if (data) {
-          if(this.host)
-          {
-            this.isLoading=true;
+          if (this.isHost) {
+            this.isLoading = true;
             setTimeout(() => {
-              this.opponentUsername = this.sessionService.getOpponentUsername();
-              console.log(this.opponentUsername);
               this.ready = true;
               this.isLoading = false;
             }, 3000);
-          }
-          else
-          {
-            this.opponentUsername = this.sessionService.getOpponentUsername();
-            console.log(this.opponentUsername);
+          } else {
             this.ready = true;
-            this.sessionService.sessionData$.subscribe(session =>{
-              if(session)
-              {
-                this.isLoading=true;
+            this.sessionService.session$.subscribe((session) => {
+              if (session) {
+                this.isLoading = true;
                 setTimeout(() => {
                   this.valueChanged.emit({ param: 2 });
                 }, 3000);
               }
             });
           }
-          
         }
       });
-      
     }, 2000);
-    
-     
   }
-  onPlay(){
+
+  onPlay() {
     this.isLoading = true;
     this.sessionService.startGame();
-        setTimeout(() => {
-          this.valueChanged.emit({ param: 2 });
+    setTimeout(() => {
+      this.valueChanged.emit({ param: 2 });
     }, 2000);
   }
 }
