@@ -4,7 +4,7 @@ import { Card } from 'src/card/entities/card.entity';
 import { MonsterCard } from 'src/card/entities/monsterCard.entity';
 import { State } from 'src/utility';
 
-export class PersonalSession {
+export class PersonalSession{
   constructor(session: Session, index: number) {
     this._id = session._id;
     this.code = session.code;

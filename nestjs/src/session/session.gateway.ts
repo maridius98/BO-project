@@ -138,7 +138,7 @@ export class SessionGateway implements OnModuleInit {
   emitToAllClients(session: Session) {
     const splitSessions = this.sessionDataLayer.getSplitSessions(session);
     for (const [id, session] of splitSessions) {
-      this.server.emit(`session:${id}`, session);
+      this.server.emit(`session:${id}`, stringifySafe(session));
     }
   }
 }

@@ -89,7 +89,7 @@ section .loader span::before{
 .bubbles span:nth-child(even)
 {
   background: #ff2d75;
-  box-shadow: 0 0 0 10px #ff2d7544,
+  box-shadow: 0 0 0 10px #ff2d75,
   0 0 50px #ff2d75,
   0 0 100px #ff2d75;
 }
