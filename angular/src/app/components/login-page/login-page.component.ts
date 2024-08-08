@@ -17,23 +17,15 @@ import { Router } from '@angular/router';
   templateUrl: './login-page.component.html',
   styleUrl: './login-page.component.css',
 })
-export class LoginPageComponent implements OnDestroy {
+export class LoginPageComponent {
   @Output() valueChanged = new EventEmitter<{ param: number }>();
   @Input() selectedCheckbox: boolean = true;
   username: string = '';
   sessionCode: string = '';
-  sessionData: any;
   selectedTab: string = 'tab1';
   isLoading: boolean = false;
 
-  private sessionDataSubscription: Subscription;
-
   constructor(private sessionService: SessionService, private router: Router) {
-    this.sessionDataSubscription = this.sessionService.sessionData$.subscribe(
-      (data) => {
-        this.sessionData = data;
-      }
-    );
     this.valueChanged.emit({ param: 0 });
   }
 
@@ -56,10 +48,7 @@ export class LoginPageComponent implements OnDestroy {
     const createPlayerDto = { username: this.username, code: this.sessionCode };
     this.sessionService.joinLobby(createPlayerDto);
     setTimeout(() => {
-      if (
-        this.sessionService.getPlayerUsername() &&
-        this.sessionService.getSessionCode()
-      ) {
+      if (this.sessionService.player$ && this.sessionService.getSessionCode()) {
         this.isLoading = true;
         setTimeout(() => {
           this.valueChanged.emit({ param: 1 });
@@ -78,10 +67,7 @@ export class LoginPageComponent implements OnDestroy {
 
     console.log(this.sessionService);
     setTimeout(() => {
-      if (
-        this.sessionService.getPlayerUsername() &&
-        this.sessionService.getSessionCode()
-      ) {
+      if (this.sessionService.player$ && this.sessionService.getSessionCode()) {
         this.isLoading = true;
         setTimeout(() => {
           this.valueChanged.emit({ param: 1 });
@@ -91,9 +77,5 @@ export class LoginPageComponent implements OnDestroy {
         console.log(this.sessionService.getSessionCode());
       }
     }, 200);
-  }
-
-  ngOnDestroy() {
-    this.sessionDataSubscription.unsubscribe();
   }
 }

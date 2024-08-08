@@ -11,8 +11,8 @@
       </div>
     </label>
     <label *ngIf="ready">
-      <h2 id="button" *ngIf="playVideo && host" class="messageText" (click)="onPlay()">PLAY</h2>
-      <h2 *ngIf="playVideo && !host" class="messageText">Host will start the game</h2>
+      <h2 id="button" *ngIf="playVideo && isHost" class="messageText" (click)="onPlay()">PLAY</h2>
+      <h2 *ngIf="playVideo && !isHost" class="messageText">Host will start the game</h2>
     </label>
   </div>
 
@@ -22,13 +22,13 @@
     <div class="hourglass-inactive" *ngIf="ready">
       <div class="playerIconDiv" *ngIf="ready">
         <img src="../../../assets/player.png" alt="gamerImage">
-        <label class="player-username">{{playerUsername}}  </label>
+        <label class="player-username">{{ (player$ | async)!.username }}  </label>
       </div>
       <div class="opponentIconDiv" *ngIf="ready">
         <img src="../../../assets/opponent.png" alt="gamerImage">
-        <label class="opponent-username">{{opponentUsername}}  </label>
-      </div>
-    </div>
+        <label class="opponent-username">{{ (opponent$ | async)?.username }}</label>
+         </div>
+    </div> 
 
 
     <div class="code">
