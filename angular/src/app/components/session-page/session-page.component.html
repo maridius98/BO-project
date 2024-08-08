@@ -1,5 +1,5 @@
 <div class="pageContainer">
-
+<div class="pulsingImage"></div>
     <div class="leftSideContainer">
         <!-- <div class="oponentDice">
             <div class="dices">
@@ -8,7 +8,7 @@
             </div>
         </div> -->
         <div class="sideCards">
-            <div class="monsterCards">
+            <div class="monsterCards"  (click)="offPickedImage()">
                 <div class="monster">
                     Monster1
                 </div>
@@ -26,13 +26,13 @@
             </div>
             <div class="playCardPiles">
                 <div class="freshPile">
-                    FreshPile
+                    
                 </div>
                 <div class="discardPile">
-                    DiscardPile
+                    
                 </div>
-                <div  [ngClass]="{'pickedCard': true, 'show': showPickedCard&&myTurn}">
-                    <div (click)="chooseCard()">
+                <div [ngClass]="{'pickedCard': true, 'show': showPickedCard&&myTurn}">
+                    <div *ngIf="turn==1" (click)="chooseCard()" [ngStyle]="{'cursor': turn==1? 'pointer':'auto'}">
                         Choose
                     </div>
                     {{selectedValue}}
@@ -54,7 +54,7 @@
     </div>
     <div class="centerContainer">
         <div class="board">
-            <div class="opponentSection">
+            <div class="opponentSection"  (click)="offPickedImage()">
                 
 
                 <div class="boardContainer">
@@ -90,14 +90,14 @@
                 <div class="multipleFunctionDiv">
                     <div class="opponentHand">
                         <div class="container">
-                            <div *ngFor="let i of range(opponentHandNumber)" class="card" [style.--i]="i-opponentHandNumber/2" >{{i}}</div>
+                            <div *ngFor="let i of range(opponentHandNumber)" class="card" [style.--i]="i-opponentHandNumber/2" ></div>
                         </div>
                     </div>
                     <div class="additionalOpponentDataSection">
                         <div class="opponentDice">
                             <div class="dices" (click)="DiceRoll()">
-                                <img class="diceImg" [src]="'assets/dice' + prvaOpponent + '.png'" alt="Dice {{prvaOpponent}}">
-                                <img class="diceImg" [src]="'../../assets/dice' + drugaOpponent + '.png'" alt="Dice {{drugaOpponent}}">
+                                <img class="diceImg" [src]="'assets/dice/opponentDice' + prvaOpponent + '.png'" alt="Dice {{prvaOpponent}}">
+                                <img class="diceImg" [src]="'../../assets/dice/opponentDice' + drugaOpponent + '.png'" alt="Dice {{drugaOpponent}}">
                             </div>
                         </div>
                     </div>
@@ -150,10 +150,10 @@
                         </div>
                     </div>
                     <div class="additionalDataSection">
-                        <div class="myDice">
-                            <div class="dices" (click)="DiceRoll()">
-                                <img class="diceImg" [src]="'assets/dice' + prva + '.png'" alt="Dice {{prva}}">
-                                <img class="diceImg" [src]="'../../assets/dice' + druga + '.png'" alt="Dice {{druga}}">
+                        <div [ngClass]="{'myDice': true, 'hover-enabled': this.chosen}">
+                            <div class="dices" [ngStyle]="{'cursor': this.chosen ? 'pointer':'auto'}" (click)="DiceRoll()">
+                                <img [ngClass]="{'diceImg': true, 'rotate-animation': rotateDiv}" [src]="'assets/dice/playerDice' + prva + '.png'" alt="Dice {{prva}}">
+                                <img [ngClass]="{'diceImg': true, 'rotate-animation': rotateDiv}" [src]="'../../assets/dice/playerDice' + druga + '.png'" alt="Dice {{druga}}">
                             </div>
                         </div>
                     </div>

@@ -1,4 +1,4 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component, ElementRef, HostListener, OnDestroy, ViewChild } from '@angular/core';
 import { SessionService } from '../../lobby.service';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
@@ -10,6 +10,8 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./session-page.component.css'],
 })
 export class SessionPageComponent {
+
+
   prva: number = 1;
   druga: number = 1;
   prvaOpponent: number = 1;
@@ -17,22 +19,38 @@ export class SessionPageComponent {
   actionPoints:number=2;
   opponentHandNumber:number=5;
   playerHandNumber:number=8;
-  turn:number=2;
+  turn:number=1;
   showPickedCard:boolean=false;
   selectedValue: number | null = null;
   myTurn:boolean=true;
   chosen:boolean=false;
+  rotateDiv:boolean=false;
+  @ViewChild('diceImg', { static: true }) diceImg: ElementRef | undefined;
+
 
   DiceRoll() {
     if(this.chosen)
     {
-
+      this.rotateDiv = true;
       this.prva = Math.floor(Math.random() * 6) + 1;
       this.druga = Math.floor(Math.random() * 6) + 1;
       this.chosen=false;
       this.showPickedCard=false;
+      this.rotateDiv = true;
+      setTimeout(() => {
+        this.rotateDiv=false;
+      }, 1000);
+
+      
     }
     
+  }
+
+
+
+  offPickedImage() {
+    if(!this.chosen && this.showPickedCard)
+      this.showPickedCard=false;
   }
 
   range(range:number): number[] {
