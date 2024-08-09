@@ -509,13 +509,6 @@ to {
     box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.6),
     0 0 20px rgba(255, 255, 255, 0.6),
     0 0 40px rgba(255, 255, 255, 0.6);
-    /* position: absolute;
-    height: 160px;
-    width: 100px;
-    background: white;
-    cursor: pointer;
-    transition: 0.5s;
-    transform-origin: 50% 100%; */
 }
 .hand .container .disable:hover{
     cursor: auto;

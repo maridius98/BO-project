@@ -16,10 +16,10 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./session-page.component.css'],
 })
 export class SessionPageComponent {
-  prva: number = 1;
-  druga: number = 1;
-  prvaOpponent: number = 1;
-  drugaOpponent: number = 1;
+  firstDice: number = 1;
+  secondDice: number = 1;
+  firstOpponentDice: number = 1;
+  secondOpponentDice: number = 1;
   actionPoints: number = 2;
   opponentHandNumber: number = 5;
   playerHandNumber: number = 8;
@@ -36,8 +36,8 @@ export class SessionPageComponent {
   DiceRoll() {
     if (this.chosen) {
       this.rotateDiv = true;
-      this.prva = Math.floor(Math.random() * 6) + 1;
-      this.druga = Math.floor(Math.random() * 6) + 1;
+      this.firstDice = Math.floor(Math.random() * 6) + 1;
+      this.secondDice = Math.floor(Math.random() * 6) + 1;
       this.chosen = false;
       this.showPickedCard = false;
       this.showPickedMonster = false;
