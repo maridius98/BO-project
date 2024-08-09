@@ -144,21 +144,35 @@
     transition: opacity 0.5s ease, visibility 0.5s ease; /* Tranzicija */
 }
 
-.pickedCard div{
-    cursor: pointer;
+.pickedMonster{
     position: absolute;
-    z-index: 2;
-    background-color: red;
-    opacity: 0;
-}
-
-.pickedCard:hover div{
- opacity: 1;
+    top: 1;
+    left: -2.5;
+    width: 180px;
+    height: 400px;
+    background-color: rgb(255, 255, 255); /* Poluprovidna pozadina */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgb(0, 0, 0);
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.3),
+    0 0 20px rgba(0, 0, 0, 0.3),
+    0 0 40px rgba(0, 0, 0, 0.3);
+    font-size: 24px;
+    z-index: 1; /* Postavljanje sloja iznad ostalih */
+    opacity: 0; /* Početno stanje */
+    visibility: hidden; /* Sakriva element */
+    transition: opacity 0.5s ease, visibility 0.5s ease; /* Tranzicija */
 }
 
 .pickedCard.show {
   opacity: 1; /* Vidljivost */
   visibility: visible; /* Prikazuje element */
+}
+
+.pickedMonster.showMonster{
+    opacity: 1; /* Vidljivost */
+    visibility: visible;
 }
 
 .playCardPiles{
@@ -259,12 +273,14 @@
     width: 100px;
     background: white;
     /* border:2px solid rgba(0, 0, 0, 0.6); */
+    border: 1px solid  rgba(0, 0, 0, 0.3);
     box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.3),
     0 0 20px rgba(0, 0, 0, 0.3),
     0 0 40px rgba(0, 0, 0, 0.3);
     cursor: pointer;
     transition: 0.5s;
     transform-origin: 50% 100%;
+    opacity: 1;
 }
 
 .container .card{
@@ -295,6 +311,7 @@
     gap:2vh;
     align-items:center;
 }
+
 
 
 .additionalDataSection{
@@ -477,6 +494,7 @@ to {
     0 0 20px #4fc2dc79,
     0 0 40px #4fc2dc79;
     background-color: rgba(0, 0, 0, 0.3);
+    opacity: 1;
 }
 
 .actionPointsDiv div{
@@ -485,3 +503,42 @@ to {
     width: 20px;
     box-shadow: 0 0 0 3px white, 0 0 25px white, 0 0 45px white;
 }
+
+.hand .container .pickCard:hover{
+    border: 1px solid  rgba(0, 0, 0, 0.3);
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.6),
+    0 0 20px rgba(255, 255, 255, 0.6),
+    0 0 40px rgba(255, 255, 255, 0.6);
+    /* position: absolute;
+    height: 160px;
+    width: 100px;
+    background: white;
+    cursor: pointer;
+    transition: 0.5s;
+    transform-origin: 50% 100%; */
+}
+.hand .container .disable:hover{
+    cursor: auto;
+    opacity: 0.8;
+}
+
+.monsterCards .pickCard:hover{
+    border: 1px solid  rgba(0, 0, 0, 0.3);
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.6),
+    0 0 20px rgba(255, 255, 255, 0.6),
+    0 0 40px rgba(255, 255, 255, 0.6);
+    cursor: pointer;
+    /* position: absolute;
+    height: 160px;
+    width: 100px;
+    background: white;
+    cursor: pointer;
+    transition: 0.5s;
+    transform-origin: 50% 100%; */
+}
+
+.monsterCards .disable:hover{
+    cursor: auto;
+    opacity: 0.8;
+}
+
