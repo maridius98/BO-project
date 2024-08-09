@@ -1,4 +1,10 @@
-import { Component, OnDestroy } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  HostListener,
+  OnDestroy,
+  ViewChild,
+} from '@angular/core';
 import { SessionService } from '../../lobby.service';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
@@ -10,49 +16,80 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./session-page.component.css'],
 })
 export class SessionPageComponent {
-  prva: number = 1;
-  druga: number = 1;
-  prvaOpponent: number = 1;
-  drugaOpponent: number = 1;
-  actionPoints:number=2;
-  opponentHandNumber:number=5;
-  playerHandNumber:number=8;
-  turn:number=2;
-  showPickedCard:boolean=false;
+  firstDice: number = 1;
+  secondDice: number = 1;
+  firstOpponentDice: number = 1;
+  secondOpponentDice: number = 1;
+  actionPoints: number = 2;
+  opponentHandNumber: number = 5;
+  playerHandNumber: number = 8;
+  monsterNumber: number = 3;
+  turn: number = 1;
+  showPickedCard: boolean = false;
+  showPickedMonster: boolean = false;
   selectedValue: number | null = null;
-  myTurn:boolean=true;
-  chosen:boolean=false;
+  myTurn: boolean = true;
+  chosen: boolean = false;
+  rotateDiv: boolean = false;
+  @ViewChild('diceImg', { static: true }) diceImg: ElementRef | undefined;
 
   DiceRoll() {
-    if(this.chosen)
-    {
-
-      this.prva = Math.floor(Math.random() * 6) + 1;
-      this.druga = Math.floor(Math.random() * 6) + 1;
-      this.chosen=false;
-      this.showPickedCard=false;
+    if (this.chosen) {
+      this.rotateDiv = true;
+      this.firstDice = Math.floor(Math.random() * 6) + 1;
+      this.secondDice = Math.floor(Math.random() * 6) + 1;
+      this.chosen = false;
+      this.showPickedCard = false;
+      this.showPickedMonster = false;
+      this.rotateDiv = true;
+      setTimeout(() => {
+        this.rotateDiv = false;
+      }, 1000);
     }
-    
   }
 
-  range(range:number): number[] {
+  offPickedImage() {
+    if (!this.chosen && this.showPickedCard) this.showPickedCard = false;
+  }
+
+  range(range: number): number[] {
     const rangeArray = [];
-    for (let i = 0; i <= range-1; i++) {
+    for (let i = 0; i <= range - 1; i++) {
       rangeArray.push(i);
     }
     return rangeArray;
   }
 
-  onCardClick(value: number): void {
-    if(!this.chosen)
-    {
-
+  onCardHover(value: number): void {
+    if (!this.chosen) {
       this.selectedValue = value;
       console.log(this.selectedValue);
       this.showPickedCard = true;
     }
   }
-  chooseCard():void{
-    this.chosen=true;
+
+  onCardLeave() {
+    if (!this.chosen) this.showPickedCard = false;
+  }
+  chooseCard() {
+    if (!this.chosen) {
+      this.showPickedCard = true;
+      this.chosen = true;
+    }
+  }
+
+  chooseMonster() {
+    this.showPickedMonster = true;
+    this.chosen = true;
+  }
+  onMonsterLeave() {
+    if (!this.chosen) this.showPickedMonster = false;
+  }
+  onMonsterHover(value: number) {
+    if (!this.chosen) {
+      this.selectedValue = value;
+      console.log(this.selectedValue);
+      this.showPickedMonster = true;
+    }
   }
 }
