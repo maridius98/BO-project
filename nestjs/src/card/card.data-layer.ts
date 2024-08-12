@@ -92,10 +92,7 @@ export class CardDataLayer {
     const shuffledCards = [...cards];
     for (let i = shuffledCards.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
-      [shuffledCards[i], shuffledCards[j]] = [
-        shuffledCards[j],
-        shuffledCards[i],
-      ];
+      [shuffledCards[i], shuffledCards[j]] = [shuffledCards[j], shuffledCards[i]];
     }
     if (length != cards.length) {
       shuffledCards.splice(length);
@@ -129,10 +126,7 @@ export class CardDataLayer {
     }
     command.exec(cardExecData.targets || Number(value), player);
     if (cardExecData.index + 1 < cardExecData.card.effects.length) {
-      cardExecData.session.state = this.setNextState(
-        cardExecData,
-        cardExecData.index + 1,
-      );
+      cardExecData.session.state = this.setNextState(cardExecData, cardExecData.index + 1);
     } else {
       if (cardExecData.player.actionPoints > 1) {
         cardExecData.session.state = State.makeMove;
@@ -150,19 +144,19 @@ export class CardDataLayer {
 
   setNextState(cardExecData: CardExecData, index: number) {
     const effect = cardExecData.card.effects[index];
-    return this.commandFactory.build(effect.split(';')[0], cardExecData.player)
-      .state;
+    return this.commandFactory.build(effect.split(';')[0], cardExecData.player).state;
   }
 
   playCard(cardExecData: CardExecData) {
-    cardExecData.player.hand.filter((c) => {
-      c != cardExecData.card;
-    });
     if (cardExecData.card instanceof HeroCard) {
       cardExecData.player.field.push(cardExecData.card);
     } else {
       cardExecData.session.discardPile.push(cardExecData.card);
     }
+    const player = cardExecData.session.players.find((player) => {
+      return player.id === cardExecData.player.id;
+    });
+    player.hand.splice(cardExecData.index, 1);
     return cardExecData.session;
   }
 }
