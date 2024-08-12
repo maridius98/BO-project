@@ -38,10 +38,10 @@ export class CardService {
       return this.createMonsterCard(createCardDto);
     } else if (this.isModifierCardDto(createCardDto)) {
       return this.createModifierCard(createCardDto);
-    } else if (this.isMagicCardDto(createCardDto)) {
-      return this.createMagicCard(createCardDto);
     } else if (this.isHeroCardDto(createCardDto)) {
       return this.createHeroCard(createCardDto);
+    } else if (this.isMagicCardDto(createCardDto)) {
+      return this.createMagicCard(createCardDto);
     } else if (this.isChallengeCardDto(createCardDto)) {
       return this.createChallengeCard(createCardDto);
     } else {
@@ -81,37 +81,27 @@ export class CardService {
     return (dto as ChallengeCardDto).positiveModifier !== undefined;
   }
 
-  private async createMonsterCard(
-    createCardDto: MonsterCardDto,
-  ): Promise<MonsterCardDto> {
+  private async createMonsterCard(createCardDto: MonsterCardDto): Promise<MonsterCardDto> {
     const createdMonsterCard = new this.monsterCardModel(createCardDto);
     return createdMonsterCard.save();
   }
 
-  private async createModifierCard(
-    createCardDto: ModifierCardDto,
-  ): Promise<ModifierCardDto> {
+  private async createModifierCard(createCardDto: ModifierCardDto): Promise<ModifierCardDto> {
     const createdModifierCard = new this.modifierCardModel(createCardDto);
     return createdModifierCard.save();
   }
 
-  private async createMagicCard(
-    createCardDto: MagicCardDto,
-  ): Promise<MagicCardDto> {
+  private async createMagicCard(createCardDto: MagicCardDto): Promise<MagicCardDto> {
     const createdMagicCard = new this.magicCardModel(createCardDto);
     return createdMagicCard.save();
   }
 
-  private async createHeroCard(
-    createCardDto: HeroCardDto,
-  ): Promise<HeroCardDto> {
+  private async createHeroCard(createCardDto: HeroCardDto): Promise<HeroCardDto> {
     const createdHeroCard = new this.heroCardModel(createCardDto);
     return createdHeroCard.save();
   }
 
-  private async createChallengeCard(
-    createCardDto: ChallengeCardDto,
-  ): Promise<ChallengeCardDto> {
+  private async createChallengeCard(createCardDto: ChallengeCardDto): Promise<ChallengeCardDto> {
     const createdChallengeCard = new this.challengeCardModel(createCardDto);
     return createdChallengeCard.save();
   }

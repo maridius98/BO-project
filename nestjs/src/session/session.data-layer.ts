@@ -11,16 +11,12 @@ import { PersonalSession } from './entities/personalSession';
 export class SessionDataLayer {
   constructor(private readonly cardDataLayer: CardDataLayer) {}
 
-  generateSession(
-    monsters: MonsterCard[],
-    cards: Card[],
-    session: Session,
-  ): Session {
+  generateSession(monsters: MonsterCard[], cards: Card[], session: Session): Session {
     session.deck = this.cardDataLayer.shuffle(cards);
-    const shuffledMonsters = this.cardDataLayer.shuffle(monsters);
-    session.monsters = shuffledMonsters.slice(0, 3);
-    session.monsterDeck = shuffledMonsters.splice(0, 3);
+    session.monsterDeck = this.cardDataLayer.shuffle(monsters);
+    session.monsters = session.monsterDeck.splice(0, 3);
     session.players.map((player) => {
+      player.hand = session.deck.splice(0, 5);
       if (player.isHost) {
         player.actionPoints = 3;
       } else {

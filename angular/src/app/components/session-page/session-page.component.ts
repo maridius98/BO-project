@@ -5,10 +5,10 @@ import {
   OnDestroy,
   ViewChild,
 } from '@angular/core';
-import { SessionService } from '../../lobby.service';
+import { SessionService } from '../../session.service';
 import { Router } from '@angular/router';
 import { BehaviorSubject, Subscription } from 'rxjs';
-import { ICard, IPlayer } from '../../interfaces';
+import { ICard, IPlayer, ISession } from '../../interfaces';
 
 @Component({
   selector: 'app-session-page',
@@ -34,11 +34,13 @@ export class SessionPageComponent {
   rotateDiv: boolean = false;
   //@ViewChild('diceImg', { static: true }) diceImg: ElementRef | undefined;
   opponent$: BehaviorSubject<IPlayer | null>;
+  session$: BehaviorSubject<ISession | null>;
   player$: BehaviorSubject<IPlayer | null>;
 
   constructor(private sessionService: SessionService) {
     this.opponent$ = sessionService.opponent$;
     this.player$ = sessionService.player$;
+    this.session$ = sessionService.session$;
   }
 
   NumberOfCards(array: ICard[] | undefined): number {

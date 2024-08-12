@@ -40,11 +40,8 @@ export class SessionService {
     const session = await this.findOne(id);
     const cards = await this.cardService.getPlayableCards();
     const monsters = await this.cardService.getMonsterCards();
-    const generatedSession = this.sessionDataLayer.generateSession(
-      monsters,
-      cards,
-      session,
-    );
+    const generatedSession = this.sessionDataLayer.generateSession(monsters, cards, session);
+    await generatedSession.save();
     return generatedSession;
   }
 

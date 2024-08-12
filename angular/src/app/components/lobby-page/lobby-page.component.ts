@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Output } from '@angular/core';
-import { SessionService } from '../../lobby.service';
+import { SessionService } from '../../session.service';
 import { BehaviorSubject } from 'rxjs';
 import { IPlayer } from '../../interfaces';
 
