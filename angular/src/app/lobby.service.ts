@@ -28,6 +28,7 @@ export class SessionService {
       .fromEvent(`session:${this.player$.getValue()?._id}`)
       .pipe(map((data) => data as string))
       .subscribe((data: string) => {
+        console.log(data);
         this.session$.next(JSON.parse(data));
       });
   }

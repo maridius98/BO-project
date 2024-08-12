@@ -67,7 +67,7 @@
                 <div class="multipleFunctionDiv">
                     <div class="opponentHand">
                         <div class="container">
-                            <div *ngFor="let i of range(opponentHandNumber)" class="card" [style.--i]="i-opponentHandNumber/2" ></div>
+                            <div *ngFor="let i of range(NumberOfCards((opponent$ | async)!.hand))" class="card" [style.--i]="i-NumberOfCards((opponent$ | async)!.hand)/2" ></div>
                         </div>
                     </div>
                     <div class="additionalOpponentDataSection">
@@ -115,7 +115,10 @@
                 <div class="multipleFunctionDiv">
                     <div class="hand">
                         <div class="container">
-                            <div [ngClass]="{'card':true, 'pickCard':this.showPickedCard&&!this.chosen, 'disable':this.chosen}" *ngFor="let i of range(playerHandNumber)" [style.--i]="i-playerHandNumber/2" (mouseover)="onCardHover(i)" (mouseleave)="onCardLeave()" (click)="chooseCard()">{{i}}</div>
+                            <div [ngClass]="{
+                                'card':true, 'pickCard':this.showPickedCard&&!this.chosen, 'disable':this.chosen}" 
+                                *ngFor="let i of range(NumberOfCards((player$ | async)!.hand))" 
+                                [style.--i]="i-NumberOfCards((player$ | async)!.hand)/2" (mouseover)="onCardHover(i)" (mouseleave)="onCardLeave()" (click)="chooseCard()">{{((player$ | async)!.hand)![i]}}</div>
                         </div>
                     </div>
                     <div class="additionalDataSection">

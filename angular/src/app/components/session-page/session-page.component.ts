@@ -7,7 +7,8 @@ import {
 } from '@angular/core';
 import { SessionService } from '../../lobby.service';
 import { Router } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { BehaviorSubject, Subscription } from 'rxjs';
+import { ICard, IPlayer } from '../../interfaces';
 
 @Component({
   selector: 'app-session-page',
@@ -31,8 +32,19 @@ export class SessionPageComponent {
   myTurn: boolean = true;
   chosen: boolean = false;
   rotateDiv: boolean = false;
-  @ViewChild('diceImg', { static: true }) diceImg: ElementRef | undefined;
+  //@ViewChild('diceImg', { static: true }) diceImg: ElementRef | undefined;
+  opponent$: BehaviorSubject<IPlayer | null>;
+  player$: BehaviorSubject<IPlayer | null>;
 
+  constructor(private sessionService: SessionService) {
+    this.opponent$ = sessionService.opponent$;
+    this.player$ = sessionService.player$;
+  }
+
+  NumberOfCards(array: ICard[] | undefined): number {
+    if (array == undefined) return 0;
+    return array.length;
+  }
   DiceRoll() {
     if (this.chosen) {
       this.rotateDiv = true;
