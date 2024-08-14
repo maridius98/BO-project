@@ -131,6 +131,8 @@ export class CardDataLayer {
       if (cardExecData.player.actionPoints > 1) {
         cardExecData.session.state = State.makeMove;
         cardExecData.player.actionPoints--;
+      } else {
+        cardExecData.session.state = State.skip;
       }
     }
     return cardExecData.session;
@@ -138,7 +140,6 @@ export class CardDataLayer {
 
   startEffect(cardExecData: CardExecData) {
     cardExecData.session.state = this.setNextState(cardExecData, 0);
-    cardExecData.card.usedEffect = true;
     return cardExecData.session;
   }
 

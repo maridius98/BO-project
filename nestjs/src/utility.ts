@@ -15,6 +15,7 @@ export enum State {
   makeMove,
   resolveRoll,
   roll,
+  skip,
 }
 
 export function stringifySafe<T>(obj: T) {

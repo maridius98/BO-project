@@ -7,7 +7,7 @@ Content-Type: application/json
   "imageURL": "dragon.jpg",
   "class": "Warrior",
   "victoryRoll": 4,
-  "effects": ["Draw;2"]
+  "effects": ["Draw;self;2"]
 }
 
 ### Post Monster
@@ -20,7 +20,7 @@ Content-Type: application/json
   "imageURL": "dragon.jpg",
   "victoryRoll": 4,
   "defeatRoll": 9,
-  "effects": ["Draw;1"]
+  "effects": ["Draw;enemy;1"]
 }
 
 

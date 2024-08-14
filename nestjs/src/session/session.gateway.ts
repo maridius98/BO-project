@@ -72,17 +72,15 @@ export class SessionGateway implements OnModuleInit {
   update(@MessageBody() updateSessionDto: UpdateSessionDto) {
     //return this.sessionService.update(updateSessionDto.id, updateSessionDto);
   }
-
+  // znaci potrebna je sesija, playerId,
   @SubscribeMessage('roll')
   async roll(@MessageBody() playerId: string) {
     const player = await this.playerService.findOne(playerId);
-    if (player.session.state != State.roll) {
-      return 'Invalid request';
-    }
-    player.session.roll = rollNumber();
-    player.session.state = State.resolveRoll;
-    await this.sessionService.update(player.session);
-    this.emitToAllClients(player.session);
+    const session = await this.sessionService.findOne(player.session._id);
+    session.roll = rollNumber();
+    //player.session.state = State.resolveRoll;
+    await this.sessionService.update(session);
+    this.emitToAllClients(session);
   }
 
   @SubscribeMessage('resolveRoll')
@@ -90,15 +88,22 @@ export class SessionGateway implements OnModuleInit {
     const card = (await this.cardService.findOne(playCardDto.cardId)) as HeroCard;
     const player = await this.playerService.findOne(playCardDto.playerId);
     const session = await this.sessionService.findOne(player.session._id);
-    if (card.usedEffect) {
-      return 'Effect already used';
-    }
-    const updatedSession = await this.sessionService.startEffect({
+    let updatedSession = await this.sessionService.startEffect({
       card,
       player,
       session,
       index: playCardDto.index,
     });
+    let i = 0;
+    while (updatedSession.state == State.skip) {
+      i++;
+      updatedSession = await this.sessionService.playCard({
+        card,
+        player,
+        session: updatedSession,
+        index: playCardDto.index + i,
+      });
+    }
     this.emitToAllClients(updatedSession);
   }
 
