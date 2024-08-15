@@ -19,6 +19,7 @@ export class SessionDataLayer {
       player.hand = session.deck.splice(0, 5);
       if (player.isHost) {
         player.actionPoints = 3;
+        session.turn = player.id;
       } else {
         player.actionPoints = 0;
       }

@@ -9,8 +9,8 @@ export class Session extends Document {
   @Prop()
   code: string;
 
-  @Prop({ default: 0 })
-  turn: number;
+  @Prop({ default: '' })
+  turn: string;
 
   @Prop({ default: 0 })
   roll: number;
