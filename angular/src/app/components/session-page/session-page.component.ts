@@ -26,6 +26,7 @@ export class SessionPageComponent {
   playerHandNumber: number = 8;
   monsterNumber: number = 3;
   turn: number = 1;
+  monstersWon: number = 0;
   showPickedCard: boolean = false;
   showPickedMonster: boolean = false;
   selectedValue: number | null = null;
@@ -43,10 +44,16 @@ export class SessionPageComponent {
     this.session$ = sessionService.session$;
   }
 
-  NumberOfCards(array: ICard[] | undefined): number {
-    if (array == undefined) return 0;
-    return array.length;
+  NumberOfCards(array: ISession | null): number {
+    if (array == null || array.player.hand == undefined) return 0;
+    return array.player.hand.length;
   }
+
+  NumberOfMonsterCards(broj: number | undefined): number {
+    if (broj == undefined) return 0;
+    return broj;
+  }
+
   DiceRoll() {
     if (this.chosen) {
       this.rotateDiv = true;
@@ -85,7 +92,7 @@ export class SessionPageComponent {
   onCardLeave() {
     if (!this.chosen) this.showPickedCard = false;
   }
-  chooseCard() {
+  chooseCard(index: number) {
     if (!this.chosen) {
       this.showPickedCard = true;
       this.chosen = true;
@@ -94,6 +101,7 @@ export class SessionPageComponent {
 
   chooseMonster() {
     this.showPickedMonster = true;
+
     this.chosen = true;
   }
   onMonsterLeave() {
@@ -105,5 +113,22 @@ export class SessionPageComponent {
       console.log(this.selectedValue);
       this.showPickedMonster = true;
     }
+  }
+
+  pickedCardDisplay(array: ISession | null, index: number | null): string {
+    if (array == null || array.player.hand == undefined || index == null)
+      return '';
+    return array.player.hand[index].name;
+  }
+
+  pickedMonsterDisplay(array: ISession | null, index: number | null): string {
+    if (
+      array == null ||
+      array.monsters == undefined ||
+      index == null ||
+      array.monsters[index] == undefined
+    )
+      return '';
+    return array.monsters[index].name;
   }
 }

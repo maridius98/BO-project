@@ -4,6 +4,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { Socket } from 'ngx-socket-io';
 import { IPlayer, ISession, Lobby } from './interfaces';
 import { CreatePlayerDto } from './components/login-page/create-player.dto';
+import { PlayCardDto } from './components/session-page/play-card.dto';
 
 @Injectable({
   providedIn: 'root',
@@ -59,5 +60,9 @@ export class SessionService {
     if (this.player$.getValue()?.isHost && this.opponent$.getValue()) {
       await this.socket.emit('startGame', this.sessionCode);
     }
+  }
+
+  async playCard(playCardDto: PlayCardDto) {
+    await this.socket.emit('playCard', playCardDto);
   }
 }

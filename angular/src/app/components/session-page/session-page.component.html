@@ -4,7 +4,7 @@
         <div class="sideCards">
             <div class="monsterCards"  (click)="offPickedImage()">
                 <div *ngFor="let i of range(monsterNumber)" [ngClass]="{'monster':true, 'pickCard':this.showPickedMonster&&!this.chosen, 'disable':this.chosen}" (mouseover)="onMonsterHover(i)" (mouseleave)="onMonsterLeave()" (click)="chooseMonster()">
-                    Monster{{i}}
+                    {{(session$ | async)!.monsters[i].name}}
                 </div>
             </div>
             <div class="actionPointsDiv">
@@ -20,10 +20,10 @@
                     
                 </div>
                 <div [ngClass]="{'pickedCard': true, 'show': showPickedCard&&myTurn}">
-                    {{selectedValue}}
+                    {{pickedCardDisplay((session$ | async), selectedValue)}}
                 </div>
                 <div [ngClass]="{'pickedMonster': true, 'showMonster': showPickedMonster&&myTurn}">
-                    {{selectedValue}}
+                    {{pickedMonsterDisplay((session$ | async), selectedValue)}}
                 </div>
             </div>
         </div>
@@ -67,7 +67,7 @@
                 <div class="multipleFunctionDiv">
                     <div class="opponentHand">
                         <div class="container">
-                            <div *ngFor="let i of range(NumberOfCards((opponent$ | async)!.hand))" class="card" [style.--i]="i-NumberOfCards((opponent$ | async)!.hand)/2" ></div>
+                            <div *ngFor="let i of range((session$ | async)!.opponent?.handSize || 0)" class="card" [style.--i]="i-NumberOfMonsterCards((session$ | async)!.opponent?.handSize)/2" ></div>
                         </div>
                     </div>
                     <div class="additionalOpponentDataSection">
@@ -117,8 +117,8 @@
                         <div class="container">
                             <div [ngClass]="{
                                 'card':true, 'pickCard':this.showPickedCard&&!this.chosen, 'disable':this.chosen}" 
-                                *ngFor="let i of range(NumberOfCards((player$ | async)!.hand))" 
-                                [style.--i]="i-NumberOfCards((player$ | async)!.hand)/2" (mouseover)="onCardHover(i)" (mouseleave)="onCardLeave()" (click)="chooseCard()">{{((player$ | async)!.hand)![i]}}</div>
+                                *ngFor="let i of range(NumberOfCards((session$ | async)))" 
+                                [style.--i]="i-NumberOfCards((session$ | async))/2" (mouseover)="onCardHover(i)" (mouseleave)="onCardLeave()" (click)="chooseCard(i)">{{((session$ | async)!.player.hand)![i].name}}</div>
                         </div>
                     </div>
                     <div class="additionalDataSection">
