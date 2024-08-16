@@ -9,6 +9,7 @@ import { SessionService } from '../../session.service';
 import { Router } from '@angular/router';
 import { BehaviorSubject, Subscription } from 'rxjs';
 import { ICard, IPlayer, ISession } from '../../interfaces';
+import { PlayCardDto } from './play-card.dto';
 
 @Component({
   selector: 'app-session-page',
@@ -22,18 +23,16 @@ export class SessionPageComponent {
   firstOpponentDice: number = 1;
   secondOpponentDice: number = 1;
   actionPoints: number = 2;
-  opponentHandNumber: number = 5;
-  playerHandNumber: number = 8;
   monsterNumber: number = 3;
   turn: number = 1;
   monstersWon: number = 0;
   showPickedCard: boolean = false;
+  selectedPlayersCardIndex: number = -1;
   showPickedMonster: boolean = false;
   selectedValue: number | null = null;
   myTurn: boolean = true;
   chosen: boolean = false;
   rotateDiv: boolean = false;
-  //@ViewChild('diceImg', { static: true }) diceImg: ElementRef | undefined;
   opponent$: BehaviorSubject<IPlayer | null>;
   session$: BehaviorSubject<ISession | null>;
   player$: BehaviorSubject<IPlayer | null>;
@@ -48,12 +47,10 @@ export class SessionPageComponent {
     if (array == null || array.player.hand == undefined) return 0;
     return array.player.hand.length;
   }
-
   NumberOfMonsterCards(broj: number | undefined): number {
     if (broj == undefined) return 0;
     return broj;
   }
-
   DiceRoll() {
     if (this.chosen) {
       this.rotateDiv = true;
@@ -68,11 +65,9 @@ export class SessionPageComponent {
       }, 1000);
     }
   }
-
   offPickedImage() {
     if (!this.chosen && this.showPickedCard) this.showPickedCard = false;
   }
-
   range(range: number): number[] {
     const rangeArray = [];
     for (let i = 0; i <= range - 1; i++) {
@@ -80,7 +75,6 @@ export class SessionPageComponent {
     }
     return rangeArray;
   }
-
   onCardHover(value: number): void {
     if (!this.chosen) {
       this.selectedValue = value;
@@ -88,20 +82,26 @@ export class SessionPageComponent {
       this.showPickedCard = true;
     }
   }
-
   onCardLeave() {
     if (!this.chosen) this.showPickedCard = false;
   }
-  chooseCard(index: number) {
-    if (!this.chosen) {
-      this.showPickedCard = true;
-      this.chosen = true;
+  chooseCard(cards: ICard[] | undefined, id: number) {
+    // if (!this.chosen) {
+    //   this.showPickedCard = true;
+    //   this.chosen = true;
+    // }
+    if (cards != undefined) {
+      console.log('card:', cards[id]);
+      this.sessionService.playCard({
+        cardId: cards[id]._id,
+        playerId: this.player$.getValue()?._id,
+        target: [{ effectIndex: 0, target: 'self' }],
+        index: id,
+      });
     }
   }
-
   chooseMonster() {
     this.showPickedMonster = true;
-
     this.chosen = true;
   }
   onMonsterLeave() {
@@ -114,13 +114,11 @@ export class SessionPageComponent {
       this.showPickedMonster = true;
     }
   }
-
   pickedCardDisplay(array: ISession | null, index: number | null): string {
     if (array == null || array.player.hand == undefined || index == null)
       return '';
     return array.player.hand[index].name;
   }
-
   pickedMonsterDisplay(array: ISession | null, index: number | null): string {
     if (
       array == null ||
@@ -130,5 +128,8 @@ export class SessionPageComponent {
     )
       return '';
     return array.monsters[index].name;
+  }
+  showBoardPlayerCard(cards: ICard[] | undefined, id: number): string {
+    return '';
   }
 }

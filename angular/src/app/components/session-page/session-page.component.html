@@ -36,27 +36,12 @@
 
                 <div class="boardContainer">
 
-                    <div class="playCard">
-
+                    <div *ngFor="let i of range(7)" class="playCard">
+                     <div>
+                        {{showBoardPlayerCard((session$|async)!.player.field, i)}}
+                     </div>
                     </div>
-                    <div class="playCard">
-
-                    </div>
-                    <div class="playCard">
-
-                    </div>
-                    <div class="playCard">
-
-                    </div>
-                    <div class="playCard">
-
-                    </div>
-                    <div class="playCard">
-
-                    </div>
-                    <div class="playCard">
-
-                    </div>
+                    
                     <div class="monsterBordContainer">
                         <div class="monster">
 
@@ -118,7 +103,7 @@
                             <div [ngClass]="{
                                 'card':true, 'pickCard':this.showPickedCard&&!this.chosen, 'disable':this.chosen}" 
                                 *ngFor="let i of range(NumberOfCards((session$ | async)))" 
-                                [style.--i]="i-NumberOfCards((session$ | async))/2" (mouseover)="onCardHover(i)" (mouseleave)="onCardLeave()" (click)="chooseCard(i)">{{((session$ | async)!.player.hand)![i].name}}</div>
+                                [style.--i]="i-NumberOfCards((session$ | async))/2" (mouseover)="onCardHover(i)" (mouseleave)="onCardLeave()" (click)="chooseCard(session$.getValue()!.player.hand, i)">{{((session$ | async)!.player.hand)![i].name}}</div>
                         </div>
                     </div>
                     <div class="additionalDataSection">
