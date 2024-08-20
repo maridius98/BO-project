@@ -72,7 +72,7 @@ export class SessionGateway implements OnModuleInit {
   update(@MessageBody() updateSessionDto: UpdateSessionDto) {
     //return this.sessionService.update(updateSessionDto.id, updateSessionDto);
   }
-  // znaci potrebna je sesija, playerId,
+
   @SubscribeMessage('roll')
   async roll(@MessageBody() playerId: string) {
     const player = await this.playerService.findOne(playerId);

@@ -149,15 +149,16 @@ export class CardDataLayer {
   }
 
   playCard(cardExecData: CardExecData) {
-    if (cardExecData.card instanceof HeroCard) {
-      cardExecData.player.field.push(cardExecData.card);
+    const player = cardExecData.session.players.find((player) => {
+      return player._id.toString() === cardExecData.player._id.toString();
+    });
+    if (cardExecData.card.cardType == 'HeroCard') {
+      player.field.push(cardExecData.card);
     } else {
       cardExecData.session.discardPile.push(cardExecData.card);
     }
-    const player = cardExecData.session.players.find((player) => {
-      return player.id === cardExecData.player.id;
-    });
     player.hand.splice(cardExecData.index, 1);
+    player.actionPoints--;
     return cardExecData.session;
   }
 }

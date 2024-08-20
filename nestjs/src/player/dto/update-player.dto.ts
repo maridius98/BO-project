@@ -1,6 +1,10 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { CreatePlayerDto } from './create-player.dto';
+import { Card } from 'src/card/entities/card.entity';
+import { ObjectId } from 'mongoose';
 
 export class UpdatePlayerDto extends PartialType(CreatePlayerDto) {
-  id: number;
+  _id?: string | ObjectId;
+  hand: Card[];
+  field: Card[];
 }

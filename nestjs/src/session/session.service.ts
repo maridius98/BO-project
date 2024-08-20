@@ -5,12 +5,15 @@ import { Model } from 'mongoose';
 import { CardService } from 'src/card/card.service';
 import { SessionDataLayer } from './session.data-layer';
 import { CardDataLayer, CardExecData } from 'src/card/card.data-layer';
+import { PlayerService } from 'src/player/player.service';
+import { ModuleRef } from '@nestjs/core';
 
 @Injectable()
 export class SessionService {
   constructor(
     @InjectModel('Session') private readonly model: Model<Session>,
     private readonly cardService: CardService,
+    private readonly playerService: PlayerService,
     private readonly sessionDataLayer: SessionDataLayer,
     private readonly cardDataLayer: CardDataLayer,
   ) {}
@@ -41,27 +44,34 @@ export class SessionService {
     const cards = await this.cardService.getPlayableCards();
     const monsters = await this.cardService.getMonsterCards();
     const generatedSession = this.sessionDataLayer.generateSession(monsters, cards, session);
-    await generatedSession.save();
+    await this.update(generatedSession);
     return generatedSession;
   }
 
   async playCard(cardExecData: CardExecData) {
     const session = this.cardDataLayer.playCard(cardExecData);
-    return await this.update(session);
+    await this.update(session);
+    return session;
   }
 
   async playEffect(cardExecData: CardExecData) {
     const session = this.cardDataLayer.playEffect(cardExecData);
-    return await this.update(session);
+    await this.update(session);
+    return session;
   }
 
   async startEffect(cardExecData: CardExecData) {
     const session = this.cardDataLayer.startEffect(cardExecData);
-    return await this.update(session);
+    await this.update(session);
+    return session;
   }
 
   async update(session: Session) {
-    return await session.save();
+    await Promise.all(session.players.map((player) => this.playerService.update(player)));
+    const { _id, ...data } = session;
+    const savedSession = await this.model.updateOne({ _id }, { $set: data });
+    console.log(savedSession);
+    return savedSession;
   }
 
   remove(id: number) {
