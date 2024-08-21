@@ -1,15 +1,7 @@
-import {
-  Component,
-  ElementRef,
-  HostListener,
-  OnDestroy,
-  ViewChild,
-} from '@angular/core';
+import { Component } from '@angular/core';
 import { SessionService } from '../../session.service';
-import { Router } from '@angular/router';
-import { BehaviorSubject, Subscription } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import { ICard, IPlayer, ISession } from '../../interfaces';
-import { PlayCardDto } from './play-card.dto';
 
 @Component({
   selector: 'app-session-page',
@@ -24,13 +16,11 @@ export class SessionPageComponent {
   secondOpponentDice: number = 1;
   actionPoints: number = 2;
   monsterNumber: number = 3;
-  turn: number = 1;
   monstersWon: number = 0;
   showPickedCard: boolean = false;
   selectedPlayersCardIndex: number = -1;
   showPickedMonster: boolean = false;
   selectedValue: number | null = null;
-  myTurn: boolean = true;
   chosen: boolean = false;
   rotateDiv: boolean = false;
   opponent$: BehaviorSubject<IPlayer | null>;
@@ -78,7 +68,7 @@ export class SessionPageComponent {
   onCardHover(value: number): void {
     if (!this.chosen) {
       this.selectedValue = value;
-      console.log(this.selectedValue);
+      //console.log(this.selectedValue);
       this.showPickedCard = true;
     }
   }
@@ -90,14 +80,17 @@ export class SessionPageComponent {
     //   this.showPickedCard = true;
     //   this.chosen = true;
     // }
-    if (cards != undefined) {
-      console.log('card:', cards[id]);
-      this.sessionService.playCard({
-        cardId: cards[id]._id,
-        playerId: this.player$.getValue()?._id,
-        target: [{ effectIndex: 0, target: 'self' }],
-        index: id,
-      });
+    if (this.Turn(this.session$.getValue())) {
+      if (cards != undefined) {
+        //console.log('card:', cards[id]);
+        this.sessionService.playCard({
+          cardId: cards[id]._id,
+          playerId: this.player$.getValue()?._id,
+          target: [{ effectIndex: 0, target: 'self' }],
+          index: id,
+        });
+        this.showPickedCard = false;
+      }
     }
   }
   chooseMonster() {
@@ -110,12 +103,28 @@ export class SessionPageComponent {
   onMonsterHover(value: number) {
     if (!this.chosen) {
       this.selectedValue = value;
-      console.log(this.selectedValue);
+      //console.log(this.selectedValue);
       this.showPickedMonster = true;
     }
   }
-  pickedCardDisplay(array: ISession | null, index: number | null): string {
-    if (array == null || array.player.hand == undefined || index == null)
+  pickedCardDisplay(
+    array: ISession | null | undefined,
+    index: number | null | undefined
+  ): string {
+    if (
+      array == undefined ||
+      array == null ||
+      array.player == undefined ||
+      array.player == null ||
+      array.player.hand == undefined ||
+      array.player.hand == null ||
+      index == undefined ||
+      index == null ||
+      array.player.hand[index] == undefined ||
+      array.player.hand[index] == null ||
+      array.player.hand[index].name == undefined ||
+      array.player.hand[index].name == null
+    )
       return '';
     return array.player.hand[index].name;
   }
@@ -130,6 +139,52 @@ export class SessionPageComponent {
     return array.monsters[index].name;
   }
   showBoardPlayerCard(cards: ICard[] | undefined, id: number): string {
-    return '';
+    if (
+      cards == undefined ||
+      cards[id] == undefined ||
+      cards[id].name == undefined
+    )
+      return '';
+    return cards[id].name;
+  }
+  canCardShow(cards: ICard[] | undefined, id: number): boolean {
+    if (
+      cards == undefined ||
+      cards[id] == undefined ||
+      cards[id].name == undefined
+    )
+      return false;
+    return true;
+  }
+
+  getActionPoints(sesssion: ISession | null): number {
+    if (
+      sesssion == undefined ||
+      sesssion == null ||
+      sesssion.opponent == undefined ||
+      sesssion.opponent == null ||
+      sesssion.opponent.actionPoints == null ||
+      sesssion.player == undefined ||
+      sesssion.player == null ||
+      sesssion.player.actionPoints == null
+    )
+      return 0;
+    let oppPts = sesssion?.opponent?.actionPoints;
+    let plPts = sesssion?.player.actionPoints;
+    if (oppPts == 0) return plPts;
+    return oppPts;
+  }
+  Turn(sesssion: ISession | null): number {
+    if (
+      sesssion == undefined ||
+      sesssion == null ||
+      sesssion.opponent == undefined ||
+      sesssion.opponent == null ||
+      sesssion.opponent.actionPoints == null
+    )
+      return 0;
+    let oppPts = sesssion?.opponent?.actionPoints;
+    if (oppPts == 0) return 1;
+    return 2;
   }
 }

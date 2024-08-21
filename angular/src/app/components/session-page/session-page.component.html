@@ -8,9 +8,9 @@
                 </div>
             </div>
             <div class="actionPointsDiv">
-                <div [ngStyle]="{'background-color': actionPoints>=1 ? (turn==1 ? '#4fc3dc':'#ff2d75') : '#43434382'}"></div>
-                <div [ngStyle]="{'background-color': actionPoints>=2 ? (turn==1 ? '#4fc3dc':'#ff2d75') : '#43434382'}"></div>
-                <div [ngStyle]="{'background-color': actionPoints>=3 ? (turn==1 ? '#4fc3dc':'#ff2d75') : '#43434382'}"></div>
+                <div [ngStyle]="{'background-color': getActionPoints((session$ | async))>=1 ? (Turn((session$ | async))==1 ? '#4fc3dc':'#ff2d75') : '#43434382'}"></div>
+                <div [ngStyle]="{'background-color': getActionPoints((session$ | async))>=2 ? (Turn((session$ | async))==1 ? '#4fc3dc':'#ff2d75') : '#43434382'}"></div>
+                <div [ngStyle]="{'background-color': getActionPoints((session$ | async))>=3 ? (Turn((session$ | async))==1 ? '#4fc3dc':'#ff2d75') : '#43434382'}"></div>
             </div>
             <div class="playCardPiles">
                 <div class="freshPile">
@@ -19,10 +19,10 @@
                 <div class="discardPile">
                     
                 </div>
-                <div [ngClass]="{'pickedCard': true, 'show': showPickedCard&&myTurn}">
+                <div [ngClass]="{'pickedCard': true, 'show': showPickedCard&&Turn((session$|async))==1}">
                     {{pickedCardDisplay((session$ | async), selectedValue)}}
                 </div>
-                <div [ngClass]="{'pickedMonster': true, 'showMonster': showPickedMonster&&myTurn}">
+                <div [ngClass]="{'pickedMonster': true, 'showMonster': showPickedMonster&&Turn((session$|async))==1}">
                     {{pickedMonsterDisplay((session$ | async), selectedValue)}}
                 </div>
             </div>
@@ -36,9 +36,9 @@
 
                 <div class="boardContainer">
 
-                    <div *ngFor="let i of range(7)" class="playCard">
-                     <div>
-                        {{showBoardPlayerCard((session$|async)!.player.field, i)}}
+                    <div [ngClass]="{'playCard':true}"  *ngFor="let i of range(7)">
+                     <div  class="actualCardOnBoard" *ngIf="canCardShow((session$ | async)!.opponent?.field,i)">
+                        {{showBoardPlayerCard((session$|async)!.opponent!.field, i)}}
                      </div>
                     </div>
                     
@@ -69,26 +69,10 @@
             <div class="playerSection">
                 <div class="boardContainer">
 
-                    <div class="playCard">
-
-                    </div>
-                    <div class="playCard">
-
-                    </div>
-                    <div class="playCard">
-
-                    </div>
-                    <div class="playCard">
-
-                    </div>
-                    <div class="playCard">
-
-                    </div>
-                    <div class="playCard">
-
-                    </div>
-                    <div class="playCard">
-
+                    <div [ngClass]="{'playCard':true}"  *ngFor="let i of range(7)">
+                        <div class="actualCardOnBoard" *ngIf="canCardShow((session$ | async)!.player.field,i)">
+                            {{showBoardPlayerCard((session$ | async)!.player.field, i)}}
+                        </div>
                     </div>
                     <div class="monsterBordContainer">
                         <div class="monster">
