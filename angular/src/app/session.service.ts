@@ -65,4 +65,12 @@ export class SessionService {
   async playCard(playCardDto: PlayCardDto) {
     await this.socket.emit('playCard', playCardDto);
   }
+
+  async Roll(index: string) {
+    await this.socket.emit('roll', index);
+  }
+
+  async ResolveRoll(playCardDto: PlayCardDto) {
+    await this.socket.emit('resolveRoll', playCardDto);
+  }
 }

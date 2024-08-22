@@ -26,6 +26,8 @@ export class SessionPageComponent {
   opponent$: BehaviorSubject<IPlayer | null>;
   session$: BehaviorSubject<ISession | null>;
   player$: BehaviorSubject<IPlayer | null>;
+  isInHand: boolean = false;
+  boardCardId: number = -1;
 
   constructor(private sessionService: SessionService) {
     this.opponent$ = sessionService.opponent$;
@@ -41,20 +43,7 @@ export class SessionPageComponent {
     if (broj == undefined) return 0;
     return broj;
   }
-  DiceRoll() {
-    if (this.chosen) {
-      this.rotateDiv = true;
-      this.firstDice = Math.floor(Math.random() * 6) + 1;
-      this.secondDice = Math.floor(Math.random() * 6) + 1;
-      this.chosen = false;
-      this.showPickedCard = false;
-      this.showPickedMonster = false;
-      this.rotateDiv = true;
-      setTimeout(() => {
-        this.rotateDiv = false;
-      }, 1000);
-    }
-  }
+
   offPickedImage() {
     if (!this.chosen && this.showPickedCard) this.showPickedCard = false;
   }
@@ -65,9 +54,10 @@ export class SessionPageComponent {
     }
     return rangeArray;
   }
-  onCardHover(value: number): void {
+  onCardHover(value: number, inHand: boolean): void {
     if (!this.chosen) {
       this.selectedValue = value;
+      this.isInHand = inHand;
       //console.log(this.selectedValue);
       this.showPickedCard = true;
     }
@@ -109,24 +99,44 @@ export class SessionPageComponent {
   }
   pickedCardDisplay(
     array: ISession | null | undefined,
-    index: number | null | undefined
+    index: number | null | undefined,
+    isHand: boolean
   ): string {
-    if (
-      array == undefined ||
-      array == null ||
-      array.player == undefined ||
-      array.player == null ||
-      array.player.hand == undefined ||
-      array.player.hand == null ||
-      index == undefined ||
-      index == null ||
-      array.player.hand[index] == undefined ||
-      array.player.hand[index] == null ||
-      array.player.hand[index].name == undefined ||
-      array.player.hand[index].name == null
-    )
-      return '';
-    return array.player.hand[index].name;
+    if (isHand) {
+      if (
+        array == undefined ||
+        array == null ||
+        array.player == undefined ||
+        array.player == null ||
+        array.player.hand == undefined ||
+        array.player.hand == null ||
+        index == undefined ||
+        index == null ||
+        array.player.hand[index] == undefined ||
+        array.player.hand[index] == null ||
+        array.player.hand[index].name == undefined ||
+        array.player.hand[index].name == null
+      )
+        return '';
+      return array.player.hand[index].name;
+    } else {
+      if (
+        array == undefined ||
+        array == null ||
+        array.player == undefined ||
+        array.player == null ||
+        array.player.field == undefined ||
+        array.player.field == null ||
+        index == undefined ||
+        index == null ||
+        array.player.field[index] == undefined ||
+        array.player.field[index] == null ||
+        array.player.field[index].name == undefined ||
+        array.player.field[index].name == null
+      )
+        return '';
+      return array.player.field[index].name;
+    }
   }
   pickedMonsterDisplay(array: ISession | null, index: number | null): string {
     if (
@@ -145,6 +155,7 @@ export class SessionPageComponent {
       cards[id].name == undefined
     )
       return '';
+
     return cards[id].name;
   }
   canCardShow(cards: ICard[] | undefined, id: number): boolean {
@@ -186,5 +197,55 @@ export class SessionPageComponent {
     let oppPts = sesssion?.opponent?.actionPoints;
     if (oppPts == 0) return 1;
     return 2;
+  }
+
+  rollForPickedCard(index: number) {
+    if (this.player$.getValue() != null) {
+      if (this.player$.getValue()!._id != undefined) {
+        this.chosen = true;
+        this.sessionService.Roll(this.player$.getValue()!._id!);
+        this.boardCardId = index;
+      }
+    }
+  }
+
+  DiceRoll() {
+    if (this.chosen) {
+      this.rotateDiv = true;
+      if (this.session$.getValue()!.roll != undefined) {
+        this.firstDice = Math.floor(this.session$.getValue()!.roll / 2);
+        this.secondDice = this.session$.getValue()!.roll - this.firstDice;
+      }
+      this.chosen = false;
+      this.showPickedCard = false;
+      this.showPickedMonster = false;
+      this.rotateDiv = true;
+      setTimeout(() => {
+        this.rotateDiv = false;
+
+        console.log('HEREEEE');
+        this.sessionService.ResolveRoll({
+          cardId:
+            this.session$.getValue()?.player!.field![this.boardCardId]._id,
+          playerId: this.player$.getValue()?._id,
+          target: [{ effectIndex: 0, target: 'self' }],
+          index: this.boardCardId,
+        });
+        this.boardCardId = -1;
+      }, 1000);
+    }
+  }
+  ReturnDices(session: ISession | null): number[] {
+    if (
+      this.Turn(session) == 1 ||
+      session == undefined ||
+      session.roll == undefined ||
+      session.roll == null
+    )
+      return [1, 1];
+    return [
+      Math.floor(session.roll / 2),
+      session.roll - Math.floor(session.roll / 2),
+    ];
   }
 }

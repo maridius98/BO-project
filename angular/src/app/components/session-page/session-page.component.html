@@ -20,7 +20,7 @@
                     
                 </div>
                 <div [ngClass]="{'pickedCard': true, 'show': showPickedCard&&Turn((session$|async))==1}">
-                    {{pickedCardDisplay((session$ | async), selectedValue)}}
+                    {{pickedCardDisplay((session$ | async), selectedValue, isInHand)}}
                 </div>
                 <div [ngClass]="{'pickedMonster': true, 'showMonster': showPickedMonster&&Turn((session$|async))==1}">
                     {{pickedMonsterDisplay((session$ | async), selectedValue)}}
@@ -58,8 +58,8 @@
                     <div class="additionalOpponentDataSection">
                         <div class="opponentDice">
                             <div class="dices" (click)="DiceRoll()">
-                                <img class="diceImg" [src]="'assets/dice/opponentDice' + firstOpponentDice + '.png'" alt="Dice {{firstOpponentDice}}">
-                                <img class="diceImg" [src]="'../../assets/dice/opponentDice' + secondOpponentDice + '.png'" alt="Dice {{secondOpponentDice}}">
+                                <img class="diceImg" [src]="'assets/dice/opponentDice' + ReturnDices((session$ | async))[0] + '.png'" alt="Dice {{ReturnDices((session$ | async))[0]}}">
+                                <img class="diceImg" [src]="'../../assets/dice/opponentDice' + ReturnDices((session$ | async))[1] + '.png'" alt="Dice {{ReturnDices((session$ | async))[1]}}">
                             </div>
                         </div>
                     </div>
@@ -70,7 +70,7 @@
                 <div class="boardContainer">
 
                     <div [ngClass]="{'playCard':true}"  *ngFor="let i of range(7)">
-                        <div class="actualCardOnBoard" *ngIf="canCardShow((session$ | async)!.player.field,i)">
+                        <div class="actualCardOnBoard" *ngIf="canCardShow((session$ | async)!.player.field,i)" (mouseover)="onCardHover(i, false)" (mouseleave)="onCardLeave()" (click)="rollForPickedCard(i)">
                             {{showBoardPlayerCard((session$ | async)!.player.field, i)}}
                         </div>
                     </div>
@@ -87,7 +87,7 @@
                             <div [ngClass]="{
                                 'card':true, 'pickCard':this.showPickedCard&&!this.chosen, 'disable':this.chosen}" 
                                 *ngFor="let i of range(NumberOfCards((session$ | async)))" 
-                                [style.--i]="i-NumberOfCards((session$ | async))/2" (mouseover)="onCardHover(i)" (mouseleave)="onCardLeave()" (click)="chooseCard(session$.getValue()!.player.hand, i)">{{((session$ | async)!.player.hand)![i].name}}</div>
+                                [style.--i]="i-NumberOfCards((session$ | async))/2" (mouseover)="onCardHover(i, true)" (mouseleave)="onCardLeave()" (click)="chooseCard(session$.getValue()!.player.hand, i)">{{((session$ | async)!.player.hand)![i].name}}</div>
                         </div>
                     </div>
                     <div class="additionalDataSection">
