@@ -8,7 +8,7 @@ import { ModifierCardSchema } from './entities/modifierCard.entity';
 import { MagicCardSchema } from './entities/magicCard.entity';
 import { HeroCardSchema } from './entities/heroCard.entity';
 import { ChallengeCardSchema } from './entities/challengeCard.entity';
-import { CardDataLayer } from './card.data-layer';
+import { CardDataLayer, CommandFactory } from './card.data-layer';
 
 @Module({
   imports: [
@@ -27,7 +27,7 @@ import { CardDataLayer } from './card.data-layer';
     ]),
   ],
   controllers: [CardController],
-  providers: [CardService, CardDataLayer],
+  providers: [CardService, CardDataLayer, CommandFactory],
   exports: [CardService, CardDataLayer],
 })
 export class CardModule {}

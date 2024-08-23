@@ -15,7 +15,7 @@ export class Session extends Document {
   @Prop({ default: 0 })
   roll: number;
 
-  @Prop()
+  @Prop({ default: State.makeMove })
   state: State;
 
   @Prop({ type: [{ type: Types.ObjectId, ref: 'Card' }] })

@@ -69,7 +69,8 @@ class Destroy extends Target implements Command {
   }
 }
 
-class CommandFactory {
+@Injectable()
+export class CommandFactory {
   build(commandName: string, target: Player): Command {
     switch (commandName) {
       case 'Draw':
@@ -86,7 +87,7 @@ class CommandFactory {
 
 @Injectable()
 export class CardDataLayer {
-  commandFactory: CommandFactory;
+  constructor(private commandFactory: CommandFactory) {}
 
   shuffle(cards: Card[], length = cards.length) {
     const shuffledCards = [...cards];
@@ -145,10 +146,14 @@ export class CardDataLayer {
 
   setNextState(cardExecData: CardExecData, index: number) {
     const effect = cardExecData.card.effects[index];
-    return this.commandFactory.build(effect.split(';')[0], cardExecData.player).state;
+    console.log('Setting effect: ' + effect);
+    const state = this.commandFactory.build(effect.split(';')[0], cardExecData.player).state;
+    console.log(state);
+    return state;
   }
 
   playCard(cardExecData: CardExecData) {
+    console.log('In card datalayer play');
     const player = cardExecData.session.players.find((player) => {
       return player._id.toString() === cardExecData.player._id.toString();
     });
