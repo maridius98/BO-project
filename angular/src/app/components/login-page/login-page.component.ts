@@ -65,7 +65,6 @@ export class LoginPageComponent {
 
     this.sessionService.createLobby(createPlayerDto);
 
-    console.log(this.sessionService);
     setTimeout(() => {
       if (this.sessionService.player$ && this.sessionService.getSessionCode()) {
         this.isLoading = true;
@@ -74,7 +73,6 @@ export class LoginPageComponent {
           this.playAudio();
         }, 2000);
       } else {
-        console.log(this.sessionService.getSessionCode());
       }
     }, 200);
   }

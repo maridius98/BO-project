@@ -16,7 +16,7 @@ export interface CardExecData {
 interface Command {
   state: State;
   target: Player;
-  exec(value: number | number[], target: Player): Session;
+  exec(value: number | number[], target: Player, session: Session): Session;
 }
 
 class Target {
@@ -24,32 +24,39 @@ class Target {
   constructor(target: Player) {
     this.target = target;
   }
+  getMutablePlayer = (target: Player, session: Session) => {
+    return session.players.find((p) => {
+      return p._id.toString() === target._id.toString();
+    });
+  };
 }
 
 class Draw extends Target implements Command {
-  state = State.makeMove;
-  exec(value: number, target: Player) {
+  state = State.skip;
+  exec(value: number, target: Player, session: Session) {
+    const player = this.getMutablePlayer(target, session);
     for (let i = 0; i < value; i++) {
-      target.hand.push(target.session.deck.pop());
+      player.hand.push(session.deck.pop());
     }
-    return target.session;
+    return session;
   }
 }
 
 class Discard extends Target implements Command {
   state = State.selectDiscard;
-  exec(value: number[], target: Player) {
+  exec(value: number[], target: Player, session: Session) {
+    const player = this.getMutablePlayer(target, session);
     for (const index in value) {
-      target.session.discardPile.push(target.hand[index]);
+      session.discardPile.push(player.hand[index]);
     }
-    target.hand.filter((_, index) => !value.includes(index));
-    return target.session;
+    player.hand.filter((_, index) => !value.includes(index));
+    return session;
   }
 }
 
 class Sacrifice extends Target implements Command {
   state = State.selectSacrifice;
-  exec(value: number[], target: Player) {
+  exec(value: number[], target: Player, session: Session) {
     for (const index in value) {
       target.session.discardPile.push(target.field[index]);
     }
@@ -60,7 +67,7 @@ class Sacrifice extends Target implements Command {
 
 class Destroy extends Target implements Command {
   state = State.selectDestroy;
-  exec(value: number[], target: Player) {
+  exec(value: number[], target: Player, session: Session) {
     for (const index in value) {
       target.session.discardPile.push(target.field[index]);
     }
@@ -108,15 +115,15 @@ export class CardDataLayer {
       return cardExecData.session;
     }
     const effect = cardExecData.card.effects[cardExecData.index];
-    const [commandName, target, value] = effect.split(';');
+    const [commandName, value, target] = effect.split(';');
     let player: Player;
     if (target === 'self') {
       player = cardExecData.session.players.find((p) => {
-        p === player;
+        return p._id.toString() === cardExecData.player._id.toString();
       });
     } else {
       player = cardExecData.session.players.find((p) => {
-        p != player;
+        return p._id.toString() != cardExecData.player._id.toString();
       });
     }
     const command = this.commandFactory.build(commandName, player);
@@ -125,7 +132,7 @@ export class CardDataLayer {
         throw new Error('Unplayable');
       }
     }
-    command.exec(cardExecData.targets || Number(value), player);
+    command.exec(cardExecData.targets || Number(value), player, cardExecData.session);
     if (cardExecData.index + 1 < cardExecData.card.effects.length) {
       cardExecData.session.state = this.setNextState(cardExecData, cardExecData.index + 1);
     } else {
@@ -133,7 +140,7 @@ export class CardDataLayer {
         cardExecData.session.state = State.makeMove;
         cardExecData.player.actionPoints--;
       } else {
-        cardExecData.session.state = State.skip;
+        cardExecData.session.state = State.makeMove;
       }
     }
     return cardExecData.session;
@@ -146,14 +153,11 @@ export class CardDataLayer {
 
   setNextState(cardExecData: CardExecData, index: number) {
     const effect = cardExecData.card.effects[index];
-    console.log('Setting effect: ' + effect);
     const state = this.commandFactory.build(effect.split(';')[0], cardExecData.player).state;
-    console.log(state);
     return state;
   }
 
   playCard(cardExecData: CardExecData) {
-    console.log('In card datalayer play');
     const player = cardExecData.session.players.find((player) => {
       return player._id.toString() === cardExecData.player._id.toString();
     });

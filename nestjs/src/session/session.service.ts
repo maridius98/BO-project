@@ -49,21 +49,18 @@ export class SessionService {
   }
 
   async playCard(cardExecData: CardExecData) {
-    //console.log('Playing card: ' + cardExecData);
     const session = this.cardDataLayer.playCard(cardExecData);
     await this.update(session);
     return session;
   }
 
   async playEffect(cardExecData: CardExecData) {
-    console.log('Playing effect: ' + cardExecData);
     const session = this.cardDataLayer.playEffect(cardExecData);
     await this.update(session);
     return session;
   }
 
   async startEffect(cardExecData: CardExecData) {
-    console.log('Starting effect: ' + cardExecData.card._id);
     const session = this.cardDataLayer.startEffect(cardExecData);
     await this.update(session);
     return session;
@@ -73,7 +70,6 @@ export class SessionService {
     await Promise.all(session.players.map((player) => this.playerService.update(player)));
     const { _id, ...data } = session;
     const savedSession = await this.model.updateOne({ _id }, { $set: data });
-    console.log(savedSession);
     return savedSession;
   }
 

@@ -58,7 +58,6 @@ export class SessionPageComponent {
     if (!this.chosen) {
       this.selectedValue = value;
       this.isInHand = inHand;
-      //console.log(this.selectedValue);
       this.showPickedCard = true;
     }
   }
@@ -72,11 +71,10 @@ export class SessionPageComponent {
     // }
     if (this.Turn(this.session$.getValue())) {
       if (cards != undefined) {
-        //console.log('card:', cards[id]);
         this.sessionService.playCard({
           cardId: cards[id]._id,
           playerId: this.player$.getValue()?._id,
-          target: [{ effectIndex: 0, target: 'self' }],
+          target: { effectIndex: 0, target: 'self' },
           index: id,
         });
         this.showPickedCard = false;
@@ -93,7 +91,6 @@ export class SessionPageComponent {
   onMonsterHover(value: number) {
     if (!this.chosen) {
       this.selectedValue = value;
-      //console.log(this.selectedValue);
       this.showPickedMonster = true;
     }
   }
@@ -209,7 +206,7 @@ export class SessionPageComponent {
     }
   }
 
-  DiceRoll() {
+  async DiceRoll() {
     if (this.chosen) {
       this.rotateDiv = true;
       if (this.session$.getValue()!.roll != undefined) {
@@ -223,12 +220,11 @@ export class SessionPageComponent {
       setTimeout(() => {
         this.rotateDiv = false;
 
-        console.log('HEREEEE');
         this.sessionService.ResolveRoll({
           cardId:
             this.session$.getValue()?.player!.field![this.boardCardId]._id,
           playerId: this.player$.getValue()?._id,
-          target: [{ effectIndex: 0, target: 'self' }],
+          target: { effectIndex: 0, target: 'self' },
           index: this.boardCardId,
         });
         this.boardCardId = -1;

@@ -17,7 +17,6 @@ export class SessionService {
   constructor(private socket: Socket) {}
 
   sub() {
-    console.log('id: ' + this.player$.getValue()?._id);
     this.socket
       .fromEvent(`lobby:${this.player$.getValue()?._id}`)
       .pipe(map((data) => data as string))
@@ -29,7 +28,6 @@ export class SessionService {
       .fromEvent(`session:${this.player$.getValue()?._id}`)
       .pipe(map((data) => data as string))
       .subscribe((data: string) => {
-        console.log(data);
         this.session$.next(JSON.parse(data));
       });
   }
@@ -39,7 +37,6 @@ export class SessionService {
   }
 
   async joinLobby(createPlayerDto: CreatePlayerDto) {
-    console.log(createPlayerDto);
     await this.socket.emit('joinLobby', createPlayerDto, (res: string[]) => {
       this.player$.next(JSON.parse(res[0]));
       this.opponent$.next(JSON.parse(res[1]));

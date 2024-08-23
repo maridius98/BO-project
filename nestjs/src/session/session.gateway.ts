@@ -85,7 +85,6 @@ export class SessionGateway implements OnModuleInit {
 
   @SubscribeMessage('resolveRoll')
   async resolveRoll(@MessageBody() playCardDto: PlayCardDto) {
-    console.log('Resolving roll...');
     const card = (await this.cardService.findOne(playCardDto.cardId)) as HeroCard;
     const player = await this.playerService.findOne(playCardDto.playerId);
     const session = await this.sessionService.findOne(player.session._id);
@@ -97,13 +96,13 @@ export class SessionGateway implements OnModuleInit {
     });
     let i = 0;
     while (updatedSession.state == State.skip) {
-      i++;
       updatedSession = await this.sessionService.playEffect({
         card,
         player,
         session: updatedSession,
-        index: playCardDto.index + i,
+        index: playCardDto.target.effectIndex + i,
       });
+      i++;
     }
     this.emitToAllClients(updatedSession);
   }
