@@ -8,7 +8,7 @@ import {
   Output,
   Renderer2,
 } from '@angular/core';
-import { SessionService } from '../../lobby.service';
+import { SessionService } from '../../session.service';
 import { Subscription } from 'rxjs';
 import { Router } from '@angular/router';
 
@@ -65,7 +65,6 @@ export class LoginPageComponent {
 
     this.sessionService.createLobby(createPlayerDto);
 
-    console.log(this.sessionService);
     setTimeout(() => {
       if (this.sessionService.player$ && this.sessionService.getSessionCode()) {
         this.isLoading = true;
@@ -74,7 +73,6 @@ export class LoginPageComponent {
           this.playAudio();
         }, 2000);
       } else {
-        console.log(this.sessionService.getSessionCode());
       }
     }, 200);
   }

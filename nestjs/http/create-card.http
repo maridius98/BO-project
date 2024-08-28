@@ -2,13 +2,27 @@ POST http://localhost:3000/card
 Content-Type: application/json
 
 {
-  "name": "Fire Dragon 3",
-  "description": "A powerful dragon",
+  "name": "Warrior Name",
+  "description": "Draw 2 cards",
   "imageURL": "dragon.jpg",
-  "defeatRoll": 10,
-  "victoryRoll": 20,
-  "effects": ["Fire Breath", "Tail Swipe"]
+  "class": "Warrior",
+  "victoryRoll": 4,
+  "effects": ["Draw;self;2"]
 }
+
+### Post Monster
+POST http://localhost:3000/card
+Content-Type: application/json
+
+{
+  "name": "Monster Name",
+  "description": "Big Bad Monster",
+  "imageURL": "dragon.jpg",
+  "victoryRoll": 4,
+  "defeatRoll": 9,
+  "effects": ["Draw;enemy;1"]
+}
+
 
 ### 
 GET http://localhost:3000/card

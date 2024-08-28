@@ -4,6 +4,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { Socket } from 'ngx-socket-io';
 import { IPlayer, ISession, Lobby } from './interfaces';
 import { CreatePlayerDto } from './components/login-page/create-player.dto';
+import { PlayCardDto } from './components/session-page/play-card.dto';
 
 @Injectable({
   providedIn: 'root',
@@ -16,7 +17,6 @@ export class SessionService {
   constructor(private socket: Socket) {}
 
   sub() {
-    console.log('id: ' + this.player$.getValue()?._id);
     this.socket
       .fromEvent(`lobby:${this.player$.getValue()?._id}`)
       .pipe(map((data) => data as string))
@@ -37,7 +37,6 @@ export class SessionService {
   }
 
   async joinLobby(createPlayerDto: CreatePlayerDto) {
-    console.log(createPlayerDto);
     await this.socket.emit('joinLobby', createPlayerDto, (res: string[]) => {
       this.player$.next(JSON.parse(res[0]));
       this.opponent$.next(JSON.parse(res[1]));
@@ -58,5 +57,17 @@ export class SessionService {
     if (this.player$.getValue()?.isHost && this.opponent$.getValue()) {
       await this.socket.emit('startGame', this.sessionCode);
     }
+  }
+
+  async playCard(playCardDto: PlayCardDto) {
+    await this.socket.emit('playCard', playCardDto);
+  }
+
+  async Roll(index: string) {
+    await this.socket.emit('roll', index);
+  }
+
+  async ResolveRoll(playCardDto: PlayCardDto) {
+    await this.socket.emit('resolveRoll', playCardDto);
   }
 }

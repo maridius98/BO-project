@@ -9,13 +9,13 @@ export class Session extends Document {
   @Prop()
   code: string;
 
-  @Prop({ default: 0 })
-  turn: number;
+  @Prop({ default: '' })
+  turn: string;
 
   @Prop({ default: 0 })
   roll: number;
 
-  @Prop()
+  @Prop({ default: State.makeMove })
   state: State;
 
   @Prop({ type: [{ type: Types.ObjectId, ref: 'Card' }] })
