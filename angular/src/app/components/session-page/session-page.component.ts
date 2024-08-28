@@ -12,11 +12,8 @@ import { ICard, IPlayer, ISession } from '../../interfaces';
 export class SessionPageComponent {
   firstDice: number = 1;
   secondDice: number = 1;
-  firstOpponentDice: number = 1;
-  secondOpponentDice: number = 1;
   actionPoints: number = 2;
   monsterNumber: number = 3;
-  monstersWon: number = 0;
   showPickedCard: boolean = false;
   selectedPlayersCardIndex: number = -1;
   showPickedMonster: boolean = false;
@@ -35,12 +32,12 @@ export class SessionPageComponent {
     this.session$ = sessionService.session$;
   }
 
-  NumberOfCards(array: ISession | null): number {
-    if (array == null || array.player.hand == undefined) return 0;
-    return array.player.hand.length;
+  NumberOfCards(session: ISession | null): number {
+    if (session == null || session.player.hand == undefined) return 0;
+    return session.player.hand.length;
   }
   NumberOfMonsterCards(broj: number | undefined): number {
-    if (broj == undefined) return 0;
+    if (!broj) return 0;
     return broj;
   }
 
@@ -65,10 +62,6 @@ export class SessionPageComponent {
     if (!this.chosen) this.showPickedCard = false;
   }
   chooseCard(cards: ICard[] | undefined, id: number) {
-    // if (!this.chosen) {
-    //   this.showPickedCard = true;
-    //   this.chosen = true;
-    // }
     if (this.Turn(this.session$.getValue())) {
       if (cards != undefined) {
         this.sessionService.playCard({
@@ -95,65 +88,25 @@ export class SessionPageComponent {
     }
   }
   pickedCardDisplay(
-    array: ISession | null | undefined,
+    session: ISession | null | undefined,
     index: number | null | undefined,
     isHand: boolean
-  ): string {
+  ) {
     if (isHand) {
-      if (
-        array == undefined ||
-        array == null ||
-        array.player == undefined ||
-        array.player == null ||
-        array.player.hand == undefined ||
-        array.player.hand == null ||
-        index == undefined ||
-        index == null ||
-        array.player.hand[index] == undefined ||
-        array.player.hand[index] == null ||
-        array.player.hand[index].name == undefined ||
-        array.player.hand[index].name == null
-      )
-        return '';
-      return array.player.hand[index].name;
+      if (session!.player.hand![index!] == undefined) return '';
+      return session!.player.hand![index!].name;
     } else {
-      if (
-        array == undefined ||
-        array == null ||
-        array.player == undefined ||
-        array.player == null ||
-        array.player.field == undefined ||
-        array.player.field == null ||
-        index == undefined ||
-        index == null ||
-        array.player.field[index] == undefined ||
-        array.player.field[index] == null ||
-        array.player.field[index].name == undefined ||
-        array.player.field[index].name == null
-      )
-        return '';
-      return array.player.field[index].name;
+      if (session!.player.field![index!] == undefined) return '';
+      return session!.player.field![index!]!.name;
     }
   }
-  pickedMonsterDisplay(array: ISession | null, index: number | null): string {
-    if (
-      array == null ||
-      array.monsters == undefined ||
-      index == null ||
-      array.monsters[index] == undefined
-    )
-      return '';
-    return array.monsters[index].name;
+  pickedMonsterDisplay(session: ISession | null, index: number | null) {
+    if (!session!.monsters[index!]) return '';
+    return session!.monsters[index!].name;
   }
   showBoardPlayerCard(cards: ICard[] | undefined, id: number): string {
-    if (
-      cards == undefined ||
-      cards[id] == undefined ||
-      cards[id].name == undefined
-    )
-      return '';
-
-    return cards[id].name;
+    if (!cards![id].name) return '';
+    return cards![id].name;
   }
   canCardShow(cards: ICard[] | undefined, id: number): boolean {
     if (
@@ -165,33 +118,14 @@ export class SessionPageComponent {
     return true;
   }
 
-  getActionPoints(sesssion: ISession | null): number {
-    if (
-      sesssion == undefined ||
-      sesssion == null ||
-      sesssion.opponent == undefined ||
-      sesssion.opponent == null ||
-      sesssion.opponent.actionPoints == null ||
-      sesssion.player == undefined ||
-      sesssion.player == null ||
-      sesssion.player.actionPoints == null
-    )
-      return 0;
-    let oppPts = sesssion?.opponent?.actionPoints;
-    let plPts = sesssion?.player.actionPoints;
+  getActionPoints(session: ISession | null) {
+    let oppPts = session!.opponent!.actionPoints;
+    let plPts = session!.player!.actionPoints;
     if (oppPts == 0) return plPts;
     return oppPts;
   }
-  Turn(sesssion: ISession | null): number {
-    if (
-      sesssion == undefined ||
-      sesssion == null ||
-      sesssion.opponent == undefined ||
-      sesssion.opponent == null ||
-      sesssion.opponent.actionPoints == null
-    )
-      return 0;
-    let oppPts = sesssion?.opponent?.actionPoints;
+  Turn(session: ISession | null) {
+    let oppPts = session!.opponent!.actionPoints;
     if (oppPts == 0) return 1;
     return 2;
   }
@@ -232,16 +166,10 @@ export class SessionPageComponent {
     }
   }
   ReturnDices(session: ISession | null): number[] {
-    if (
-      this.Turn(session) == 1 ||
-      session == undefined ||
-      session.roll == undefined ||
-      session.roll == null
-    )
-      return [1, 1];
+    if (this.Turn(session) == 1) return [1, 1];
     return [
-      Math.floor(session.roll / 2),
-      session.roll - Math.floor(session.roll / 2),
+      Math.floor(session!.roll / 2),
+      session!.roll - Math.floor(session!.roll / 2),
     ];
   }
 }

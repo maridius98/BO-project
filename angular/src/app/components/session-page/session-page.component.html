@@ -8,9 +8,9 @@
                 </div>
             </div>
             <div class="actionPointsDiv">
-                <div [ngStyle]="{'background-color': getActionPoints((session$ | async))>=1 ? (Turn((session$ | async))==1 ? '#4fc3dc':'#ff2d75') : '#43434382'}"></div>
-                <div [ngStyle]="{'background-color': getActionPoints((session$ | async))>=2 ? (Turn((session$ | async))==1 ? '#4fc3dc':'#ff2d75') : '#43434382'}"></div>
-                <div [ngStyle]="{'background-color': getActionPoints((session$ | async))>=3 ? (Turn((session$ | async))==1 ? '#4fc3dc':'#ff2d75') : '#43434382'}"></div>
+                <div [ngStyle]="{'background-color': getActionPoints((session$ | async))!>=1 ? (Turn((session$ | async))==1 ? '#4fc3dc':'#ff2d75') : '#43434382'}"></div>
+                <div [ngStyle]="{'background-color': getActionPoints((session$ | async))!>=2 ? (Turn((session$ | async))==1 ? '#4fc3dc':'#ff2d75') : '#43434382'}"></div>
+                <div [ngStyle]="{'background-color': getActionPoints((session$ | async))!>=3 ? (Turn((session$ | async))==1 ? '#4fc3dc':'#ff2d75') : '#43434382'}"></div>
             </div>
             <div class="playCardPiles">
                 <div class="freshPile">
