@@ -3,7 +3,7 @@ import { Card } from './entities/card.entity';
 import { Player } from 'src/player/entities/player.entity';
 import { Session } from 'src/session/entities/session.entity';
 import { HeroCard } from './entities/heroCard.entity';
-import { State } from 'src/utility';
+import { getMutablePlayer, State } from 'src/utility';
 
 export interface CardExecData {
   card: Card;
@@ -24,17 +24,12 @@ class Target {
   constructor(target: Player) {
     this.target = target;
   }
-  getMutablePlayer = (target: Player, session: Session) => {
-    return session.players.find((p) => {
-      return p._id.toString() === target._id.toString();
-    });
-  };
 }
 
 class Draw extends Target implements Command {
   state = State.skip;
   exec(value: number, target: Player, session: Session) {
-    const player = this.getMutablePlayer(target, session);
+    const player = getMutablePlayer(target, session);
     for (let i = 0; i < value; i++) {
       player.hand.push(session.deck.pop());
     }
@@ -45,7 +40,7 @@ class Draw extends Target implements Command {
 class Discard extends Target implements Command {
   state = State.selectDiscard;
   exec(value: number[], target: Player, session: Session) {
-    const player = this.getMutablePlayer(target, session);
+    const player = getMutablePlayer(target, session);
     for (const index in value) {
       session.discardPile.push(player.hand[index]);
     }
@@ -111,7 +106,7 @@ export class CardDataLayer {
   playEffect(cardExecData: CardExecData) {
     if (cardExecData.card instanceof HeroCard) {
       if (cardExecData.session.roll < cardExecData.card.victoryRoll)
-        cardExecData.session.state = State.makeMove;
+        cardExecData.player.state = State.makeMove;
       return cardExecData.session;
     }
     const effect = cardExecData.card.effects[cardExecData.index];
@@ -134,20 +129,21 @@ export class CardDataLayer {
     }
     command.exec(cardExecData.targets || Number(value), player, cardExecData.session);
     if (cardExecData.index + 1 < cardExecData.card.effects.length) {
-      cardExecData.session.state = this.setNextState(cardExecData, cardExecData.index + 1);
+      player.state = this.setNextState(cardExecData, cardExecData.index + 1);
     } else {
-      if (cardExecData.player.actionPoints > 1) {
-        cardExecData.session.state = State.makeMove;
-        cardExecData.player.actionPoints--;
+      if (player.actionPoints > 1) {
+        player.state = State.makeMove;
+        player.actionPoints--;
       } else {
-        cardExecData.session.state = State.makeMove;
+        player.state = State.makeMove;
       }
     }
     return cardExecData.session;
   }
 
   startEffect(cardExecData: CardExecData) {
-    cardExecData.session.state = this.setNextState(cardExecData, 0);
+    const player = getMutablePlayer(cardExecData.player, cardExecData.session);
+    player.state = this.setNextState(cardExecData, 0);
     return cardExecData.session;
   }
 

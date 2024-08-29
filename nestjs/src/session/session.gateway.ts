@@ -12,7 +12,7 @@ import { PlayerService } from 'src/player/player.service';
 import { PlayCardDto } from './dto/play-card.dto';
 import { CardService } from 'src/card/card.service';
 import { Inject, OnModuleInit, forwardRef } from '@nestjs/common';
-import { State, cleanOutput, rollNumber } from 'src/utility';
+import { State, cleanOutput, getMutablePlayer, rollNumber } from 'src/utility';
 import { SessionDataLayer } from './session.data-layer';
 import { Session } from './entities/session.entity';
 import { HeroCard } from 'src/card/entities/heroCard.entity';
@@ -97,7 +97,7 @@ export class SessionGateway implements OnModuleInit {
       index: playCardDto.index,
     });
     let i = 0;
-    while (updatedSession.state == State.skip) {
+    while (getMutablePlayer(player, updatedSession).state == State.skip) {
       updatedSession = await this.sessionService.playEffect({
         card,
         player,

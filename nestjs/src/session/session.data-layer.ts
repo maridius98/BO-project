@@ -6,6 +6,7 @@ import { MonsterCard } from 'src/card/entities/monsterCard.entity';
 import { CardExecData } from 'src/card/card.data-layer';
 import { HeroCard } from 'src/card/entities/heroCard.entity';
 import { PersonalSession } from './entities/personalSession';
+import { State } from 'src/utility';
 
 @Injectable()
 export class SessionDataLayer {
@@ -18,6 +19,7 @@ export class SessionDataLayer {
     session.players.map((player) => {
       player.hand = session.deck.splice(0, 5);
       if (player.isHost) {
+        player.state = State.makeMove;
         player.actionPoints = 3;
         session.turn = player.id;
       } else {

@@ -10,7 +10,6 @@ export class PersonalSession {
     this.code = session.code;
     this.turn = session.turn;
     this.roll = session.roll;
-    this.state = session.state;
     this.deckSize = session.deck.length;
     this.monsterDeckSize = session.monsterDeck.length;
     this.player = new RevealedPlayer(session.players[index]);
@@ -65,8 +64,10 @@ class IPlayer {
     this.username = player.username;
     this.actionPoints = player.actionPoints;
     this.field = player.field.map((card) => new ICard(card));
+    this.state = player.state;
   }
 
+  state: State;
   username: string;
   actionPoints: number;
   field: ICard[];
