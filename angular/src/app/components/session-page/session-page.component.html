@@ -1,5 +1,10 @@
 <div class="pageContainer">
 <div class="pulsingImage"></div>
+<div *ngIf="this.magicCard!=null" [ngClass]="{'showMagicCard':this.magicCard!=null}">
+    <!-- <div class="actualMagicCard">
+        {{this.magicCard?.name}}
+    </div> -->
+</div>
     <div class="leftSideContainer">
         <div class="sideCards">
             <div class="monsterCards"  (click)="offPickedImage()">

@@ -29,6 +29,7 @@ export class SessionService {
       .pipe(map((data) => data as string))
       .subscribe((data: string) => {
         this.session$.next(JSON.parse(data));
+        console.log(JSON.parse(data));
       });
   }
 
@@ -69,5 +70,9 @@ export class SessionService {
 
   async ResolveRoll(playCardDto: PlayCardDto) {
     await this.socket.emit('resolveRoll', playCardDto);
+  }
+
+  async UseEffect(playCardDto: PlayCardDto) {
+    await this.socket.emit('useEffect', playCardDto);
   }
 }

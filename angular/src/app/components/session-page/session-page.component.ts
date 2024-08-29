@@ -25,6 +25,7 @@ export class SessionPageComponent {
   player$: BehaviorSubject<IPlayer | null>;
   isInHand: boolean = false;
   boardCardId: number = -1;
+  magicCard: ICard | null = null;
 
   constructor(private sessionService: SessionService) {
     this.opponent$ = sessionService.opponent$;
@@ -70,6 +71,17 @@ export class SessionPageComponent {
           target: { effectIndex: 0, target: 'self' },
           index: id,
         });
+        if (cards[id].cardType == 'MagicCard') {
+          //this.magicCard = cards[id];
+          setTimeout(() => {
+            this.sessionService.UseEffect({
+              cardId: cards[id]._id,
+              playerId: this.player$.getValue()?._id,
+              target: { effectIndex: 0, target: 'self' },
+              index: id,
+            });
+          }, 3000);
+        }
         this.showPickedCard = false;
       }
     }
@@ -126,6 +138,7 @@ export class SessionPageComponent {
   }
   Turn(session: ISession | null) {
     let oppPts = session!.opponent!.actionPoints;
+    //console.log('turn: ', oppPts);
     if (oppPts == 0) return 1;
     return 2;
   }
@@ -166,7 +179,7 @@ export class SessionPageComponent {
     }
   }
   ReturnDices(session: ISession | null): number[] {
-    if (this.Turn(session) == 1) return [1, 1];
+    if (this.Turn(session) == 1 || session!.roll == 0) return [1, 1];
     return [
       Math.floor(session!.roll / 2),
       session!.roll - Math.floor(session!.roll / 2),
