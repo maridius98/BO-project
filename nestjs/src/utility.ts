@@ -1,4 +1,6 @@
 import { Document } from 'mongoose';
+import { Player } from './player/entities/player.entity';
+import { Session } from './session/entities/session.entity';
 
 export function rollNumber(diceSize: number = 6, diceCount: number = 2) {
   let sum = 0;
@@ -16,6 +18,7 @@ export enum State {
   resolveRoll,
   roll,
   skip,
+  wait,
 }
 
 export function stringifySafe<T>(obj: T) {
@@ -47,4 +50,10 @@ export function validateModel<T>(input: Document | object, type: { new (): T }):
 
 export function cleanOutput<T>(input: Document, type: { new (): T }): string {
   return stringifySafe(validateModel(input, type));
+}
+
+export function getMutablePlayer(target: Player, session: Session) {
+  return session.players.find((p) => {
+    return p._id.toString() === target._id.toString();
+  });
 }

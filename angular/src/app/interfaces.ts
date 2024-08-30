@@ -7,6 +7,17 @@ export interface ISession extends Lobby {
   monsters: ICard[];
 }
 
+export enum State {
+  selectDiscard,
+  selectDestroy,
+  selectSacrifice,
+  makeMove,
+  resolveRoll,
+  roll,
+  skip,
+  wait,
+}
+
 export interface Lobby {
   _id?: string;
   code: string;

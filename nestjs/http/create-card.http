@@ -7,7 +7,19 @@ Content-Type: application/json
   "imageURL": "dragon.jpg",
   "class": "Warrior",
   "victoryRoll": 4,
-  "effects": ["Draw;self;2"]
+  "effects": ["Draw;2;self"]
+}
+
+
+### Post Magic
+POST http://localhost:3000/card
+Content-Type: application/json
+
+{
+  "name": "Magic Name",
+  "description": "Draw 2 cards",
+  "imageURL": "magic.jpg",
+  "effects": ["Draw;2;self"]
 }
 
 ### Post Monster

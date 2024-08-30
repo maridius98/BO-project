@@ -12,13 +12,15 @@ import { PlayerService } from 'src/player/player.service';
 import { PlayCardDto } from './dto/play-card.dto';
 import { CardService } from 'src/card/card.service';
 import { Inject, OnModuleInit, forwardRef } from '@nestjs/common';
-import { State, cleanOutput, rollNumber } from 'src/utility';
+import { State, cleanOutput, getMutablePlayer, rollNumber } from 'src/utility';
 import { SessionDataLayer } from './session.data-layer';
 import { Session } from './entities/session.entity';
 import { HeroCard } from 'src/card/entities/heroCard.entity';
 import { stringifySafe, validateModel } from 'src/utility';
 import { CardDataLayer } from 'src/card/card.data-layer';
 import { IPlayer, Lobby } from 'src/fe.intefaces';
+import { Card } from 'src/card/entities/card.entity';
+import { MagicCard } from 'src/card/entities/magicCard.entity';
 
 @WebSocketGateway({
   cors: {
@@ -95,7 +97,7 @@ export class SessionGateway implements OnModuleInit {
       index: playCardDto.index,
     });
     let i = 0;
-    while (updatedSession.state == State.skip) {
+    while (getMutablePlayer(player, updatedSession).state == State.skip) {
       updatedSession = await this.sessionService.playEffect({
         card,
         player,
@@ -118,6 +120,9 @@ export class SessionGateway implements OnModuleInit {
       session,
       index: playCardDto.index,
     });
+    if (card.cardType != 'HeroCard') {
+      this.emitPlayedCard(session.code, card);
+    }
     this.emitToAllClients(updatedSession);
   }
 
@@ -130,7 +135,7 @@ export class SessionGateway implements OnModuleInit {
       card,
       player,
       session,
-      index: playCardDto.index,
+      index: playCardDto.target.effectIndex,
     });
     this.emitToAllClients(updatedSession);
   }
@@ -145,5 +150,9 @@ export class SessionGateway implements OnModuleInit {
     for (const [id, session] of splitSessions) {
       this.server.emit(`session:${id}`, stringifySafe(session));
     }
+  }
+
+  emitPlayedCard(sessionCode: string, card: Card) {
+    this.server.emit(`playedCard:${sessionCode}`, stringifySafe(card));
   }
 }

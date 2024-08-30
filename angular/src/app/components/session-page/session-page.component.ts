@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { SessionService } from '../../session.service';
 import { BehaviorSubject } from 'rxjs';
 import { ICard, IPlayer, ISession } from '../../interfaces';
@@ -9,7 +9,7 @@ import { ICard, IPlayer, ISession } from '../../interfaces';
   templateUrl: './session-page.component.html',
   styleUrls: ['./session-page.component.css'],
 })
-export class SessionPageComponent {
+export class SessionPageComponent implements OnInit {
   firstDice: number = 1;
   secondDice: number = 1;
   actionPoints: number = 2;
@@ -23,13 +23,27 @@ export class SessionPageComponent {
   opponent$: BehaviorSubject<IPlayer | null>;
   session$: BehaviorSubject<ISession | null>;
   player$: BehaviorSubject<IPlayer | null>;
+  playCard$: BehaviorSubject<ICard | null>;
   isInHand: boolean = false;
   boardCardId: number = -1;
+  magicCard: boolean = false;
 
   constructor(private sessionService: SessionService) {
     this.opponent$ = sessionService.opponent$;
     this.player$ = sessionService.player$;
     this.session$ = sessionService.session$;
+    this.playCard$ = sessionService.playCard$;
+  }
+
+  ngOnInit() {
+    this.playCard$.subscribe((data) => {
+      if (data != null) {
+        this.magicCard = true;
+        setTimeout(() => {
+          this.magicCard = false;
+        }, 3000);
+      }
+    });
   }
 
   NumberOfCards(session: ISession | null): number {
@@ -70,6 +84,16 @@ export class SessionPageComponent {
           target: { effectIndex: 0, target: 'self' },
           index: id,
         });
+        if (cards[id].cardType == 'MagicCard') {
+          setTimeout(() => {
+            this.sessionService.UseEffect({
+              cardId: cards[id]._id,
+              playerId: this.player$.getValue()?._id,
+              target: { effectIndex: 0, target: 'self' },
+              index: id,
+            });
+          }, 3000);
+        }
         this.showPickedCard = false;
       }
     }
@@ -126,6 +150,7 @@ export class SessionPageComponent {
   }
   Turn(session: ISession | null) {
     let oppPts = session!.opponent!.actionPoints;
+    //console.log('turn: ', oppPts);
     if (oppPts == 0) return 1;
     return 2;
   }
@@ -166,7 +191,7 @@ export class SessionPageComponent {
     }
   }
   ReturnDices(session: ISession | null): number[] {
-    if (this.Turn(session) == 1) return [1, 1];
+    if (this.Turn(session) == 1 || session!.roll == 0) return [1, 1];
     return [
       Math.floor(session!.roll / 2),
       session!.roll - Math.floor(session!.roll / 2),

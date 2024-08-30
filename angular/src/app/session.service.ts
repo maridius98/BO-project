@@ -2,7 +2,7 @@ import { Injectable, OnDestroy, OnInit } from '@angular/core';
 import { map } from 'rxjs/operators';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Socket } from 'ngx-socket-io';
-import { IPlayer, ISession, Lobby } from './interfaces';
+import { ICard, IPlayer, ISession, Lobby } from './interfaces';
 import { CreatePlayerDto } from './components/login-page/create-player.dto';
 import { PlayCardDto } from './components/session-page/play-card.dto';
 
@@ -14,6 +14,7 @@ export class SessionService {
   player$ = new BehaviorSubject<IPlayer | null>(null);
   opponent$ = new BehaviorSubject<IPlayer | null>(null);
   session$ = new BehaviorSubject<ISession | null>(null);
+  playCard$ = new BehaviorSubject<ICard | null>(null);
   constructor(private socket: Socket) {}
 
   sub() {
@@ -29,6 +30,15 @@ export class SessionService {
       .pipe(map((data) => data as string))
       .subscribe((data: string) => {
         this.session$.next(JSON.parse(data));
+        console.log(JSON.parse(data));
+      });
+
+    this.socket
+      .fromEvent(`playedCard:${this.sessionCode}`)
+      .pipe(map((data) => data as string))
+      .subscribe((data: string) => {
+        this.playCard$.next(JSON.parse(data));
+        console.log(JSON.parse(data));
       });
   }
 
@@ -69,5 +79,9 @@ export class SessionService {
 
   async ResolveRoll(playCardDto: PlayCardDto) {
     await this.socket.emit('resolveRoll', playCardDto);
+  }
+
+  async UseEffect(playCardDto: PlayCardDto) {
+    await this.socket.emit('useEffect', playCardDto);
   }
 }

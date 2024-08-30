@@ -2,7 +2,6 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Player } from 'src/player/entities/player.entity';
 import { Document, Types } from 'mongoose';
 import { Card } from 'src/card/entities/card.entity';
-import { State } from 'src/utility';
 
 @Schema()
 export class Session extends Document {
@@ -14,9 +13,6 @@ export class Session extends Document {
 
   @Prop({ default: 0 })
   roll: number;
-
-  @Prop({ default: State.makeMove })
-  state: State;
 
   @Prop({ type: [{ type: Types.ObjectId, ref: 'Card' }] })
   discardPile: Card[];
