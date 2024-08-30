@@ -1,9 +1,17 @@
 <div class="pageContainer">
 <div class="pulsingImage"></div>
-<div *ngIf="this.magicCard!=null" [ngClass]="{'showMagicCard':this.magicCard!=null}">
-    <!-- <div class="actualMagicCard">
-        {{this.magicCard?.name}}
-    </div> -->
+<div *ngIf="this.magicCard" [ngClass]="{'showMagicCard':true}">
+    <div [ngStyle]="{'box-shadow': 
+    Turn((session$ | async))==1 ? 
+    '0 0 0 2px #4fc3dc, 0 0 20px #4fc3dc, 0 0 40px #4fc3dc' : 
+    '0 0 0 2px #ff2d75, 0 0 20px #ff2d75, 0 0 40px #ff2d75',
+    'height': '320px',
+    'width': '200px',
+    'background-color': 'white',
+    'margin-bottom': '5%',
+    'border': Turn((session$ | async))==1 ? '2px solid #4fc3dc' : '2px solid #ff2d75'}">
+        {{this.playCard$.getValue()?.name}}
+    </div>
 </div>
     <div class="leftSideContainer">
         <div class="sideCards">
