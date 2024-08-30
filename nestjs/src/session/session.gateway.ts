@@ -135,7 +135,7 @@ export class SessionGateway implements OnModuleInit {
       card,
       player,
       session,
-      index: playCardDto.index,
+      index: playCardDto.target.effectIndex,
     });
     this.emitToAllClients(updatedSession);
   }

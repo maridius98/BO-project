@@ -33,13 +33,13 @@ export class SessionService {
         console.log(JSON.parse(data));
       });
 
-    // this.socket
-    //   .fromEvent(`playedCard:${this.session$.getValue()?.code}`)
-    //   .pipe(map((data) => data as string))
-    //   .subscribe((data: string) => {
-    //     this.playCard$.next(JSON.parse(data));
-    //     console.log(JSON.parse(data));
-    //   });
+    this.socket
+      .fromEvent(`playedCard:${this.sessionCode}`)
+      .pipe(map((data) => data as string))
+      .subscribe((data: string) => {
+        this.playCard$.next(JSON.parse(data));
+        console.log(JSON.parse(data));
+      });
   }
 
   getSessionCode(): string {
