@@ -73,6 +73,7 @@ export class SessionPageComponent {
         });
         if (cards[id].cardType == 'MagicCard') {
           //this.magicCard = cards[id];
+          console.log('magic ccard');
           setTimeout(() => {
             this.sessionService.UseEffect({
               cardId: cards[id]._id,
