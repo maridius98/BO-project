@@ -105,9 +105,10 @@ export class CardDataLayer {
 
   playEffect(cardExecData: CardExecData) {
     if (cardExecData.card instanceof HeroCard) {
-      if (cardExecData.player.roll < cardExecData.card.victoryRoll)
+      if (cardExecData.player.roll < cardExecData.card.victoryRoll) {
         cardExecData.player.state = State.makeMove;
-      return cardExecData.session;
+        return cardExecData.session;
+      }
     }
     const effect = cardExecData.card.effects[cardExecData.index];
     const [commandName, value, target] = effect.split(';');
@@ -127,13 +128,20 @@ export class CardDataLayer {
     if (cardExecData.index + 1 < cardExecData.card.effects.length) {
       player.state = this.setNextState(cardExecData, cardExecData.index + 1);
     } else {
-      if (player.actionPoints > 1) {
-        player.state = State.makeMove;
-      } else {
-        player.state = State.makeMove;
-      }
+      this.evaluateTurnSwap(player, cardExecData.session);
     }
     return cardExecData.session;
+  }
+
+  evaluateTurnSwap(player: Player, session: Session) {
+    if (player.actionPoints > 1) {
+      player.state = State.makeMove;
+    } else {
+      player.state = State.wait;
+      const opposingPlayer = getOpposingPlayer(player, session);
+      opposingPlayer.state = State.makeMove;
+      opposingPlayer.actionPoints = 3;
+    }
   }
 
   startEffect(cardExecData: CardExecData) {

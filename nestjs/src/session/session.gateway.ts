@@ -127,22 +127,23 @@ export class SessionGateway implements OnModuleInit {
 
     const isStateChanged = await this.sessionService.checkStateChanged(session);
     if (!isStateChanged) {
-      return true;
+      return false;
     }
     oldStates.forEach((state, index) => {
       updatedSession.players[index].state = state;
     });
     await this.sessionService.update(updatedSession);
     this.emitToAllClients(updatedSession);
-    return false;
+    return true;
   }
 
   @SubscribeMessage('challenge')
   async challenge(@MessageBody() playCardDto: PlayCardDto) {
     const [card, player, session] = await this.fetchData(playCardDto);
-    if (player.state != State.canChallenge) {
+    if (player.state != State.canChallenge || card.cardType != 'ChallengeCard') {
       return;
     }
+
     const updatedSession = await this.sessionService.playCard({
       card,
       player,
@@ -167,6 +168,11 @@ export class SessionGateway implements OnModuleInit {
         challengedPlayer.field.splice(challengedPlayer.field.indexOf(challengedCard), 1);
       }
     }
+    challengedPlayer.state = State.makeMove;
+    challengingPlayer.state = State.wait;
+    challengedPlayer.roll = 0;
+    challengingPlayer.roll = 0;
+    await this.sessionService.update(session);
   }
 
   @SubscribeMessage('useEffect')
