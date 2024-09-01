@@ -3,7 +3,7 @@ import { Card } from './entities/card.entity';
 import { Player } from 'src/player/entities/player.entity';
 import { Session } from 'src/session/entities/session.entity';
 import { HeroCard } from './entities/heroCard.entity';
-import { getMutablePlayer, State } from 'src/utility';
+import { getMutablePlayer, getOpposingPlayer, State } from 'src/utility';
 
 export interface CardExecData {
   card: Card;
@@ -105,7 +105,7 @@ export class CardDataLayer {
 
   playEffect(cardExecData: CardExecData) {
     if (cardExecData.card instanceof HeroCard) {
-      if (cardExecData.session.roll < cardExecData.card.victoryRoll)
+      if (cardExecData.player.roll < cardExecData.card.victoryRoll)
         cardExecData.player.state = State.makeMove;
       return cardExecData.session;
     }
@@ -154,16 +154,28 @@ export class CardDataLayer {
   }
 
   playCard(cardExecData: CardExecData) {
-    const player = cardExecData.session.players.find((player) => {
-      return player._id.toString() === cardExecData.player._id.toString();
-    });
+    const player = getMutablePlayer(cardExecData.player, cardExecData.session);
+    const opponent = getOpposingPlayer(cardExecData.player, cardExecData.session);
     if (cardExecData.card.cardType == 'HeroCard') {
       player.field.push(cardExecData.card);
     } else {
       cardExecData.session.discardPile.push(cardExecData.card);
     }
+    if (
+      !(
+        cardExecData.card.cardType == 'ChallengeCard' ||
+        cardExecData.card.cardType == 'ModifierCard'
+      )
+    ) {
+      player.state = State.wait;
+      opponent.state = State.canChallenge;
+      player.actionPoints--;
+    } else if (cardExecData.card.cardType == 'ChallengeCard') {
+      player.state = State.roll;
+      opponent.state = State.roll;
+    }
+
     player.hand.splice(cardExecData.index, 1);
-    player.actionPoints--;
     return cardExecData.session;
   }
 }

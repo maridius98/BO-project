@@ -80,4 +80,14 @@ export class SessionService {
   private randomCode() {
     return Math.random().toString(32).substring(7);
   }
+
+  async checkStateChanged(session: Session) {
+    const newSession = await this.findByCode(session.code);
+    for (let i: number; (i = 0); i < 2) {
+      if (newSession.players[i].state != session.players[i].state) {
+        return true;
+      }
+    }
+    return false;
+  }
 }

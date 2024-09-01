@@ -22,6 +22,17 @@ Content-Type: application/json
   "effects": ["Draw;2;self"]
 }
 
+### Post Challenge
+POST http://localhost:3000/card
+Content-Type: application/json
+
+{
+  "name": "Challenge Name",
+  "description": "Normal challenge",
+  "imageURL": "default_challenge.jpg",
+  "modifier": 0
+}
+
 ### Post Monster
 POST http://localhost:3000/card
 Content-Type: application/json

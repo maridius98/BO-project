@@ -12,7 +12,7 @@ import { PlayerService } from 'src/player/player.service';
 import { PlayCardDto } from './dto/play-card.dto';
 import { CardService } from 'src/card/card.service';
 import { Inject, OnModuleInit, forwardRef } from '@nestjs/common';
-import { State, cleanOutput, getMutablePlayer, rollNumber } from 'src/utility';
+import { State, cleanOutput, getMutablePlayer, getOpposingPlayer, rollNumber } from 'src/utility';
 import { SessionDataLayer } from './session.data-layer';
 import { Session } from './entities/session.entity';
 import { HeroCard } from 'src/card/entities/heroCard.entity';
@@ -21,6 +21,7 @@ import { CardDataLayer } from 'src/card/card.data-layer';
 import { IPlayer, Lobby } from 'src/fe.intefaces';
 import { Card } from 'src/card/entities/card.entity';
 import { MagicCard } from 'src/card/entities/magicCard.entity';
+import { Player } from 'src/player/entities/player.entity';
 
 @WebSocketGateway({
   cors: {
@@ -79,7 +80,7 @@ export class SessionGateway implements OnModuleInit {
   async roll(@MessageBody() playerId: string) {
     const player = await this.playerService.findOne(playerId);
     const session = await this.sessionService.findOne(player.session._id);
-    session.roll = rollNumber();
+    player.roll = rollNumber();
     //player.session.state = State.resolveRoll;
     await this.sessionService.update(session);
     this.emitToAllClients(session);
@@ -87,9 +88,7 @@ export class SessionGateway implements OnModuleInit {
 
   @SubscribeMessage('resolveRoll')
   async resolveRoll(@MessageBody() playCardDto: PlayCardDto) {
-    const card = (await this.cardService.findOne(playCardDto.cardId)) as HeroCard;
-    const player = await this.playerService.findOne(playCardDto.playerId);
-    const session = await this.sessionService.findOne(player.session._id);
+    const [card, player, session] = await this.fetchData(playCardDto, true);
     let updatedSession = await this.sessionService.startEffect({
       card,
       player,
@@ -111,9 +110,8 @@ export class SessionGateway implements OnModuleInit {
 
   @SubscribeMessage('playCard')
   async playCard(@MessageBody() playCardDto: PlayCardDto) {
-    const card = await this.cardService.findOne(playCardDto.cardId);
-    const player = await this.playerService.findOne(playCardDto.playerId);
-    const session = await this.sessionService.findOne(player.session._id);
+    const [card, player, session] = await this.fetchData(playCardDto);
+    const oldStates = session.players.map((p) => p.state);
     const updatedSession = await this.sessionService.playCard({
       card,
       player,
@@ -124,13 +122,56 @@ export class SessionGateway implements OnModuleInit {
       this.emitPlayedCard(session.code, card);
     }
     this.emitToAllClients(updatedSession);
+
+    await new Promise((resolve) => setTimeout(resolve, 3000));
+
+    const isStateChanged = await this.sessionService.checkStateChanged(session);
+    if (!isStateChanged) {
+      return true;
+    }
+    oldStates.forEach((state, index) => {
+      updatedSession.players[index].state = state;
+    });
+    await this.sessionService.update(updatedSession);
+    this.emitToAllClients(updatedSession);
+    return false;
+  }
+
+  @SubscribeMessage('challenge')
+  async challenge(@MessageBody() playCardDto: PlayCardDto) {
+    const [card, player, session] = await this.fetchData(playCardDto);
+    if (player.state != State.canChallenge) {
+      return;
+    }
+    const updatedSession = await this.sessionService.playCard({
+      card,
+      player,
+      session,
+      index: playCardDto.index,
+    });
+    this.emitPlayedCard(session.code, card);
+    this.emitToAllClients(updatedSession);
+  }
+
+  @SubscribeMessage('resolveChallenge')
+  async resolveChallenge(@MessageBody() playCardDto: PlayCardDto) {
+    const [card, player, session] = await this.fetchData(playCardDto);
+    const challengingPlayer = getMutablePlayer(player, session);
+    const challengedPlayer = getOpposingPlayer(player, session);
+    if (challengingPlayer.roll >= challengedPlayer.roll) {
+      if (card.cardType === 'HeroCard') {
+        const challengedCard = challengedPlayer.field.find((c) => {
+          return c.name == card.name;
+        });
+        session.discardPile.push(challengedCard);
+        challengedPlayer.field.splice(challengedPlayer.field.indexOf(challengedCard), 1);
+      }
+    }
   }
 
   @SubscribeMessage('useEffect')
   async handleEffect(@MessageBody() playCardDto: PlayCardDto) {
-    const card = await this.cardService.findOne(playCardDto.cardId);
-    const player = await this.playerService.findOne(playCardDto.playerId);
-    const session = await this.sessionService.findOne(player.session._id);
+    const [card, player, session] = await this.fetchData(playCardDto);
     const updatedSession = await this.sessionService.playEffect({
       card,
       player,
@@ -154,5 +195,20 @@ export class SessionGateway implements OnModuleInit {
 
   emitPlayedCard(sessionCode: string, card: Card) {
     this.server.emit(`playedCard:${sessionCode}`, stringifySafe(card));
+  }
+
+  async fetchData(
+    playCardDto: PlayCardDto,
+    asHero: boolean = false,
+  ): Promise<[Card | HeroCard, Player, Session]> {
+    let card: Card;
+    if (asHero) {
+      card = (await this.cardService.findOne(playCardDto.cardId)) as HeroCard;
+    } else {
+      card = await this.cardService.findOne(playCardDto.cardId);
+    }
+    const player = await this.playerService.findOne(playCardDto.playerId);
+    const session = await this.sessionService.findOne(player.session._id);
+    return [card, player, session];
   }
 }

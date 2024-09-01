@@ -16,6 +16,7 @@ export enum State {
   roll,
   skip,
   wait,
+  canChallenge,
 }
 
 export interface Lobby {

@@ -18,6 +18,9 @@ export class Player extends Document {
   @Prop({ type: Types.ObjectId, ref: 'Session' })
   session: Session;
 
+  @Prop()
+  roll: number;
+
   @Prop({ type: [{ type: Types.ObjectId, ref: 'Card' }] })
   hand: Card[];
 
