@@ -113,13 +113,9 @@ export class CardDataLayer {
     const [commandName, value, target] = effect.split(';');
     let player: Player;
     if (target === 'self') {
-      player = cardExecData.session.players.find((p) => {
-        return p._id.toString() === cardExecData.player._id.toString();
-      });
+      player = getMutablePlayer(cardExecData.player, cardExecData.session);
     } else {
-      player = cardExecData.session.players.find((p) => {
-        return p._id.toString() != cardExecData.player._id.toString();
-      });
+      player = getOpposingPlayer(cardExecData.player, cardExecData.session);
     }
     const command = this.commandFactory.build(commandName, player);
     if (cardExecData.targets) {
@@ -133,7 +129,6 @@ export class CardDataLayer {
     } else {
       if (player.actionPoints > 1) {
         player.state = State.makeMove;
-        player.actionPoints--;
       } else {
         player.state = State.makeMove;
       }

@@ -18,7 +18,7 @@ export class Player extends Document {
   @Prop({ type: Types.ObjectId, ref: 'Session' })
   session: Session;
 
-  @Prop()
+  @Prop({ default: 0 })
   roll: number;
 
   @Prop({ type: [{ type: Types.ObjectId, ref: 'Card' }] })

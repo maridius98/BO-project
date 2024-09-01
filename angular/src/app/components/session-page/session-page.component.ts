@@ -181,9 +181,9 @@ export class SessionPageComponent implements OnInit {
   async DiceRoll() {
     if (this.chosen) {
       this.rotateDiv = true;
-      if (this.session$.getValue()!.roll != undefined) {
-        this.firstDice = Math.floor(this.session$.getValue()!.roll / 2);
-        this.secondDice = this.session$.getValue()!.roll - this.firstDice;
+      if (this.player$.getValue()!.roll != undefined) {
+        this.firstDice = Math.floor(this.player$.getValue()!.roll / 2);
+        this.secondDice = this.player$.getValue()!.roll - this.firstDice;
       }
       this.chosen = false;
       this.showPickedCard = false;

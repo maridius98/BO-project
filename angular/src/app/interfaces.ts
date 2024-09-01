@@ -1,6 +1,5 @@
 export interface ISession extends Lobby {
   turn: number;
-  roll: number;
   discardPile: ICard[];
   deckSize: number;
   monsterDeckSize: number;
@@ -40,6 +39,7 @@ export interface IPlayer {
   username: string;
   isHost: boolean;
   actionPoints?: number;
+  roll: number;
   hand?: ICard[];
   field?: ICard[];
 }
