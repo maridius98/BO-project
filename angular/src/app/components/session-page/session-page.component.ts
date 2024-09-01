@@ -50,6 +50,7 @@ export class SessionPageComponent implements OnInit {
     if (session == null || session.player.hand == undefined) return 0;
     return session.player.hand.length;
   }
+
   NumberOfMonsterCards(broj: number | undefined): number {
     if (!broj) return 0;
     return broj;
@@ -58,6 +59,7 @@ export class SessionPageComponent implements OnInit {
   offPickedImage() {
     if (!this.chosen && this.showPickedCard) this.showPickedCard = false;
   }
+
   range(range: number): number[] {
     const rangeArray = [];
     for (let i = 0; i <= range - 1; i++) {
@@ -65,6 +67,7 @@ export class SessionPageComponent implements OnInit {
     }
     return rangeArray;
   }
+
   onCardHover(value: number, inHand: boolean): void {
     if (!this.chosen) {
       this.selectedValue = value;
@@ -72,9 +75,11 @@ export class SessionPageComponent implements OnInit {
       this.showPickedCard = true;
     }
   }
+
   onCardLeave() {
     if (!this.chosen) this.showPickedCard = false;
   }
+
   chooseCard(cards: ICard[] | undefined, id: number) {
     if (this.Turn(this.session$.getValue())) {
       if (cards != undefined) {
@@ -98,19 +103,23 @@ export class SessionPageComponent implements OnInit {
       }
     }
   }
+
   chooseMonster() {
     this.showPickedMonster = true;
     this.chosen = true;
   }
+
   onMonsterLeave() {
     if (!this.chosen) this.showPickedMonster = false;
   }
+
   onMonsterHover(value: number) {
     if (!this.chosen) {
       this.selectedValue = value;
       this.showPickedMonster = true;
     }
   }
+
   pickedCardDisplay(
     session: ISession | null | undefined,
     index: number | null | undefined,
@@ -124,14 +133,17 @@ export class SessionPageComponent implements OnInit {
       return session!.player.field![index!]!.name;
     }
   }
+
   pickedMonsterDisplay(session: ISession | null, index: number | null) {
     if (!session!.monsters[index!]) return '';
     return session!.monsters[index!].name;
   }
+
   showBoardPlayerCard(cards: ICard[] | undefined, id: number): string {
     if (!cards![id].name) return '';
     return cards![id].name;
   }
+
   canCardShow(cards: ICard[] | undefined, id: number): boolean {
     if (
       cards == undefined ||
@@ -148,6 +160,7 @@ export class SessionPageComponent implements OnInit {
     if (oppPts == 0) return plPts;
     return oppPts;
   }
+
   Turn(session: ISession | null) {
     let oppPts = session!.opponent!.actionPoints;
     //console.log('turn: ', oppPts);
@@ -190,6 +203,7 @@ export class SessionPageComponent implements OnInit {
       }, 1000);
     }
   }
+
   ReturnDices(session: ISession | null): number[] {
     if (this.Turn(session) == 1 || session!.roll == 0) return [1, 1];
     return [
