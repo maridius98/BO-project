@@ -49,4 +49,5 @@ export interface IOpponent {
   actionPoints?: number;
   handSize?: number;
   field?: ICard[];
+  roll: number;
 }

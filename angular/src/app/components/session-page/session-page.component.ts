@@ -181,9 +181,18 @@ export class SessionPageComponent implements OnInit {
   async DiceRoll() {
     if (this.chosen) {
       this.rotateDiv = true;
-      if (this.player$.getValue()!.roll != undefined) {
-        this.firstDice = Math.floor(this.player$.getValue()!.roll / 2);
-        this.secondDice = this.player$.getValue()!.roll - this.firstDice;
+      if (this.session$.getValue()!.player!.roll != undefined) {
+        console.log(this.session$.getValue()!.player!.roll);
+        if (this.session$.getValue()!.player!.roll == 0) {
+          this.firstDice = 1;
+          this.secondDice = 1;
+        } else {
+          this.firstDice = Math.floor(
+            this.session$.getValue()!.player!.roll / 2
+          );
+          this.secondDice =
+            this.session$.getValue()!.player!.roll - this.firstDice;
+        }
       }
       this.chosen = false;
       this.showPickedCard = false;
@@ -205,10 +214,12 @@ export class SessionPageComponent implements OnInit {
   }
 
   ReturnDices(session: ISession | null): number[] {
-    if (this.Turn(session) == 1 || session!.roll == 0) return [1, 1];
+    if (session!.opponent!.roll == 0) {
+      return [1, 1];
+    }
     return [
-      Math.floor(session!.roll / 2),
-      session!.roll - Math.floor(session!.roll / 2),
+      Math.floor(session!.opponent!.roll / 2),
+      session!.opponent!.roll - Math.floor(session!.opponent!.roll / 2),
     ];
   }
 }

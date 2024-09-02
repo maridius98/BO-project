@@ -30,7 +30,7 @@ export class SessionService {
       .pipe(map((data) => data as string))
       .subscribe((data: string) => {
         this.session$.next(JSON.parse(data));
-        console.log(JSON.parse(data));
+        console.log('Sesija:', JSON.parse(data));
       });
 
     this.socket
@@ -38,7 +38,7 @@ export class SessionService {
       .pipe(map((data) => data as string))
       .subscribe((data: string) => {
         this.playCard$.next(JSON.parse(data));
-        console.log(JSON.parse(data));
+        console.log('playCard:', JSON.parse(data));
       });
   }
 
