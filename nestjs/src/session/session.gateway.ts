@@ -80,7 +80,8 @@ export class SessionGateway implements OnModuleInit {
   async roll(@MessageBody() playerId: string) {
     const player = await this.playerService.findOne(playerId);
     const session = await this.sessionService.findOne(player.session._id);
-    player.roll = rollNumber();
+    const mutablePlayer = getMutablePlayer(player, session);
+    mutablePlayer.roll = rollNumber();
     //player.session.state = State.resolveRoll;
     await this.sessionService.update(session);
     this.emitToAllClients(session);
