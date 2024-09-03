@@ -2,14 +2,14 @@
 <div class="pulsingImage"></div>
 <div *ngIf="this.magicCard" [ngClass]="{'showMagicCard':true}">
     <div [ngStyle]="{'box-shadow': 
-    Turn((session$ | async))==1 ? 
+    TurnForSpecialCards((playCard$ | async))==1 ? 
     '0 0 0 2px #4fc3dc, 0 0 20px #4fc3dc, 0 0 40px #4fc3dc' : 
     '0 0 0 2px #ff2d75, 0 0 20px #ff2d75, 0 0 40px #ff2d75',
     'height': '320px',
     'width': '200px',
     'background-color': 'white',
     'margin-bottom': '5%',
-    'border': Turn((session$ | async))==1 ? '2px solid #4fc3dc' : '2px solid #ff2d75'}">
+    'border': TurnForSpecialCards((playCard$ | async))==1 ? '2px solid #4fc3dc' : '2px solid #ff2d75'}">
         {{this.playCard$.getValue()?.name}}
     </div>
 </div>
@@ -71,8 +71,8 @@
                     <div class="additionalOpponentDataSection">
                         <div class="opponentDice">
                             <div class="dices" (click)="DiceRoll()">
-                                <img class="diceImg" [src]="'assets/dice/opponentDice' + ReturnDices((session$ | async))[0] + '.png'" alt="Dice {{ReturnDices((session$ | async))[0]}}">
-                                <img class="diceImg" [src]="'../../assets/dice/opponentDice' + ReturnDices((session$ | async))[1] + '.png'" alt="Dice {{ReturnDices((session$ | async))[1]}}">
+                                <img [ngClass]="{'diceImg': true, 'rotate-animation': rotateOppDiv}" [src]="'assets/dice/opponentDice' + ReturnDices((session$ | async))[0] + '.png'" alt="Dice {{ReturnDices((session$ | async))[0]}}">
+                                <img [ngClass]="{'diceImg': true, 'rotate-animation': rotateOppDiv}" [src]="'../../assets/dice/opponentDice' + ReturnDices((session$ | async))[1] + '.png'" alt="Dice {{ReturnDices((session$ | async))[1]}}">
                             </div>
                         </div>
                     </div>

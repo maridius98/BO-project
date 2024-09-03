@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { SessionService } from '../../session.service';
 import { BehaviorSubject } from 'rxjs';
-import { ICard, IPlayer, ISession } from '../../interfaces';
+import { ICard, IPlayer, ISession, State } from '../../interfaces';
 
 @Component({
   selector: 'app-session-page',
@@ -20,6 +20,7 @@ export class SessionPageComponent implements OnInit {
   selectedValue: number | null = null;
   chosen: boolean = false;
   rotateDiv: boolean = false;
+  rotateOppDiv: boolean = false;
   opponent$: BehaviorSubject<IPlayer | null>;
   session$: BehaviorSubject<ISession | null>;
   player$: BehaviorSubject<IPlayer | null>;
@@ -33,6 +34,16 @@ export class SessionPageComponent implements OnInit {
     this.player$ = sessionService.player$;
     this.session$ = sessionService.session$;
     this.playCard$ = sessionService.playCard$;
+  }
+
+  TurnForSpecialCards(card: ICard | null): number {
+    if (card?.cardType == 'ChallengeCard') {
+      if (this.player$.getValue()?.state == State.canChallenge) return 1;
+      return 2;
+    }
+    let oppPts = this.opponent$.getValue()!.actionPoints;
+    if (oppPts == 0) return 1;
+    return 2;
   }
 
   ngOnInit() {
@@ -80,25 +91,72 @@ export class SessionPageComponent implements OnInit {
     if (!this.chosen) this.showPickedCard = false;
   }
 
-  chooseCard(cards: ICard[] | undefined, id: number) {
+  async chooseCard(cards: ICard[] | undefined, id: number) {
     if (this.Turn(this.session$.getValue())) {
       if (cards != undefined) {
-        this.sessionService.playCard({
-          cardId: cards[id]._id,
-          playerId: this.player$.getValue()?._id,
-          target: { effectIndex: 0, target: 'self' },
-          index: id,
-        });
-        if (cards[id].cardType == 'MagicCard') {
-          setTimeout(() => {
-            this.sessionService.UseEffect({
+        if (
+          cards[id].cardType == 'ChallengeCard' &&
+          this.player$.getValue()?.state == State.canChallenge
+        ) {
+          this.sessionService
+            .Challenge({
               cardId: cards[id]._id,
               playerId: this.player$.getValue()?._id,
               target: { effectIndex: 0, target: 'self' },
               index: id,
+            })
+            .then(() => {
+              this.rotateDiv = true;
+              this.rotateOppDiv = true;
+              this.sessionService.Roll(this.player$.getValue()!._id!);
+
+              this.sessionService.Roll(this.opponent$.getValue()!._id!);
+
+              setTimeout(() => {
+                if (this.player$.getValue()!.roll != undefined) {
+                  if (this.player$.getValue()!.roll == 0) {
+                    this.firstDice = 1;
+                    this.secondDice = 1;
+                  } else {
+                    this.firstDice = Math.floor(
+                      this.player$.getValue()!.roll / 2
+                    );
+                    this.secondDice =
+                      this.player$.getValue()!.roll - this.firstDice;
+                  }
+                }
+                this.rotateDiv = false;
+                this.rotateOppDiv = false;
+                this.sessionService.ResolveChallenge({
+                  cardId: cards[id]._id,
+                  playerId: this.player$.getValue()?._id,
+                  target: { effectIndex: 0, target: 'self' },
+                  index: id,
+                });
+              }, 1000);
             });
-          }, 3000);
+        } else {
+          this.sessionService
+            .playCard({
+              cardId: cards[id]._id,
+              playerId: this.player$.getValue()?._id,
+              target: { effectIndex: 0, target: 'self' },
+              index: id,
+            })
+            .then((flag: boolean) => {
+              if (flag) {
+                setTimeout(() => {
+                  this.sessionService.UseEffect({
+                    cardId: cards[id]._id,
+                    playerId: this.player$.getValue()?._id,
+                    target: { effectIndex: 0, target: 'self' },
+                    index: id,
+                  });
+                }, 3000);
+              }
+            });
         }
+
         this.showPickedCard = false;
       }
     }
@@ -163,7 +221,6 @@ export class SessionPageComponent implements OnInit {
 
   Turn(session: ISession | null) {
     let oppPts = session!.opponent!.actionPoints;
-    //console.log('turn: ', oppPts);
     if (oppPts == 0) return 1;
     return 2;
   }
@@ -217,6 +274,10 @@ export class SessionPageComponent implements OnInit {
     if (session!.opponent!.roll == 0) {
       return [1, 1];
     }
+    this.rotateOppDiv = true;
+    setTimeout(() => {
+      this.rotateOppDiv = false;
+    }, 1000);
     return [
       Math.floor(session!.opponent!.roll / 2),
       session!.opponent!.roll - Math.floor(session!.opponent!.roll / 2),

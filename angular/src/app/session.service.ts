@@ -30,6 +30,8 @@ export class SessionService {
       .pipe(map((data) => data as string))
       .subscribe((data: string) => {
         this.session$.next(JSON.parse(data));
+        this.player$.next(JSON.parse(data).player);
+        this.opponent$.next(JSON.parse(data).opponent);
         console.log('Sesija:', JSON.parse(data));
       });
 
@@ -69,8 +71,12 @@ export class SessionService {
     }
   }
 
-  async playCard(playCardDto: PlayCardDto) {
-    await this.socket.emit('playCard', playCardDto);
+  async playCard(playCardDto: PlayCardDto): Promise<boolean> {
+    let flag = false;
+    await this.socket.emit('playCard', playCardDto, (res: boolean) => {
+      flag = res;
+    });
+    return flag;
   }
 
   async Roll(index: string) {
@@ -83,5 +89,13 @@ export class SessionService {
 
   async UseEffect(playCardDto: PlayCardDto) {
     await this.socket.emit('useEffect', playCardDto);
+  }
+
+  async Challenge(playCardDto: PlayCardDto) {
+    await this.socket.emit('challenge', playCardDto);
+  }
+
+  async ResolveChallenge(playCardDto: PlayCardDto) {
+    await this.socket.emit('resolveChallenge', playCardDto);
   }
 }

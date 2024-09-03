@@ -42,6 +42,7 @@ export interface IPlayer {
   roll: number;
   hand?: ICard[];
   field?: ICard[];
+  state: State;
 }
 
 export interface IOpponent {
@@ -50,4 +51,5 @@ export interface IOpponent {
   handSize?: number;
   field?: ICard[];
   roll: number;
+  state: State;
 }
