@@ -127,7 +127,7 @@ export class SessionGateway implements OnModuleInit {
     await new Promise((resolve) => setTimeout(resolve, 3000));
 
     const isStateChanged = await this.sessionService.checkStateChanged(session);
-    if (!isStateChanged) {
+    if (isStateChanged) {
       return false;
     }
     oldStates.forEach((state, index) => {
