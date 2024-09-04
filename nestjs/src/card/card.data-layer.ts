@@ -135,7 +135,7 @@ export class CardDataLayer {
   }
 
   evaluateTurnSwap(player: Player, session: Session) {
-    if (player.actionPoints > 1) {
+    if (player.actionPoints >= 1) {
       player.state = State.makeMove;
     } else {
       player.state = State.wait;

@@ -94,13 +94,14 @@ export class SessionPageComponent implements OnInit {
   async chooseCard(cards: ICard[] | undefined, id: number) {
     if (this.Turn(this.session$.getValue())) {
       if (cards != undefined) {
+        const card = cards[id];
         if (
-          cards[id].cardType == 'ChallengeCard' &&
+          card.cardType == 'ChallengeCard' &&
           this.player$.getValue()?.state == State.canChallenge
         ) {
           this.sessionService
             .Challenge({
-              cardId: cards[id]._id,
+              cardId: card._id,
               playerId: this.player$.getValue()?._id,
               target: { effectIndex: 0, target: 'self' },
               index: id,
@@ -109,7 +110,6 @@ export class SessionPageComponent implements OnInit {
               this.rotateDiv = true;
               this.rotateOppDiv = true;
               this.sessionService.Roll(this.player$.getValue()!._id!);
-
               this.sessionService.Roll(this.opponent$.getValue()!._id!);
 
               setTimeout(() => {
@@ -128,7 +128,7 @@ export class SessionPageComponent implements OnInit {
                 this.rotateDiv = false;
                 this.rotateOppDiv = false;
                 this.sessionService.ResolveChallenge({
-                  cardId: cards[id]._id,
+                  cardId: card._id,
                   playerId: this.player$.getValue()?._id,
                   target: { effectIndex: 0, target: 'self' },
                   index: id,
@@ -136,7 +136,7 @@ export class SessionPageComponent implements OnInit {
               }, 1000);
             });
         } else {
-          const cardId = cards[id]._id;
+          const cardId = card._id;
           const playerId = this.player$.getValue()?._id;
           this.sessionService
             .playCard({
@@ -146,8 +146,7 @@ export class SessionPageComponent implements OnInit {
               index: id,
             })
             .then((flag: boolean) => {
-              console.log(flag + ' doing stuff...');
-              if (flag) {
+              if (flag && card.cardType === 'MagicCard') {
                 this.sessionService.UseEffect({
                   cardId,
                   playerId,

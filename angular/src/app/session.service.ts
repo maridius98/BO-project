@@ -72,11 +72,11 @@ export class SessionService {
   }
 
   async playCard(playCardDto: PlayCardDto): Promise<boolean> {
-    let flag = false;
-    await this.socket.emit('playCard', playCardDto, (res: boolean) => {
-      flag = res;
+    return new Promise((resolve) => {
+      this.socket.emit('playCard', playCardDto, (res: boolean) => {
+        resolve(res);
+      });
     });
-    return flag;
   }
 
   async Roll(index: string) {
