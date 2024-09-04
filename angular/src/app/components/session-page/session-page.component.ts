@@ -136,23 +136,24 @@ export class SessionPageComponent implements OnInit {
               }, 1000);
             });
         } else {
+          const cardId = cards[id]._id;
+          const playerId = this.player$.getValue()?._id;
           this.sessionService
             .playCard({
-              cardId: cards[id]._id,
-              playerId: this.player$.getValue()?._id,
+              cardId,
+              playerId,
               target: { effectIndex: 0, target: 'self' },
               index: id,
             })
             .then((flag: boolean) => {
+              console.log(flag + ' doing stuff...');
               if (flag) {
-                setTimeout(() => {
-                  this.sessionService.UseEffect({
-                    cardId: cards[id]._id,
-                    playerId: this.player$.getValue()?._id,
-                    target: { effectIndex: 0, target: 'self' },
-                    index: id,
-                  });
-                }, 3000);
+                this.sessionService.UseEffect({
+                  cardId,
+                  playerId,
+                  target: { effectIndex: 0, target: 'self' },
+                  index: id,
+                });
               }
             });
         }

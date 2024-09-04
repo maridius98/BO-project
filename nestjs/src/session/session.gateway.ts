@@ -128,11 +128,13 @@ export class SessionGateway implements OnModuleInit {
 
     const isStateChanged = await this.sessionService.checkStateChanged(session);
     if (isStateChanged) {
+      console.log('state got changed...');
       return false;
     }
     oldStates.forEach((state, index) => {
       updatedSession.players[index].state = state;
     });
+    console.log("State didn't get changed...");
     await this.sessionService.update(updatedSession);
     this.emitToAllClients(updatedSession);
     return true;
@@ -179,6 +181,7 @@ export class SessionGateway implements OnModuleInit {
   @SubscribeMessage('useEffect')
   async handleEffect(@MessageBody() playCardDto: PlayCardDto) {
     const [card, player, session] = await this.fetchData(playCardDto);
+    console.log('Using effect:' + card._id);
     const updatedSession = await this.sessionService.playEffect({
       card,
       player,

@@ -124,6 +124,7 @@ export class CardDataLayer {
         throw new Error('Unplayable');
       }
     }
+    console.log('here!');
     command.exec(cardExecData.targets || Number(value), player, cardExecData.session);
     if (cardExecData.index + 1 < cardExecData.card.effects.length) {
       player.state = this.setNextState(cardExecData, cardExecData.index + 1);
