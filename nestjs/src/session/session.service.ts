@@ -83,7 +83,7 @@ export class SessionService {
 
   async checkStateChanged(session: Session) {
     const newSession = await this.findByCode(session.code);
-    for (let i: number; (i = 0); i < 2) {
+    for (let i = 0; i < 2; i++) {
       if (newSession.players[i].state != session.players[i].state) {
         return true;
       }
