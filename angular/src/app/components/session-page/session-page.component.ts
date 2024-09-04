@@ -92,74 +92,73 @@ export class SessionPageComponent implements OnInit {
   }
 
   async chooseCard(cards: ICard[] | undefined, id: number) {
-    if (this.Turn(this.session$.getValue())) {
-      if (cards != undefined) {
-        const card = cards[id];
-        if (
-          card.cardType == 'ChallengeCard' &&
-          this.player$.getValue()?.state == State.canChallenge
-        ) {
-          this.sessionService
-            .Challenge({
-              cardId: card._id,
-              playerId: this.player$.getValue()?._id,
-              target: { effectIndex: 0, target: 'self' },
-              index: id,
-            })
-            .then(() => {
-              this.rotateDiv = true;
-              this.rotateOppDiv = true;
-              this.sessionService.Roll(this.player$.getValue()!._id!);
-              this.sessionService.Roll(this.opponent$.getValue()!._id!);
-
-              setTimeout(() => {
-                if (this.player$.getValue()!.roll != undefined) {
-                  if (this.player$.getValue()!.roll == 0) {
-                    this.firstDice = 1;
-                    this.secondDice = 1;
-                  } else {
-                    this.firstDice = Math.floor(
-                      this.player$.getValue()!.roll / 2
-                    );
-                    this.secondDice =
-                      this.player$.getValue()!.roll - this.firstDice;
-                  }
-                }
-                this.rotateDiv = false;
-                this.rotateOppDiv = false;
-                this.sessionService.ResolveChallenge({
-                  cardId: card._id,
-                  playerId: this.player$.getValue()?._id,
-                  target: { effectIndex: 0, target: 'self' },
-                  index: id,
-                });
-              }, 1000);
-            });
-        } else {
-          const cardId = card._id;
-          const playerId = this.player$.getValue()?._id;
-          this.sessionService
-            .playCard({
-              cardId,
-              playerId,
-              target: { effectIndex: 0, target: 'self' },
-              index: id,
-            })
-            .then((flag: boolean) => {
-              if (flag && card.cardType === 'MagicCard') {
-                this.sessionService.UseEffect({
-                  cardId,
-                  playerId,
-                  target: { effectIndex: 0, target: 'self' },
-                  index: id,
-                });
-              }
-            });
+    if (cards != undefined) {
+      const card = cards[id];
+      if (this.player$.getValue()?.state == State.canChallenge) {
+        if (card.cardType == 'ChallengeCard') {
+          if (this.player$.getValue()?.state == State.canChallenge) {
+            this.challenging(card, id);
+          }
         }
-
+      } else if (this.Turn(this.session$.getValue())) {
+        this.sessionService
+          .playCard({
+            cardId: card._id,
+            playerId: this.player$.getValue()?._id,
+            target: { effectIndex: 0, target: 'self' },
+            index: id,
+          })
+          .then((flag: boolean) => {
+            if (flag && card.cardType === 'MagicCard') {
+              this.sessionService.UseEffect({
+                cardId: card._id,
+                playerId: this.player$.getValue()?._id,
+                target: { effectIndex: 0, target: 'self' },
+                index: id,
+              });
+            }
+          });
         this.showPickedCard = false;
       }
     }
+  }
+
+  challenging(card: ICard, id: number) {
+    this.sessionService
+      .Challenge({
+        cardId: card._id,
+        playerId: this.player$.getValue()?._id,
+        target: { effectIndex: 0, target: 'self' },
+        index: id,
+      })
+      .then(() => {
+        this.rotateDiv = true;
+        this.rotateOppDiv = true;
+        this.sessionService.Roll(this.player$.getValue()!._id!);
+        this.sessionService.Roll(this.opponent$.getValue()!._id!);
+
+        setTimeout(() => {
+          if (this.player$.getValue()!.roll != undefined) {
+            if (this.player$.getValue()!.roll == 0) {
+              this.firstDice = 1;
+              this.secondDice = 1;
+            } else {
+              this.firstDice = Math.floor(this.player$.getValue()!.roll / 2);
+              this.secondDice = this.player$.getValue()!.roll - this.firstDice;
+            }
+          }
+          this.rotateDiv = false;
+          this.rotateOppDiv = false;
+
+          this.sessionService.ResolveChallenge({
+            cardId: card._id,
+            playerId: this.player$.getValue()?._id,
+            target: { effectIndex: 0, target: 'self' },
+            index: id,
+          });
+        }, 1000);
+      });
+    this.showPickedCard = false;
   }
 
   chooseMonster() {
