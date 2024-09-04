@@ -65,8 +65,10 @@ class IPlayer {
     this.field = player.field.map((card) => new ICard(card));
     this.state = player.state;
     this.roll = player.roll;
+    this._id = player._id;
   }
 
+  _id?: string;
   roll: number;
   state: State;
   username: string;
@@ -77,12 +79,10 @@ class IPlayer {
 export class RevealedPlayer extends IPlayer {
   constructor(player: Player) {
     super(player);
-    this._id = player._id;
     this.isHost = player.isHost;
     this.hand = player.hand.map((card) => new ICard(card));
   }
 
-  _id?: string;
   username: string;
   isHost: boolean;
   actionPoints: number;
