@@ -162,6 +162,8 @@ export class SessionGateway implements OnModuleInit {
     const [card, player, session] = await this.fetchData(playCardDto);
     const challengingPlayer = getMutablePlayer(player, session);
     const challengedPlayer = getOpposingPlayer(player, session);
+    console.log(challengingPlayer.roll);
+    console.log(challengedPlayer.roll);
     if (challengingPlayer.roll >= challengedPlayer.roll) {
       if (card.cardType === 'HeroCard') {
         const challengedCard = challengedPlayer.field.find((c) => {
