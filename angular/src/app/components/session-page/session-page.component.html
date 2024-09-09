@@ -106,8 +106,8 @@
                     <div class="additionalDataSection">
                         <div [ngClass]="{'myDice': true, 'hover-enabled': this.chosen}">
                             <div class="dices" [ngStyle]="{'cursor': this.chosen ? 'pointer':'auto'}" (click)="DiceRoll()">
-                                <img [ngClass]="{'diceImg': true, 'rotate-animation': rotateDiv}" [src]="'assets/dice/playerDice' + firstDice + '.png'" alt="Dice {{firstDice}}">
-                                <img [ngClass]="{'diceImg': true, 'rotate-animation': rotateDiv}" [src]="'../../assets/dice/playerDice' + secondDice + '.png'" alt="Dice {{secondDice}}">
+                                <img [ngClass]="{'diceImg': true, 'rotate-animation': rotateDiv}" [src]="'assets/dice/playerDice' + playerDice[0] + '.png'" alt="Dice 1">
+                                <img [ngClass]="{'diceImg': true, 'rotate-animation': rotateDiv}" [src]="'../../assets/dice/playerDice' + playerDice[1] + '.png'" alt="Dice 2">
                             </div>
                         </div>
                     </div>
