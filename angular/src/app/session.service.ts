@@ -15,6 +15,7 @@ export class SessionService {
   opponent$ = new BehaviorSubject<IPlayer | null>(null);
   session$ = new BehaviorSubject<ISession | null>(null);
   playCard$ = new BehaviorSubject<ICard | null>(null);
+  challengeCardId$ = new BehaviorSubject<string>('');
   constructor(private socket: Socket) {}
 
   sub() {
@@ -42,6 +43,11 @@ export class SessionService {
         this.playCard$.next(JSON.parse(data));
         console.log('playCard:', JSON.parse(data));
       });
+
+    this.socket
+      .fromEvent(`challengeCardId:${this.sessionCode}`)
+      .pipe(map((data) => data as string))
+      .subscribe((data: string) => this.challengeCardId$.next(data));
   }
 
   getSessionCode(): string {
@@ -79,8 +85,8 @@ export class SessionService {
     });
   }
 
-  async Roll(index: string) {
-    await this.socket.emit('roll', index);
+  async Roll(playerId: string, rollBoth = false) {
+    await this.socket.emit('roll', playerId, rollBoth);
   }
 
   async ResolveRoll(playCardDto: PlayCardDto) {

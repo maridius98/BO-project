@@ -18,6 +18,7 @@ export class SessionPageComponent implements OnInit {
   selectedPlayersCardIndex: number = -1;
   showPickedMonster: boolean = false;
   selectedValue: number | null = null;
+  challengeCardId$: BehaviorSubject<string>;
   chosen: boolean = false;
   rotateDiv: boolean = false;
   rotateOppDiv: boolean = false;
@@ -34,6 +35,7 @@ export class SessionPageComponent implements OnInit {
     this.player$ = sessionService.player$;
     this.session$ = sessionService.session$;
     this.playCard$ = sessionService.playCard$;
+    this.challengeCardId$ = sessionService.challengeCardId$;
   }
 
   TurnForSpecialCards(card: ICard | null): number {
@@ -130,13 +132,11 @@ export class SessionPageComponent implements OnInit {
       target: { effectIndex: 0, target: 'self' },
       index: id,
     });
+    await new Promise((resolve) => setTimeout(resolve, 1500));
     this.rotateDiv = true;
     this.rotateOppDiv = true;
-    this.sessionService.Roll(this.player$.getValue()!._id!);
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    this.sessionService.Roll(this.opponent$.getValue()!._id!);
-
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    await this.sessionService.Roll(this.player$.getValue()!._id!, true);
+    await new Promise((resolve) => setTimeout(resolve, 3000));
     if (this.player$.getValue()!.roll != undefined) {
       if (this.player$.getValue()!.roll == 0) {
         this.firstDice = 1;
@@ -149,8 +149,8 @@ export class SessionPageComponent implements OnInit {
     this.rotateDiv = false;
     this.rotateOppDiv = false;
 
-    this.sessionService.ResolveChallenge({
-      cardId: card._id,
+    await this.sessionService.ResolveChallenge({
+      cardId: this.challengeCardId$.getValue(),
       playerId: this.player$.getValue()?._id,
       target: { effectIndex: 0, target: 'self' },
       index: id,

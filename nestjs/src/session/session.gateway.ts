@@ -77,13 +77,20 @@ export class SessionGateway implements OnModuleInit {
   }
 
   @SubscribeMessage('roll')
-  async roll(@MessageBody() playerId: string) {
+  async roll(@MessageBody() [playerId, rollBoth = false]: [string, boolean]) {
+    console.log(playerId);
     const player = await this.playerService.findOne(playerId);
     const session = await this.sessionService.findOne(player.session._id);
     const mutablePlayer = getMutablePlayer(player, session);
+    const opponent = getOpposingPlayer(player, session);
+
+    if (rollBoth) {
+      opponent.roll = rollNumber();
+    }
+
     mutablePlayer.roll = rollNumber();
-    //player.session.state = State.resolveRoll;
     await this.sessionService.update(session);
+    session.players.forEach((p) => console.log(p.roll));
     this.emitToAllClients(session);
   }
 
@@ -121,6 +128,9 @@ export class SessionGateway implements OnModuleInit {
     });
     if (card.cardType != 'HeroCard') {
       this.emitPlayedCard(session.code, card);
+    }
+    if (card.cardType === 'HeroCard' || card.cardType === 'MagicCard') {
+      this.server.emit(`challengeCardId:${session.code}`, card._id);
     }
     this.emitToAllClients(updatedSession);
 
@@ -178,6 +188,7 @@ export class SessionGateway implements OnModuleInit {
     challengedPlayer.roll = 0;
     challengingPlayer.roll = 0;
     await this.sessionService.update(session);
+    this.emitToAllClients(session);
   }
 
   @SubscribeMessage('useEffect')
@@ -199,6 +210,7 @@ export class SessionGateway implements OnModuleInit {
   }
 
   emitToAllClients(session: Session) {
+    console.log(session.players);
     const splitSessions = this.sessionDataLayer.getSplitSessions(session);
     for (const [id, session] of splitSessions) {
       this.server.emit(`session:${id}`, stringifySafe(session));
