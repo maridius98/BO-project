@@ -30,6 +30,7 @@ export class SessionPageComponent implements OnInit {
   isInHand: boolean = false;
   boardCardId: number = -1;
   magicCard: boolean = false;
+  prevState: State | null = null;
 
   constructor(private sessionService: SessionService) {
     this.opponent$ = sessionService.opponent$;
@@ -42,7 +43,9 @@ export class SessionPageComponent implements OnInit {
 
   TurnForSpecialCards(card: ICard | null): number {
     if (card?.cardType == 'ChallengeCard') {
-      if (this.player$.getValue()?.state == State.canChallenge) return 1;
+      if (this.prevState == State.canChallenge) {
+        return 1;
+      }
       return 2;
     }
     let oppPts = this.opponent$.getValue()!.actionPoints;
@@ -56,7 +59,8 @@ export class SessionPageComponent implements OnInit {
         this.magicCard = true;
         setTimeout(() => {
           this.magicCard = false;
-        }, 3000);
+          this.prevState = null;
+        }, 4000);
       }
     });
     this.session$.subscribe((data) => {
@@ -118,6 +122,7 @@ export class SessionPageComponent implements OnInit {
       const card = cards[id];
       if (card.cardType == 'ChallengeCard') {
         if (this.player$.getValue()?.state == State.canChallenge) {
+          this.prevState = State.canChallenge;
           await this.challenge(card, id);
         }
       } else if (this.Turn(this.session$.getValue())) {

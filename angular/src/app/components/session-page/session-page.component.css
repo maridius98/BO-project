@@ -88,6 +88,8 @@
 
 
 .board{
+    position: relative;
+    z-index: 0.8;
     width: 100%;
     display: flex;
     flex-direction: column;
@@ -303,6 +305,10 @@
 .container .card{
     transform: rotate(calc(var(--i)*0.2deg)) translate(calc(var(--i)*50px),-10px);
 }
+.hand .container .card{
+    position: absolute;
+    z-index: 1;
+}
 
 .hand .container .card:hover{
     translate: calc(var(--i)*5px) -20px;
@@ -381,10 +387,13 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    position: relative;
+    z-index: 0.8;
 }
 
 .boardContainer{
-    
+    position: relative;
+    z-index: 0.8;
     width: 100%;
     display: flex;
     flex-direction: row;
@@ -480,6 +489,8 @@ to {
 
 
 .opponentSection .boardContainer .playCard{
+    position: relative;
+    z-index: 0.8;
     border: 2px solid #ff2d76ab;
     box-shadow: 0 0 0 2px #ff2d767e,
     0 0 20px #ff2d767e,
@@ -496,6 +507,8 @@ to {
 }
 
 .playerSection .boardContainer .playCard{
+    position: relative;
+    z-index: 0.8;
     border: 2px solid #4fc2dc;
     box-shadow: 0 0 0 2px #4fc2dc79,
     
