@@ -33,7 +33,6 @@ export class SessionService {
         this.session$.next(JSON.parse(data));
         this.player$.next(JSON.parse(data).player);
         this.opponent$.next(JSON.parse(data).opponent);
-        console.log('Sesija:', JSON.parse(data));
       });
 
     this.socket
@@ -41,7 +40,6 @@ export class SessionService {
       .pipe(map((data) => data as string))
       .subscribe((data: string) => {
         this.playCard$.next(JSON.parse(data));
-        console.log('playCard:', JSON.parse(data));
       });
 
     this.socket
@@ -104,4 +102,6 @@ export class SessionService {
   async ResolveChallenge(playCardDto: PlayCardDto) {
     await this.socket.emit('resolveChallenge', playCardDto);
   }
+
+  async DrawCard() {}
 }

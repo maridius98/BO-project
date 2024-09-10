@@ -60,7 +60,7 @@ export class SessionPageComponent implements OnInit {
         setTimeout(() => {
           this.magicCard = false;
           this.prevState = null;
-        }, 4000);
+        }, 3000);
       }
     });
     this.session$.subscribe((data) => {
@@ -77,6 +77,7 @@ export class SessionPageComponent implements OnInit {
           if (data.player.roll > 0) {
             this.tmpDice[0] = Math.floor(data.player.roll / 2);
             this.tmpDice[1] = data.player.roll - this.tmpDice[0];
+            this.DiceRoll();
           }
         }
       }
@@ -155,7 +156,6 @@ export class SessionPageComponent implements OnInit {
       target: { effectIndex: 0, target: 'self' },
       index: id,
     });
-    //await new Promise((resolve) => setTimeout(resolve, 1000));
 
     this.sessionService.Roll(this.player$.getValue()!._id!, true);
 
@@ -235,13 +235,14 @@ export class SessionPageComponent implements OnInit {
     if (this.player$.getValue() != null) {
       if (this.player$.getValue()!._id != undefined) {
         this.chosen = true;
-        this.sessionService.Roll(this.player$.getValue()!._id!);
-        this.boardCardId = index;
+        this.sessionService.Roll(this.player$.getValue()!._id!).then(() => {
+          this.boardCardId = index;
+        });
       }
     }
   }
 
-  async DiceRoll() {
+  DiceRoll() {
     if (this.chosen) {
       if (
         this.playerDice[0] == this.tmpDice[0] &&
@@ -270,6 +271,10 @@ export class SessionPageComponent implements OnInit {
         this.boardCardId = -1;
       }, 1000);
     }
+  }
+
+  DrawCard() {
+    this.sessionService.DrawCard();
   }
 
   ReturnDices(session: ISession | null): number[] {
