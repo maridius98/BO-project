@@ -32,7 +32,7 @@ export class SessionService {
   }
 
   async findByCode(code: string) {
-    return await this.model.findOne({ code: code }).exec();
+    return await this.model.findOne({ code: code }).populate('players').exec();
   }
 
   async findOne(id: string) {
@@ -79,5 +79,15 @@ export class SessionService {
 
   private randomCode() {
     return Math.random().toString(32).substring(7);
+  }
+
+  async checkStateChanged(session: Session) {
+    const newSession = await this.findByCode(session.code);
+    for (let i = 0; i < 2; i++) {
+      if (newSession.players[i].state != session.players[i].state) {
+        return true;
+      }
+    }
+    return false;
   }
 }

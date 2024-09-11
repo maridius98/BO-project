@@ -19,6 +19,7 @@ export enum State {
   roll,
   skip,
   wait,
+  canChallenge,
 }
 
 export function stringifySafe<T>(obj: T) {
@@ -52,8 +53,14 @@ export function cleanOutput<T>(input: Document, type: { new (): T }): string {
   return stringifySafe(validateModel(input, type));
 }
 
-export function getMutablePlayer(target: Player, session: Session) {
+export function getMutablePlayer(player: Player, session: Session) {
   return session.players.find((p) => {
-    return p._id.toString() === target._id.toString();
+    return p._id.toString() === player._id.toString();
+  });
+}
+
+export function getOpposingPlayer(player: Player, session: Session) {
+  return session.players.find((p) => {
+    return p._id.toString() != player._id.toString();
   });
 }

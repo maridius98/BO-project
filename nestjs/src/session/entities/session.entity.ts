@@ -11,9 +11,6 @@ export class Session extends Document {
   @Prop({ default: '' })
   turn: string;
 
-  @Prop({ default: 0 })
-  roll: number;
-
   @Prop({ type: [{ type: Types.ObjectId, ref: 'Card' }] })
   discardPile: Card[];
 

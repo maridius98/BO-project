@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { SessionService } from '../../session.service';
 import { BehaviorSubject } from 'rxjs';
-import { ICard, IPlayer, ISession } from '../../interfaces';
+import { ICard, IPlayer, ISession, State } from '../../interfaces';
 
 @Component({
   selector: 'app-session-page',
@@ -10,16 +10,19 @@ import { ICard, IPlayer, ISession } from '../../interfaces';
   styleUrls: ['./session-page.component.css'],
 })
 export class SessionPageComponent implements OnInit {
-  firstDice: number = 1;
-  secondDice: number = 1;
+  playerDice: number[] = [1, 1];
+  tmpDice: number[] = [1, 1];
+  opponentDice: number[] = [1, 1];
   actionPoints: number = 2;
   monsterNumber: number = 3;
   showPickedCard: boolean = false;
   selectedPlayersCardIndex: number = -1;
   showPickedMonster: boolean = false;
   selectedValue: number | null = null;
+  challengeCardId$: BehaviorSubject<string>;
   chosen: boolean = false;
   rotateDiv: boolean = false;
+  rotateOppDiv: boolean = false;
   opponent$: BehaviorSubject<IPlayer | null>;
   session$: BehaviorSubject<ISession | null>;
   player$: BehaviorSubject<IPlayer | null>;
@@ -27,12 +30,27 @@ export class SessionPageComponent implements OnInit {
   isInHand: boolean = false;
   boardCardId: number = -1;
   magicCard: boolean = false;
+  prevState: State | null = null;
 
   constructor(private sessionService: SessionService) {
     this.opponent$ = sessionService.opponent$;
     this.player$ = sessionService.player$;
     this.session$ = sessionService.session$;
+
     this.playCard$ = sessionService.playCard$;
+    this.challengeCardId$ = sessionService.challengeCardId$;
+  }
+
+  TurnForSpecialCards(card: ICard | null): number {
+    if (card?.cardType == 'ChallengeCard') {
+      if (this.prevState == State.canChallenge) {
+        return 1;
+      }
+      return 2;
+    }
+    let oppPts = this.opponent$.getValue()!.actionPoints;
+    if (oppPts == 0) return 1;
+    return 2;
   }
 
   ngOnInit() {
@@ -41,7 +59,27 @@ export class SessionPageComponent implements OnInit {
         this.magicCard = true;
         setTimeout(() => {
           this.magicCard = false;
+          this.prevState = null;
         }, 3000);
+      }
+    });
+    this.session$.subscribe((data) => {
+      if (data != null) {
+        if (data.player.roll > 0 && data.opponent!.roll > 0) {
+          this.rotateDiv = true;
+
+          this.playerDice[0] = Math.floor(data.player.roll / 2);
+          this.playerDice[1] = data.player.roll - this.playerDice[0];
+          setTimeout(() => {
+            this.rotateDiv = false;
+          }, 1000);
+        } else {
+          if (data.player.roll > 0) {
+            this.tmpDice[0] = Math.floor(data.player.roll / 2);
+            this.tmpDice[1] = data.player.roll - this.tmpDice[0];
+            this.DiceRoll();
+          }
+        }
       }
     });
   }
@@ -50,6 +88,7 @@ export class SessionPageComponent implements OnInit {
     if (session == null || session.player.hand == undefined) return 0;
     return session.player.hand.length;
   }
+
   NumberOfMonsterCards(broj: number | undefined): number {
     if (!broj) return 0;
     return broj;
@@ -58,6 +97,7 @@ export class SessionPageComponent implements OnInit {
   offPickedImage() {
     if (!this.chosen && this.showPickedCard) this.showPickedCard = false;
   }
+
   range(range: number): number[] {
     const rangeArray = [];
     for (let i = 0; i <= range - 1; i++) {
@@ -65,6 +105,7 @@ export class SessionPageComponent implements OnInit {
     }
     return rangeArray;
   }
+
   onCardHover(value: number, inHand: boolean): void {
     if (!this.chosen) {
       this.selectedValue = value;
@@ -72,45 +113,79 @@ export class SessionPageComponent implements OnInit {
       this.showPickedCard = true;
     }
   }
+
   onCardLeave() {
     if (!this.chosen) this.showPickedCard = false;
   }
-  chooseCard(cards: ICard[] | undefined, id: number) {
-    if (this.Turn(this.session$.getValue())) {
-      if (cards != undefined) {
-        this.sessionService.playCard({
-          cardId: cards[id]._id,
-          playerId: this.player$.getValue()?._id,
-          target: { effectIndex: 0, target: 'self' },
-          index: id,
-        });
-        if (cards[id].cardType == 'MagicCard') {
-          setTimeout(() => {
-            this.sessionService.UseEffect({
-              cardId: cards[id]._id,
-              playerId: this.player$.getValue()?._id,
-              target: { effectIndex: 0, target: 'self' },
-              index: id,
-            });
-          }, 3000);
+
+  async chooseCard(cards: ICard[] | undefined, id: number) {
+    if (cards != undefined) {
+      const card = cards[id];
+      if (card.cardType == 'ChallengeCard') {
+        if (this.player$.getValue()?.state == State.canChallenge) {
+          this.prevState = State.canChallenge;
+          await this.challenge(card, id);
         }
+      } else if (this.Turn(this.session$.getValue())) {
+        this.sessionService
+          .playCard({
+            cardId: card._id,
+            playerId: this.player$.getValue()?._id,
+            target: { effectIndex: 0, target: 'self' },
+            index: id,
+          })
+          .then((flag: boolean) => {
+            if (flag && card.cardType === 'MagicCard') {
+              this.sessionService.UseEffect({
+                cardId: card._id,
+                playerId: this.player$.getValue()?._id,
+                target: { effectIndex: 0, target: 'self' },
+                index: id,
+              });
+            }
+          });
         this.showPickedCard = false;
       }
     }
   }
+
+  async challenge(card: ICard, id: number) {
+    await this.sessionService.Challenge({
+      cardId: card._id,
+      playerId: this.player$.getValue()?._id,
+      target: { effectIndex: 0, target: 'self' },
+      index: id,
+    });
+
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+    this.sessionService.Roll(this.player$.getValue()!._id!, true);
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+
+    await this.sessionService.ResolveChallenge({
+      cardId: this.challengeCardId$.getValue(),
+      playerId: this.player$.getValue()?._id,
+      target: { effectIndex: 0, target: 'self' },
+      index: id,
+    });
+    this.showPickedCard = false;
+  }
+
   chooseMonster() {
     this.showPickedMonster = true;
     this.chosen = true;
   }
+
   onMonsterLeave() {
     if (!this.chosen) this.showPickedMonster = false;
   }
+
   onMonsterHover(value: number) {
     if (!this.chosen) {
       this.selectedValue = value;
       this.showPickedMonster = true;
     }
   }
+
   pickedCardDisplay(
     session: ISession | null | undefined,
     index: number | null | undefined,
@@ -124,14 +199,17 @@ export class SessionPageComponent implements OnInit {
       return session!.player.field![index!]!.name;
     }
   }
+
   pickedMonsterDisplay(session: ISession | null, index: number | null) {
     if (!session!.monsters[index!]) return '';
     return session!.monsters[index!].name;
   }
+
   showBoardPlayerCard(cards: ICard[] | undefined, id: number): string {
     if (!cards![id].name) return '';
     return cards![id].name;
   }
+
   canCardShow(cards: ICard[] | undefined, id: number): boolean {
     if (
       cards == undefined ||
@@ -148,9 +226,9 @@ export class SessionPageComponent implements OnInit {
     if (oppPts == 0) return plPts;
     return oppPts;
   }
+
   Turn(session: ISession | null) {
     let oppPts = session!.opponent!.actionPoints;
-    //console.log('turn: ', oppPts);
     if (oppPts == 0) return 1;
     return 2;
   }
@@ -159,23 +237,29 @@ export class SessionPageComponent implements OnInit {
     if (this.player$.getValue() != null) {
       if (this.player$.getValue()!._id != undefined) {
         this.chosen = true;
-        this.sessionService.Roll(this.player$.getValue()!._id!);
-        this.boardCardId = index;
+        this.sessionService.Roll(this.player$.getValue()!._id!).then(() => {
+          this.boardCardId = index;
+        });
       }
     }
   }
 
-  async DiceRoll() {
+  DiceRoll() {
     if (this.chosen) {
-      this.rotateDiv = true;
-      if (this.session$.getValue()!.roll != undefined) {
-        this.firstDice = Math.floor(this.session$.getValue()!.roll / 2);
-        this.secondDice = this.session$.getValue()!.roll - this.firstDice;
+      if (
+        this.playerDice[0] == this.tmpDice[0] &&
+        this.playerDice[1] == this.tmpDice[1]
+      ) {
+        this.rotateDiv = false;
+      } else {
+        this.rotateDiv = true;
+        this.playerDice[0] = this.tmpDice[0];
+        this.playerDice[1] = this.tmpDice[1];
       }
+
       this.chosen = false;
       this.showPickedCard = false;
       this.showPickedMonster = false;
-      this.rotateDiv = true;
       setTimeout(() => {
         this.rotateDiv = false;
 
@@ -190,11 +274,21 @@ export class SessionPageComponent implements OnInit {
       }, 1000);
     }
   }
+
+  DrawCard() {
+    this.sessionService.DrawCard();
+  }
+
   ReturnDices(session: ISession | null): number[] {
-    if (this.Turn(session) == 1 || session!.roll == 0) return [1, 1];
-    return [
-      Math.floor(session!.roll / 2),
-      session!.roll - Math.floor(session!.roll / 2),
-    ];
+    if (session!.opponent!.roll == 0) {
+      return [this.opponentDice[0], this.opponentDice[1]];
+    }
+    this.rotateOppDiv = true;
+    setTimeout(() => {
+      this.rotateOppDiv = false;
+    }, 1000);
+    this.opponentDice[0] = Math.floor(session!.opponent!.roll / 2);
+    this.opponentDice[1] = session!.opponent!.roll - this.opponentDice[0];
+    return [this.opponentDice[0], this.opponentDice[1]];
   }
 }

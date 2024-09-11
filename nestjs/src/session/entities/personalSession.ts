@@ -9,7 +9,6 @@ export class PersonalSession {
     this._id = session._id;
     this.code = session.code;
     this.turn = session.turn;
-    this.roll = session.roll;
     this.deckSize = session.deck.length;
     this.monsterDeckSize = session.monsterDeck.length;
     this.player = new RevealedPlayer(session.players[index]);
@@ -65,8 +64,12 @@ class IPlayer {
     this.actionPoints = player.actionPoints;
     this.field = player.field.map((card) => new ICard(card));
     this.state = player.state;
+    this.roll = player.roll;
+    this._id = player._id;
   }
 
+  _id?: string;
+  roll: number;
   state: State;
   username: string;
   actionPoints: number;
@@ -76,11 +79,10 @@ class IPlayer {
 export class RevealedPlayer extends IPlayer {
   constructor(player: Player) {
     super(player);
-    this._id = player._id;
     this.isHost = player.isHost;
     this.hand = player.hand.map((card) => new ICard(card));
   }
-  _id?: string;
+
   username: string;
   isHost: boolean;
   actionPoints: number;

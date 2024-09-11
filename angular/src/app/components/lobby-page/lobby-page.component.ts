@@ -62,13 +62,13 @@ export class LobbyPageComponent {
                 this.isLoading = true;
                 setTimeout(() => {
                   this.valueChanged.emit({ param: 2 });
-                }, 3000);
+                }, 1000);
               }
             });
           }
         }
       });
-    }, 2000);
+    }, 1000);
   }
 
   onPlay() {
@@ -76,6 +76,6 @@ export class LobbyPageComponent {
     this.sessionService.startGame();
     setTimeout(() => {
       this.valueChanged.emit({ param: 2 });
-    }, 2000);
+    }, 1000);
   }
 }

@@ -3,7 +3,7 @@ import { Card } from './entities/card.entity';
 import { Player } from 'src/player/entities/player.entity';
 import { Session } from 'src/session/entities/session.entity';
 import { HeroCard } from './entities/heroCard.entity';
-import { getMutablePlayer, State } from 'src/utility';
+import { getMutablePlayer, getOpposingPlayer, State } from 'src/utility';
 
 export interface CardExecData {
   card: Card;
@@ -105,21 +105,18 @@ export class CardDataLayer {
 
   playEffect(cardExecData: CardExecData) {
     if (cardExecData.card instanceof HeroCard) {
-      if (cardExecData.session.roll < cardExecData.card.victoryRoll)
+      if (cardExecData.player.roll < cardExecData.card.victoryRoll) {
         cardExecData.player.state = State.makeMove;
-      return cardExecData.session;
+        return cardExecData.session;
+      }
     }
     const effect = cardExecData.card.effects[cardExecData.index];
     const [commandName, value, target] = effect.split(';');
     let player: Player;
     if (target === 'self') {
-      player = cardExecData.session.players.find((p) => {
-        return p._id.toString() === cardExecData.player._id.toString();
-      });
+      player = getMutablePlayer(cardExecData.player, cardExecData.session);
     } else {
-      player = cardExecData.session.players.find((p) => {
-        return p._id.toString() != cardExecData.player._id.toString();
-      });
+      player = getOpposingPlayer(cardExecData.player, cardExecData.session);
     }
     const command = this.commandFactory.build(commandName, player);
     if (cardExecData.targets) {
@@ -127,18 +124,25 @@ export class CardDataLayer {
         throw new Error('Unplayable');
       }
     }
+    console.log('here!');
     command.exec(cardExecData.targets || Number(value), player, cardExecData.session);
     if (cardExecData.index + 1 < cardExecData.card.effects.length) {
       player.state = this.setNextState(cardExecData, cardExecData.index + 1);
     } else {
-      if (player.actionPoints > 1) {
-        player.state = State.makeMove;
-        player.actionPoints--;
-      } else {
-        player.state = State.makeMove;
-      }
+      this.evaluateTurnSwap(player, cardExecData.session);
     }
     return cardExecData.session;
+  }
+
+  evaluateTurnSwap(player: Player, session: Session) {
+    if (player.actionPoints >= 1) {
+      player.state = State.makeMove;
+    } else {
+      player.state = State.wait;
+      const opposingPlayer = getOpposingPlayer(player, session);
+      opposingPlayer.state = State.makeMove;
+      opposingPlayer.actionPoints = 3;
+    }
   }
 
   startEffect(cardExecData: CardExecData) {
@@ -154,16 +158,28 @@ export class CardDataLayer {
   }
 
   playCard(cardExecData: CardExecData) {
-    const player = cardExecData.session.players.find((player) => {
-      return player._id.toString() === cardExecData.player._id.toString();
-    });
+    const player = getMutablePlayer(cardExecData.player, cardExecData.session);
+    const opponent = getOpposingPlayer(cardExecData.player, cardExecData.session);
     if (cardExecData.card.cardType == 'HeroCard') {
       player.field.push(cardExecData.card);
     } else {
       cardExecData.session.discardPile.push(cardExecData.card);
     }
+    if (
+      !(
+        cardExecData.card.cardType == 'ChallengeCard' ||
+        cardExecData.card.cardType == 'ModifierCard'
+      )
+    ) {
+      player.state = State.wait;
+      opponent.state = State.canChallenge;
+      player.actionPoints--;
+    } else if (cardExecData.card.cardType == 'ChallengeCard') {
+      player.state = State.roll;
+      opponent.state = State.roll;
+    }
+
     player.hand.splice(cardExecData.index, 1);
-    player.actionPoints--;
     return cardExecData.session;
   }
 }

@@ -71,7 +71,7 @@ export class LoginPageComponent {
         setTimeout(() => {
           this.valueChanged.emit({ param: 1 });
           this.playAudio();
-        }, 2000);
+        }, 1000);
       } else {
       }
     }, 200);

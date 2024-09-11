@@ -78,7 +78,7 @@ export class CardService {
   }
 
   private isChallengeCardDto(dto: CreateCardDto): dto is ChallengeCardDto {
-    return (dto as ChallengeCardDto).positiveModifier !== undefined;
+    return (dto as ChallengeCardDto).modifier !== undefined;
   }
 
   private async createMonsterCard(createCardDto: MonsterCardDto): Promise<MonsterCardDto> {
