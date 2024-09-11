@@ -91,10 +91,14 @@ export class CommandFactory {
 export class CardDataLayer {
   constructor(private commandFactory: CommandFactory) {}
   drawCard(player: Player, session: Session) {
-    player.actionPoints -= 1;
-    const command = this.commandFactory.build('draw', player);
+    if (player.actionPoints == 0) {
+      return session;
+    }
+    const command = this.commandFactory.build('Draw', player);
     const updatedSession = command.exec(1, player, session);
-
+    const mutablePlayer = getMutablePlayer(player, updatedSession);
+    mutablePlayer.actionPoints -= 1;
+    this.evaluateTurnSwap(mutablePlayer, session);
     return updatedSession;
   }
 
