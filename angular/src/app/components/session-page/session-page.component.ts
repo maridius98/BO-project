@@ -275,8 +275,8 @@ export class SessionPageComponent implements OnInit {
     }
   }
 
-  DrawCard() {
-    this.sessionService.DrawCard();
+  async DrawCard() {
+    await this.sessionService.DrawCard(this.player$.getValue()!._id);
   }
 
   ReturnDices(session: ISession | null): number[] {
