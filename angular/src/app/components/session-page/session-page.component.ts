@@ -157,7 +157,9 @@ export class SessionPageComponent implements OnInit {
       index: id,
     });
 
+    await new Promise((resolve) => setTimeout(resolve, 1500));
     this.sessionService.Roll(this.player$.getValue()!._id!, true);
+    await new Promise((resolve) => setTimeout(resolve, 1500));
 
     await this.sessionService.ResolveChallenge({
       cardId: this.challengeCardId$.getValue(),
