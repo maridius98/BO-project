@@ -90,6 +90,17 @@ export class CommandFactory {
 @Injectable()
 export class CardDataLayer {
   constructor(private commandFactory: CommandFactory) {}
+  drawCard(player: Player, session: Session) {
+    if (player.actionPoints == 0) {
+      return session;
+    }
+    const command = this.commandFactory.build('Draw', player);
+    const updatedSession = command.exec(1, player, session);
+    const mutablePlayer = getMutablePlayer(player, updatedSession);
+    mutablePlayer.actionPoints -= 1;
+    this.evaluateTurnSwap(mutablePlayer, session);
+    return updatedSession;
+  }
 
   shuffle(cards: Card[], length = cards.length) {
     const shuffledCards = [...cards];

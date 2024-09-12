@@ -4,9 +4,10 @@ import { Session } from './entities/session.entity';
 import { Model } from 'mongoose';
 import { CardService } from 'src/card/card.service';
 import { SessionDataLayer } from './session.data-layer';
-import { CardDataLayer, CardExecData } from 'src/card/card.data-layer';
+import { CardDataLayer, CardExecData, CommandFactory } from 'src/card/card.data-layer';
 import { PlayerService } from 'src/player/player.service';
 import { ModuleRef } from '@nestjs/core';
+import { Player } from 'src/player/entities/player.entity';
 
 @Injectable()
 export class SessionService {
@@ -46,6 +47,15 @@ export class SessionService {
     const generatedSession = this.sessionDataLayer.generateSession(monsters, cards, session);
     await this.update(generatedSession);
     return generatedSession;
+  }
+
+  async drawCard(player: Player) {
+    const updatedSession = this.cardDataLayer.drawCard(
+      player,
+      await this.model.findById(player.session._id),
+    );
+    await this.update(updatedSession);
+    return updatedSession;
   }
 
   async playCard(cardExecData: CardExecData) {

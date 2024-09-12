@@ -103,5 +103,7 @@ export class SessionService {
     await this.socket.emit('resolveChallenge', playCardDto);
   }
 
-  async DrawCard() {}
+  async DrawCard(playerId: string | undefined) {
+    await this.socket.emit('drawCard', playerId);
+  }
 }

@@ -116,6 +116,13 @@ export class SessionGateway implements OnModuleInit {
     this.emitToAllClients(updatedSession);
   }
 
+  @SubscribeMessage('drawCard')
+  async drawCard(@MessageBody() playerId: string) {
+    const player = await this.playerService.findOne(playerId);
+    const session = await this.sessionService.drawCard(player);
+    this.emitToAllClients(session);
+  }
+
   @SubscribeMessage('playCard')
   async playCard(@MessageBody() playCardDto: PlayCardDto) {
     const [card, player, session] = await this.fetchData(playCardDto);
