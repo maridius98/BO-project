@@ -16,8 +16,22 @@
     <div class="leftSideContainer">
         <div class="sideCards">
             <div class="monsterCards"  (click)="offPickedImage()">
-                <div *ngFor="let i of range(monsterNumber)" [ngClass]="{'monster':true, 'pickCard':this.showPickedMonster&&!this.chosen, 'disable':this.chosen}" (mouseover)="onMonsterHover(i)" (mouseleave)="onMonsterLeave()" (click)="chooseMonster()">
-                    {{(session$ | async)!.monsters[i].name}}
+
+                <div *ngFor="let i of range(monsterNumber)" [ngClass]="{'monster':true, 'pickCard':this.showPickedMonster&&!this.chosen, 'disable':this.chosen}" (mouseover)="onMonsterHover(i)" (mouseleave)="onMonsterLeave()" (click)="chooseMonster(i)">
+                    <div *ngIf="monsterAttack">
+                        <label>
+                            Do you want to attack the monster?
+                        </label>
+                        <div>
+                            <label>
+                                YES
+                            </label>
+                            <label>
+                                NO
+                            </label>
+                        </div>
+                    </div>
+                    <!-- {{(session$ | async)!.monsters[i].name}} -->
                 </div>
             </div>
             <div class="actionPointsDiv">

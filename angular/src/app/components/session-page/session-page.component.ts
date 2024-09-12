@@ -27,6 +27,7 @@ export class SessionPageComponent implements OnInit {
   isInHand: boolean = false;
   boardCardId: number = -1;
   magicCard: boolean = false;
+  monsterAttack: boolean = false;
 
   constructor(private sessionService: SessionService) {
     this.opponent$ = sessionService.opponent$;
@@ -98,7 +99,10 @@ export class SessionPageComponent implements OnInit {
       }
     }
   }
-  chooseMonster() {
+  chooseMonster(id: number) {
+    if (this.player$.getValue()?.actionPoints == 2) {
+      this.monsterAttack = true;
+    }
     this.showPickedMonster = true;
     this.chosen = true;
   }
