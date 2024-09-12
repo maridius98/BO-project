@@ -9,7 +9,7 @@ import { UpdateSessionDto } from './dto/update-session.dto';
 import { Server } from 'socket.io';
 import { CreatePlayerDto } from 'src/player/dto/create-player.dto';
 import { PlayerService } from 'src/player/player.service';
-import { PlayCardDto } from './dto/play-card.dto';
+import { IPlayerCard, PlayCardDto } from './dto/play-card.dto';
 import { CardService } from 'src/card/card.service';
 import { Inject, OnModuleInit, forwardRef } from '@nestjs/common';
 import { State, cleanOutput, getMutablePlayer, getOpposingPlayer, rollNumber } from 'src/utility';
@@ -52,6 +52,17 @@ export class SessionGateway implements OnModuleInit {
     createPlayerDto.isHost = true;
     const player = await this.playerService.create(createPlayerDto);
     return [cleanOutput(player, IPlayer), player.session.code];
+  }
+
+  @SubscribeMessage('monsterAttack')
+  async attackMonster(@MessageBody() monsterInfo: IPlayerCard) {
+    const [card, player, session] = await this.fetchData(monsterInfo);
+    const updatedSesssion = await this.sessionService.attackMonster({
+      card,
+      player,
+      session,
+    });
+    this.emitToAllClients(updatedSesssion);
   }
 
   @SubscribeMessage('joinLobby')
@@ -229,7 +240,7 @@ export class SessionGateway implements OnModuleInit {
   }
 
   async fetchData(
-    playCardDto: PlayCardDto,
+    playCardDto: IPlayerCard,
     asHero: boolean = false,
   ): Promise<[Card | HeroCard, Player, Session]> {
     let card: Card;

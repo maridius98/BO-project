@@ -28,6 +28,12 @@ export class SessionService {
     return await newSession.save();
   }
 
+  async attackMonster(cardData: CardExecData) {
+    const session = this.cardDataLayer.attackMonster(cardData);
+    await this.update(session);
+    return session;
+  }
+
   async findAll() {
     return await this.model.find().lean().exec();
   }

@@ -4,12 +4,13 @@ import { Player } from 'src/player/entities/player.entity';
 import { Session } from 'src/session/entities/session.entity';
 import { HeroCard } from './entities/heroCard.entity';
 import { getMutablePlayer, getOpposingPlayer, State } from 'src/utility';
+import { MonsterCard } from './entities/monsterCard.entity';
 
 export interface CardExecData {
   card: Card;
   player: Player;
   session: Session;
-  index: number;
+  index?: number;
   targets?: number[];
 }
 
@@ -172,7 +173,7 @@ export class CardDataLayer {
     const player = getMutablePlayer(cardExecData.player, cardExecData.session);
     const opponent = getOpposingPlayer(cardExecData.player, cardExecData.session);
     if (cardExecData.card.cardType == 'HeroCard') {
-      player.field.push(cardExecData.card);
+      player.field.push(cardExecData.card as HeroCard);
     } else {
       cardExecData.session.discardPile.push(cardExecData.card);
     }
@@ -193,4 +194,43 @@ export class CardDataLayer {
     player.hand.splice(cardExecData.index, 1);
     return cardExecData.session;
   }
+
+  isEveryRequiredHeroPresent(playerField: HeroCard[], requiredHeroes: string[]): boolean {
+    const filteredRequiredHeroes = requiredHeroes.filter((hero) => hero !== 'wildcard');
+
+    return (
+      filteredRequiredHeroes.every((requiredHero) =>
+        playerField.some((card) => card.class === requiredHero),
+      ) && playerField.length >= requiredHeroes.length
+    );
+  }
+
+  attackMonster(cardData: CardExecData) {
+    if (cardData.player.actionPoints < 2) {
+      return cardData.session;
+    }
+    const monster = cardData.card as MonsterCard;
+    if (!this.isEveryRequiredHeroPresent(cardData.player.field, monster.requiredHeroes)) {
+      return cardData.session;
+    }
+
+    if (cardData.player.roll >= monster.victoryRoll) {
+      this.defeatMonster(cardData.player, cardData.session, monster);
+    } else if (cardData.player.roll <= monster.defeatRoll) {
+      this.loseAgainstMonster(cardData.player, cardData.session, monster);
+    }
+    const player = getMutablePlayer(cardData.player, cardData.session);
+    player.actionPoints -= 2;
+    player.roll = 0;
+    return cardData.session;
+  }
+
+  defeatMonster(player: Player, session: Session, monster: MonsterCard) {
+    const mutablePlayer = getMutablePlayer(player, session);
+    mutablePlayer.defeatedMonsters += 1;
+    session.monsters = session.monsters.filter((m) => m._id != monster._id);
+    session.monsters.push(session.monsterDeck.pop());
+  }
+
+  loseAgainstMonster(player: Player, session: Session, monster: MonsterCard) {}
 }

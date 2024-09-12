@@ -52,8 +52,10 @@ export class IMonster extends ICard {
     super(monsterCard);
     this.defeatRoll = monsterCard.defeatRoll;
     this.victoryRoll = monsterCard.victoryRoll;
+    this.requiredHeroes = monsterCard.requiredHeroes;
   }
 
+  requiredHeroes: string[];
   defeatRoll: number;
   victoryRoll: number;
 }
@@ -64,11 +66,13 @@ class IPlayer {
     this.actionPoints = player.actionPoints;
     this.field = player.field.map((card) => new ICard(card));
     this.state = player.state;
+    this.defeatedMonsters = player.defeatedMonsters;
     this.roll = player.roll;
     this._id = player._id;
   }
 
   _id?: string;
+  defeatedMonsters: number;
   roll: number;
   state: State;
   username: string;

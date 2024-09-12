@@ -11,6 +11,9 @@ export class MonsterCard extends Card {
 
   @Prop({ default: false })
   isPlayable: boolean;
+
+  @Prop({ default: [] })
+  requiredHeroes: string[];
 }
 
 export const MonsterCardSchema = SchemaFactory.createForClass(MonsterCard);
