@@ -4,9 +4,10 @@ import { Session } from './entities/session.entity';
 import { Model } from 'mongoose';
 import { CardService } from 'src/card/card.service';
 import { SessionDataLayer } from './session.data-layer';
-import { CardDataLayer, CardExecData } from 'src/card/card.data-layer';
+import { CardDataLayer, CardExecData, CommandFactory } from 'src/card/card.data-layer';
 import { PlayerService } from 'src/player/player.service';
 import { ModuleRef } from '@nestjs/core';
+import { Player } from 'src/player/entities/player.entity';
 
 @Injectable()
 export class SessionService {
@@ -27,12 +28,18 @@ export class SessionService {
     return await newSession.save();
   }
 
+  async attackMonster(cardData: CardExecData) {
+    const session = this.cardDataLayer.attackMonster(cardData);
+    await this.update(session);
+    return session;
+  }
+
   async findAll() {
     return await this.model.find().lean().exec();
   }
 
   async findByCode(code: string) {
-    return await this.model.findOne({ code: code }).exec();
+    return await this.model.findOne({ code: code }).populate('players').exec();
   }
 
   async findOne(id: string) {
@@ -46,6 +53,15 @@ export class SessionService {
     const generatedSession = this.sessionDataLayer.generateSession(monsters, cards, session);
     await this.update(generatedSession);
     return generatedSession;
+  }
+
+  async drawCard(player: Player) {
+    const updatedSession = this.cardDataLayer.drawCard(
+      player,
+      await this.model.findById(player.session._id),
+    );
+    await this.update(updatedSession);
+    return updatedSession;
   }
 
   async playCard(cardExecData: CardExecData) {
@@ -79,5 +95,15 @@ export class SessionService {
 
   private randomCode() {
     return Math.random().toString(32).substring(7);
+  }
+
+  async checkStateChanged(session: Session) {
+    const newSession = await this.findByCode(session.code);
+    for (let i = 0; i < 2; i++) {
+      if (newSession.players[i].state != session.players[i].state) {
+        return true;
+      }
+    }
+    return false;
   }
 }

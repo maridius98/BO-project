@@ -15,6 +15,7 @@ export class SessionService {
   opponent$ = new BehaviorSubject<IPlayer | null>(null);
   session$ = new BehaviorSubject<ISession | null>(null);
   playCard$ = new BehaviorSubject<ICard | null>(null);
+  challengeCardId$ = new BehaviorSubject<string>('');
   constructor(private socket: Socket) {}
 
   sub() {
@@ -30,7 +31,8 @@ export class SessionService {
       .pipe(map((data) => data as string))
       .subscribe((data: string) => {
         this.session$.next(JSON.parse(data));
-        console.log(JSON.parse(data));
+        this.player$.next(JSON.parse(data).player);
+        this.opponent$.next(JSON.parse(data).opponent);
       });
 
     this.socket
@@ -38,8 +40,12 @@ export class SessionService {
       .pipe(map((data) => data as string))
       .subscribe((data: string) => {
         this.playCard$.next(JSON.parse(data));
-        console.log(JSON.parse(data));
       });
+
+    this.socket
+      .fromEvent(`challengeCardId:${this.sessionCode}`)
+      .pipe(map((data) => data as string))
+      .subscribe((data: string) => this.challengeCardId$.next(data));
   }
 
   getSessionCode(): string {
@@ -69,12 +75,16 @@ export class SessionService {
     }
   }
 
-  async playCard(playCardDto: PlayCardDto) {
-    await this.socket.emit('playCard', playCardDto);
+  async playCard(playCardDto: PlayCardDto): Promise<boolean> {
+    return new Promise((resolve) => {
+      this.socket.emit('playCard', playCardDto, (res: boolean) => {
+        resolve(res);
+      });
+    });
   }
 
-  async Roll(index: string) {
-    await this.socket.emit('roll', index);
+  async Roll(playerId: string, rollBoth = false) {
+    await this.socket.emit('roll', playerId, rollBoth);
   }
 
   async ResolveRoll(playCardDto: PlayCardDto) {
@@ -83,5 +93,17 @@ export class SessionService {
 
   async UseEffect(playCardDto: PlayCardDto) {
     await this.socket.emit('useEffect', playCardDto);
+  }
+
+  async Challenge(playCardDto: PlayCardDto) {
+    await this.socket.emit('challenge', playCardDto);
+  }
+
+  async ResolveChallenge(playCardDto: PlayCardDto) {
+    await this.socket.emit('resolveChallenge', playCardDto);
+  }
+
+  async DrawCard(playerId: string | undefined) {
+    await this.socket.emit('drawCard', playerId);
   }
 }

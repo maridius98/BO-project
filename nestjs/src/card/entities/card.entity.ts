@@ -9,9 +9,6 @@ export class Card extends Document {
   @Prop()
   effects: string[];
 
-  @Prop({ default: false })
-  usedEffect: boolean;
-
   @Prop()
   description: string;
 

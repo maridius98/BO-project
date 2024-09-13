@@ -3,13 +3,14 @@ import { Card } from './entities/card.entity';
 import { Player } from 'src/player/entities/player.entity';
 import { Session } from 'src/session/entities/session.entity';
 import { HeroCard } from './entities/heroCard.entity';
-import { getMutablePlayer, State } from 'src/utility';
+import { getMutablePlayer, getOpposingPlayer, State } from 'src/utility';
+import { MonsterCard } from './entities/monsterCard.entity';
 
 export interface CardExecData {
   card: Card;
   player: Player;
   session: Session;
-  index: number;
+  index?: number;
   targets?: number[];
 }
 
@@ -90,6 +91,17 @@ export class CommandFactory {
 @Injectable()
 export class CardDataLayer {
   constructor(private commandFactory: CommandFactory) {}
+  drawCard(player: Player, session: Session) {
+    if (player.actionPoints == 0) {
+      return session;
+    }
+    const command = this.commandFactory.build('Draw', player);
+    const updatedSession = command.exec(1, player, session);
+    const mutablePlayer = getMutablePlayer(player, updatedSession);
+    mutablePlayer.actionPoints -= 1;
+    this.evaluateTurnSwap(mutablePlayer, session);
+    return updatedSession;
+  }
 
   shuffle(cards: Card[], length = cards.length) {
     const shuffledCards = [...cards];
@@ -105,21 +117,18 @@ export class CardDataLayer {
 
   playEffect(cardExecData: CardExecData) {
     if (cardExecData.card instanceof HeroCard) {
-      if (cardExecData.session.roll < cardExecData.card.victoryRoll)
+      if (cardExecData.player.roll < cardExecData.card.victoryRoll) {
         cardExecData.player.state = State.makeMove;
-      return cardExecData.session;
+        return cardExecData.session;
+      }
     }
     const effect = cardExecData.card.effects[cardExecData.index];
     const [commandName, value, target] = effect.split(';');
     let player: Player;
     if (target === 'self') {
-      player = cardExecData.session.players.find((p) => {
-        return p._id.toString() === cardExecData.player._id.toString();
-      });
+      player = getMutablePlayer(cardExecData.player, cardExecData.session);
     } else {
-      player = cardExecData.session.players.find((p) => {
-        return p._id.toString() != cardExecData.player._id.toString();
-      });
+      player = getOpposingPlayer(cardExecData.player, cardExecData.session);
     }
     const command = this.commandFactory.build(commandName, player);
     if (cardExecData.targets) {
@@ -127,18 +136,25 @@ export class CardDataLayer {
         throw new Error('Unplayable');
       }
     }
+    console.log('here!');
     command.exec(cardExecData.targets || Number(value), player, cardExecData.session);
     if (cardExecData.index + 1 < cardExecData.card.effects.length) {
       player.state = this.setNextState(cardExecData, cardExecData.index + 1);
     } else {
-      if (player.actionPoints > 1) {
-        player.state = State.makeMove;
-        player.actionPoints--;
-      } else {
-        player.state = State.makeMove;
-      }
+      this.evaluateTurnSwap(player, cardExecData.session);
     }
     return cardExecData.session;
+  }
+
+  evaluateTurnSwap(player: Player, session: Session) {
+    if (player.actionPoints >= 1) {
+      player.state = State.makeMove;
+    } else {
+      player.state = State.wait;
+      const opposingPlayer = getOpposingPlayer(player, session);
+      opposingPlayer.state = State.makeMove;
+      opposingPlayer.actionPoints = 3;
+    }
   }
 
   startEffect(cardExecData: CardExecData) {
@@ -154,16 +170,67 @@ export class CardDataLayer {
   }
 
   playCard(cardExecData: CardExecData) {
-    const player = cardExecData.session.players.find((player) => {
-      return player._id.toString() === cardExecData.player._id.toString();
-    });
+    const player = getMutablePlayer(cardExecData.player, cardExecData.session);
+    const opponent = getOpposingPlayer(cardExecData.player, cardExecData.session);
     if (cardExecData.card.cardType == 'HeroCard') {
-      player.field.push(cardExecData.card);
+      player.field.push(cardExecData.card as HeroCard);
     } else {
       cardExecData.session.discardPile.push(cardExecData.card);
     }
+    if (
+      !(
+        cardExecData.card.cardType == 'ChallengeCard' ||
+        cardExecData.card.cardType == 'ModifierCard'
+      )
+    ) {
+      player.state = State.wait;
+      opponent.state = State.canChallenge;
+      player.actionPoints--;
+    } else if (cardExecData.card.cardType == 'ChallengeCard') {
+      player.state = State.roll;
+      opponent.state = State.roll;
+    }
+
     player.hand.splice(cardExecData.index, 1);
-    player.actionPoints--;
     return cardExecData.session;
   }
+
+  isEveryRequiredHeroPresent(playerField: HeroCard[], requiredHeroes: string[]): boolean {
+    const filteredRequiredHeroes = requiredHeroes.filter((hero) => hero !== 'wildcard');
+
+    return (
+      filteredRequiredHeroes.every((requiredHero) =>
+        playerField.some((card) => card.class === requiredHero),
+      ) && playerField.length >= requiredHeroes.length
+    );
+  }
+
+  attackMonster(cardData: CardExecData) {
+    if (cardData.player.actionPoints < 2) {
+      return cardData.session;
+    }
+    const monster = cardData.card as MonsterCard;
+    if (!this.isEveryRequiredHeroPresent(cardData.player.field, monster.requiredHeroes)) {
+      return cardData.session;
+    }
+
+    if (cardData.player.roll >= monster.victoryRoll) {
+      this.defeatMonster(cardData.player, cardData.session, monster);
+    } else if (cardData.player.roll <= monster.defeatRoll) {
+      this.loseAgainstMonster(cardData.player, cardData.session, monster);
+    }
+    const player = getMutablePlayer(cardData.player, cardData.session);
+    player.actionPoints -= 2;
+    player.roll = 0;
+    return cardData.session;
+  }
+
+  defeatMonster(player: Player, session: Session, monster: MonsterCard) {
+    const mutablePlayer = getMutablePlayer(player, session);
+    mutablePlayer.defeatedMonsters += 1;
+    session.monsters = session.monsters.filter((m) => m._id != monster._id);
+    session.monsters.push(session.monsterDeck.pop());
+  }
+
+  loseAgainstMonster(player: Player, session: Session, monster: MonsterCard) {}
 }

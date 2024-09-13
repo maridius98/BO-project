@@ -4,7 +4,7 @@ import { Card } from './card.entity';
 @Schema({ collection: 'cards', discriminatorKey: 'cardType' })
 export class ChallengeCard extends Card {
   @Prop()
-  positiveModifier: number;
+  modifier: number;
 
   @Prop()
   class: string;
