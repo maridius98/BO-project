@@ -3,7 +3,7 @@ export interface ISession extends Lobby {
   discardPile: ICard[];
   deckSize: number;
   monsterDeckSize: number;
-  monsters: ICard[];
+  monsters: IMonsterCard[];
 }
 
 export enum State {
@@ -32,6 +32,22 @@ export interface ICard {
   imageURL: string;
   isPlayable: boolean;
   cardType: string;
+  class: string;
+}
+
+export interface IPlayerCard {
+  cardId: string;
+  playerId: string;
+}
+
+export interface IMonsterCard extends ICard {
+  _id?: string;
+  name: string;
+  description: string;
+  imageURL: string;
+  isPlayable: boolean;
+  cardType: string;
+  requiredHeroes: string[];
 }
 
 export interface IPlayer {
@@ -43,6 +59,7 @@ export interface IPlayer {
   hand?: ICard[];
   field?: ICard[];
   state: State;
+  defeatedMonsters: number;
 }
 
 export interface IOpponent {
@@ -52,4 +69,5 @@ export interface IOpponent {
   field?: ICard[];
   roll: number;
   state: State;
+  defeatedMonsters: number;
 }

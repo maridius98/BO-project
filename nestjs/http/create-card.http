@@ -44,7 +44,7 @@ Content-Type: application/json
   "victoryRoll": 9,
   "defeatRoll": 4,
   "effects": ["Draw;enemy;1"],
-  "requiredHeroes": ["warrior", "wildcard"]
+  "requiredHeroes": ["Warrior", "wildcard"]
 }
 
 
