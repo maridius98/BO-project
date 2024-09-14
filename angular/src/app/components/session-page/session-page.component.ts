@@ -201,13 +201,13 @@ export class SessionPageComponent implements OnInit {
         this.player$.getValue()!.field!.length >=
         this.session$.getValue()!.monsters[id].requiredHeroes.length
       ) {
-        console.log('here');
         this.monsterAttack[id] = true;
       }
     }
   }
 
-  DontAttack(id: number) {
+  async DontAttack(id: number) {
+    await new Promise((resolve) => setTimeout(resolve, 1000));
     this.monsterAttack[id] = false;
     this.alreadyAttacking = false;
   }
@@ -217,17 +217,29 @@ export class SessionPageComponent implements OnInit {
     this.showPickedMonster = true;
     this.chosen = true;
     await this.sessionService.Roll(this.player$.getValue()!._id!, false);
-    setTimeout(() => {
-      this.sessionService.AttackMonster({
-        cardId: this.session$.getValue()!.monsters[id]._id!,
-        playerId: this.player$.getValue()!._id!,
-      });
-      setTimeout(() => {
-        this.showPickedMonster = false;
-        this.chosen = false;
-        this.alreadyAttacking = false;
-      }, 1500);
-    }, 1000);
+    // setTimeout(() => {
+    //   this.sessionService.AttackMonster({
+    //     cardId: this.session$.getValue()!.monsters[id]._id!,
+    //     playerId: this.player$.getValue()!._id!,
+    //   });
+    //   setTimeout(() => {
+    //     this.showPickedMonster = false;
+    //     this.chosen = false;
+    //     this.alreadyAttacking = false;
+    //   }, 1500);
+    // }, 1000);
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    await this.sessionService.AttackMonster({
+      cardId: this.session$.getValue()!.monsters[id]._id!,
+      playerId: this.player$.getValue()!._id!,
+    });
+
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+
+    this.showPickedMonster = false;
+    this.chosen = false;
+    this.alreadyAttacking = false;
   }
 
   onMonsterLeave() {
