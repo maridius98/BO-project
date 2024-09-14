@@ -16,8 +16,24 @@
     <div class="leftSideContainer">
         <div class="sideCards">
             <div class="monsterCards"  (click)="offPickedImage()">
-                <div *ngFor="let i of range(monsterNumber)" [ngClass]="{'monster':true, 'pickCard':this.showPickedMonster&&!this.chosen, 'disable':this.chosen}" (mouseover)="onMonsterHover(i)" (mouseleave)="onMonsterLeave()" (click)="chooseMonster()">
-                    {{(session$ | async)!.monsters[i].name}}
+
+                <div *ngFor="let i of range(monsterNumber)" [ngClass]="{'monster':true, 'pickCard':this.showPickedMonster&&!this.chosen, 'disable':this.chosen}" (mouseover)="onMonsterHover(i)" (mouseleave)="onMonsterLeave()" (click)="chooseMonster(i)">
+                    <div class="prompt" *ngIf="monsterAttack[i]">
+                        <label>
+                            Do you want to attack the monster?
+                        </label>
+                        <div>
+                            <label id="yes" (click)="Attack(i)">
+                                YES
+                            </label>
+                            <label id="no" (click)="DontAttack(i)">
+                                NO
+                            </label>
+                        </div>
+                    </div>
+                    <label *ngIf="!monsterAttack[i]">
+                        {{(session$ | async)!.monsters[i].name}}
+                    </label>
                 </div>
             </div>
             <div class="actionPointsDiv">
@@ -56,8 +72,8 @@
                     </div>
                     
                     <div class="monsterBordContainer">
-                        <div class="monster">
-
+                        <div class="monsterWon">
+                            Monsters slain: {{(session$|async)!.opponent!.defeatedMonsters}}
                         </div>
                     </div>
                     
@@ -88,8 +104,8 @@
                         </div>
                     </div>
                     <div class="monsterBordContainer">
-                        <div class="monster">
-
+                        <div class="monsterWon">
+                            Monsters slain: {{(session$|async)!.player!.defeatedMonsters}}
                         </div>
                     </div>
                     

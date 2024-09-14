@@ -348,6 +348,7 @@
 }
 
 .monster{
+    
     margin: 10px;
     width: 200px;
     height: 90px;
@@ -425,6 +426,46 @@
     opacity: 0.8;
 }
 
+.prompt{
+    width: 100%;
+    height: 90%;
+    background-color: rgba(0, 0, 0, 0.3);
+    border: none;
+    font-size: 2rm;
+    color: white;
+    cursor: auto;
+}
+.prompt div{
+    background-color: transparent;
+    display: flex;
+    flex-direction: column;
+}
+.prompt div label{
+    cursor: pointer;
+    color:white;
+    margin: 2px;
+}
+
+#yes:hover{
+    opacity: 1.5;
+    color:#67cae0;
+    text-shadow: 0 0 15px #27b9da,
+    0 0 25px #27b9da,
+    0 0 45px #27b9da,
+    0 0 85px #27b9da,
+    0 0 125px #27b9da;
+}
+
+#no:hover{
+    opacity: 1.5;
+    color: #eb83a7;
+    text-shadow: 0 0 15px #ff2d76,
+    0 0 25px #ff2d76,
+    0 0 45px #ff2d76,
+    0 0 85px #ff2d76,
+    0 0 125px #ff2d76;
+}
+
 .opponentDice .dices .diceImg{
     box-shadow: 0 0 0 2px #ff2d767e,
     0 0 20px #ff2d767e,
@@ -491,12 +532,12 @@ to {
     background-color:rgba(0, 0, 0, 0.3);
 }
 
-.opponentSection .monsterBordContainer .monster{
-    border: 2px solid #ff2d76ab;
-    box-shadow: 0 0 0 2px #ff2d767e,
-    0 0 20px #ff2d767e,
-    0 0 40px #ff2d767e;
-    background-color: rgba(0, 0, 0, 0.3);
+.opponentSection .monsterBordContainer .monsterWon{
+    text-shadow: 0 0 15px #ff2d76,
+    0 0 25px #ff2d76,
+    0 0 45px #ff2d76,
+    0 0 85px #ff2d76,
+    0 0 125px #ff2d76;
 }
 
 .playerSection .boardContainer .playCard{
@@ -528,14 +569,25 @@ to {
     0 0 20px rgba(255, 255, 255, 0.6),
     0 0 40px rgba(255, 255, 255, 0.6);
 }
-
-.playerSection .monsterBordContainer .monster{
-    border: 2px solid #4fc2dc;
-    box-shadow: 0 0 0 2px #4fc2dc79,
-    0 0 20px #4fc2dc79,
-    0 0 40px #4fc2dc79;
-    background-color: rgba(0, 0, 0, 0.3);
+.monsterWon{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 2rm;
+    margin: 10px;
+    width: 200px;
+    height: 90px;
+    background-color: rgba(0, 0, 0, 0.7);
     opacity: 1;
+}
+
+.playerSection .monsterBordContainer .monsterWon{
+    text-shadow: 0 0 15px #27b9da,
+    0 0 25px #27b9da,
+    0 0 45px #27b9da,
+    0 0 85px #27b9da,
+    0 0 125px #27b9da;
 }
 
 .actionPointsDiv div{

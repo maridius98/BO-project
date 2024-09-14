@@ -89,7 +89,6 @@ export class SessionGateway implements OnModuleInit {
 
   @SubscribeMessage('roll')
   async roll(@MessageBody() [playerId, rollBoth = false]: [string, boolean]) {
-    console.log(playerId);
     const player = await this.playerService.findOne(playerId);
     const session = await this.sessionService.findOne(player.session._id);
     const mutablePlayer = getMutablePlayer(player, session);
@@ -101,7 +100,6 @@ export class SessionGateway implements OnModuleInit {
 
     mutablePlayer.roll = rollNumber();
     await this.sessionService.update(session);
-    session.players.forEach((p) => console.log(p.roll));
     this.emitToAllClients(session);
   }
 
@@ -190,8 +188,6 @@ export class SessionGateway implements OnModuleInit {
     const [card, player, session] = await this.fetchData(playCardDto);
     const challengingPlayer = getMutablePlayer(player, session);
     const challengedPlayer = getOpposingPlayer(player, session);
-    console.log(challengingPlayer.roll);
-    console.log(challengedPlayer.roll);
     if (challengingPlayer.roll >= challengedPlayer.roll) {
       if (card.cardType === 'HeroCard') {
         const challengedCard = challengedPlayer.field.find((c) => {
@@ -212,7 +208,6 @@ export class SessionGateway implements OnModuleInit {
   @SubscribeMessage('useEffect')
   async handleEffect(@MessageBody() playCardDto: PlayCardDto) {
     const [card, player, session] = await this.fetchData(playCardDto);
-    console.log('Using effect:' + card._id);
     const updatedSession = await this.sessionService.playEffect({
       card,
       player,
@@ -228,7 +223,6 @@ export class SessionGateway implements OnModuleInit {
   }
 
   emitToAllClients(session: Session) {
-    console.log(session.players);
     const splitSessions = this.sessionDataLayer.getSplitSessions(session);
     for (const [id, session] of splitSessions) {
       this.server.emit(`session:${id}`, stringifySafe(session));

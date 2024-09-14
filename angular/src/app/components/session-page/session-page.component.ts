@@ -31,6 +31,8 @@ export class SessionPageComponent implements OnInit {
   boardCardId: number = -1;
   magicCard: boolean = false;
   prevState: State | null = null;
+  monsterAttack: boolean[] = [false, false, false];
+  alreadyAttacking: boolean = false;
 
   constructor(private sessionService: SessionService) {
     this.opponent$ = sessionService.opponent$;
@@ -77,7 +79,17 @@ export class SessionPageComponent implements OnInit {
           if (data.player.roll > 0) {
             this.tmpDice[0] = Math.floor(data.player.roll / 2);
             this.tmpDice[1] = data.player.roll - this.tmpDice[0];
-            this.DiceRoll();
+            if (this.alreadyAttacking) {
+              this.rotateDiv = true;
+
+              this.playerDice[0] = Math.floor(data.player.roll / 2);
+              this.playerDice[1] = data.player.roll - this.playerDice[0];
+              setTimeout(() => {
+                this.rotateDiv = false;
+              }, 1000);
+            } else {
+              this.DiceRoll();
+            }
           }
         }
       }
@@ -170,9 +182,64 @@ export class SessionPageComponent implements OnInit {
     this.showPickedCard = false;
   }
 
-  chooseMonster() {
+  chooseMonster(id: number) {
+    if (
+      this.alreadyAttacking == false &&
+      this.player$.getValue()!.actionPoints! >= 2
+    ) {
+      this.alreadyAttacking = true;
+      const filteredRequiredHeroes = this.session$
+        .getValue()!
+        .monsters[id].requiredHeroes.filter((hero) => hero !== 'wildcard');
+      filteredRequiredHeroes.every((requiredHero) =>
+        this.player$
+          .getValue()!
+          .field!.some((card) => card.class === requiredHero)
+      );
+
+      if (
+        this.player$.getValue()!.field!.length >=
+        this.session$.getValue()!.monsters[id].requiredHeroes.length
+      ) {
+        this.monsterAttack[id] = true;
+      }
+    }
+  }
+
+  async DontAttack(id: number) {
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    this.monsterAttack[id] = false;
+    this.alreadyAttacking = false;
+  }
+
+  async Attack(id: number) {
+    this.monsterAttack[id] = false;
     this.showPickedMonster = true;
     this.chosen = true;
+    await this.sessionService.Roll(this.player$.getValue()!._id!, false);
+    // setTimeout(() => {
+    //   this.sessionService.AttackMonster({
+    //     cardId: this.session$.getValue()!.monsters[id]._id!,
+    //     playerId: this.player$.getValue()!._id!,
+    //   });
+    //   setTimeout(() => {
+    //     this.showPickedMonster = false;
+    //     this.chosen = false;
+    //     this.alreadyAttacking = false;
+    //   }, 1500);
+    // }, 1000);
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    await this.sessionService.AttackMonster({
+      cardId: this.session$.getValue()!.monsters[id]._id!,
+      playerId: this.player$.getValue()!._id!,
+    });
+
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+
+    this.showPickedMonster = false;
+    this.chosen = false;
+    this.alreadyAttacking = false;
   }
 
   onMonsterLeave() {
@@ -265,7 +332,7 @@ export class SessionPageComponent implements OnInit {
 
         this.sessionService.ResolveRoll({
           cardId:
-            this.session$.getValue()?.player!.field![this.boardCardId]._id,
+            this.session$.getValue()?.player!.field![this.boardCardId]._id!,
           playerId: this.player$.getValue()?._id,
           target: { effectIndex: 0, target: 'self' },
           index: this.boardCardId,

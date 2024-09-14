@@ -2,7 +2,7 @@ import { Injectable, OnDestroy, OnInit } from '@angular/core';
 import { map } from 'rxjs/operators';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Socket } from 'ngx-socket-io';
-import { ICard, IPlayer, ISession, Lobby } from './interfaces';
+import { ICard, IPlayer, IPlayerCard, ISession, Lobby } from './interfaces';
 import { CreatePlayerDto } from './components/login-page/create-player.dto';
 import { PlayCardDto } from './components/session-page/play-card.dto';
 
@@ -31,6 +31,7 @@ export class SessionService {
       .pipe(map((data) => data as string))
       .subscribe((data: string) => {
         this.session$.next(JSON.parse(data));
+        console.log(JSON.parse(data));
         this.player$.next(JSON.parse(data).player);
         this.opponent$.next(JSON.parse(data).opponent);
       });
@@ -105,5 +106,9 @@ export class SessionService {
 
   async DrawCard(playerId: string | undefined) {
     await this.socket.emit('drawCard', playerId);
+  }
+
+  async AttackMonster(playedMonsterCard: IPlayerCard | undefined) {
+    await this.socket.emit('monsterAttack', playedMonsterCard);
   }
 }
