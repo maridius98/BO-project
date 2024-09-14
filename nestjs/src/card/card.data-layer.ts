@@ -136,7 +136,6 @@ export class CardDataLayer {
         throw new Error('Unplayable');
       }
     }
-    console.log('here!');
     command.exec(cardExecData.targets || Number(value), player, cardExecData.session);
     if (cardExecData.index + 1 < cardExecData.card.effects.length) {
       player.state = this.setNextState(cardExecData, cardExecData.index + 1);
@@ -222,13 +221,14 @@ export class CardDataLayer {
     const player = getMutablePlayer(cardData.player, cardData.session);
     player.actionPoints -= 2;
     player.roll = 0;
+    this.evaluateTurnSwap(player, cardData.session);
     return cardData.session;
   }
 
   defeatMonster(player: Player, session: Session, monster: MonsterCard) {
     const mutablePlayer = getMutablePlayer(player, session);
     mutablePlayer.defeatedMonsters += 1;
-    session.monsters = session.monsters.filter((m) => m._id != monster._id);
+    session.monsters = session.monsters.filter((m) => m._id.toString() != monster._id);
     session.monsters.push(session.monsterDeck.pop());
   }
 
