@@ -52,7 +52,7 @@ export class LoginPageComponent {
         this.isLoading = true;
         setTimeout(() => {
           this.valueChanged.emit({ param: 1 });
-          this.playAudio();
+          // this.playAudio();
         }, 2000);
       } else {
         console.log('greska pri pravljenju sesije');
@@ -70,7 +70,7 @@ export class LoginPageComponent {
         this.isLoading = true;
         setTimeout(() => {
           this.valueChanged.emit({ param: 1 });
-          this.playAudio();
+          //this.playAudio();
         }, 1000);
       } else {
       }

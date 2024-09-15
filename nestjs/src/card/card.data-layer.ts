@@ -154,6 +154,7 @@ export class CardDataLayer {
 
   setNextState(cardExecData: CardExecData) {
     const effect = cardExecData.card.effects[cardExecData.index];
+    console.log('Inside setnextstate');
     if (!effect) {
       this.evaluateTurnSwap(cardExecData.player, cardExecData.session);
     }
@@ -162,6 +163,7 @@ export class CardDataLayer {
     const player = getMutablePlayer(cardExecData.player, cardExecData.session);
     player.state = command.state;
     player.cardSelectCount = parseInt(value);
+    console.log(player.state);
     cardExecData.index += 1;
   }
 

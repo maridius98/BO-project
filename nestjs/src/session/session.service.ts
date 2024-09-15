@@ -78,6 +78,7 @@ export class SessionService {
 
   async startEffect(cardExecData: CardExecData) {
     this.cardDataLayer.setNextState(cardExecData);
+    console.log(cardExecData.player.state);
     await this.update(cardExecData.session);
   }
 

@@ -112,8 +112,8 @@ export class SessionGateway implements OnModuleInit {
       session,
       index: 0,
     });
-    console.log(player.state);
-    if (player.state == State.skip) {
+    const playerFromSession = getMutablePlayer(player, session);
+    if (playerFromSession.state == State.skip) {
       await this.sessionService.playEffect({
         card,
         player,
