@@ -71,15 +71,14 @@ export class SessionService {
   }
 
   async playEffect(cardExecData: CardExecData) {
-    const session = this.cardDataLayer.playEffect(cardExecData);
-    await this.update(session);
-    return session;
+    this.cardDataLayer.playEffect(cardExecData);
+    await this.update(cardExecData.session);
+    // return session;
   }
 
   async startEffect(cardExecData: CardExecData) {
-    const session = this.cardDataLayer.startEffect(cardExecData);
-    await this.update(session);
-    return session;
+    this.cardDataLayer.setNextState(cardExecData);
+    await this.update(cardExecData.session);
   }
 
   async update(session: Session) {

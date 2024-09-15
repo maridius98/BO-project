@@ -106,23 +106,22 @@ export class SessionGateway implements OnModuleInit {
   @SubscribeMessage('resolveRoll')
   async resolveRoll(@MessageBody() playCardDto: PlayCardDto) {
     const [card, player, session] = await this.fetchData(playCardDto, true);
-    let updatedSession = await this.sessionService.startEffect({
+    await this.sessionService.startEffect({
       card,
       player,
       session,
-      index: playCardDto.index,
+      index: 0,
     });
-    let i = 0;
-    while (getMutablePlayer(player, updatedSession).state == State.skip) {
-      updatedSession = await this.sessionService.playEffect({
+    console.log(player.state);
+    if (player.state == State.skip) {
+      await this.sessionService.playEffect({
         card,
         player,
-        session: updatedSession,
-        index: playCardDto.target.effectIndex + i,
+        session,
+        index: 0,
       });
-      i++;
     }
-    this.emitToAllClients(updatedSession);
+    this.emitToAllClients(session);
   }
 
   @SubscribeMessage('drawCard')
@@ -208,13 +207,14 @@ export class SessionGateway implements OnModuleInit {
   @SubscribeMessage('useEffect')
   async handleEffect(@MessageBody() playCardDto: PlayCardDto) {
     const [card, player, session] = await this.fetchData(playCardDto);
-    const updatedSession = await this.sessionService.playEffect({
+    await this.sessionService.playEffect({
       card,
       player,
       session,
       index: playCardDto.target.effectIndex,
+      cardList: playCardDto.cardList,
     });
-    this.emitToAllClients(updatedSession);
+    this.emitToAllClients(session);
   }
 
   @SubscribeMessage('removeSession')

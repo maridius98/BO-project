@@ -84,9 +84,11 @@ export class RevealedPlayer extends IPlayer {
   constructor(player: Player) {
     super(player);
     this.isHost = player.isHost;
+    this.cardSelectCount = player.cardSelectCount;
     this.hand = player.hand.map((card) => new ICard(card));
   }
 
+  cardSelectCount: number;
   username: string;
   isHost: boolean;
   actionPoints: number;

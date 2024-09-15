@@ -1,15 +1,15 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { CardService } from './card.service';
+import { CardDataLayer } from './card.data-layer';
 
-describe('CardService', () => {
-  let service: CardService;
+describe('CardDataLayer', () => {
+  let service: CardDataLayer;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [CardService],
+      providers: [CardDataLayer],
     }).compile();
 
-    service = module.get<CardService>(CardService);
+    service = module.get<CardDataLayer>(CardDataLayer);
   });
 
   it('should be defined', () => {

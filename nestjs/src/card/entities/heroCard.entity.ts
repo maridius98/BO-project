@@ -8,9 +8,6 @@ export class HeroCard extends Card {
 
   @Prop()
   class: string;
-
-  @Prop({ default: true })
-  isFirstTurn: boolean;
 }
 
 export const HeroCardSchema = SchemaFactory.createForClass(HeroCard);

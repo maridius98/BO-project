@@ -33,6 +33,9 @@ export class Player extends Document {
 
   @Prop({ default: 0 })
   defeatedMonsters: number;
+
+  @Prop({ default: 0 })
+  cardSelectCount: number;
 }
 
 export const PlayerSchema = SchemaFactory.createForClass(Player);

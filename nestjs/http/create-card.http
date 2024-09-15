@@ -10,6 +10,19 @@ Content-Type: application/json
   "effects": ["Draw;2;self"]
 }
 
+### Mage hero post
+POST http://localhost:3000/card
+Content-Type: application/json
+
+{
+  "name": "Mage Name",
+  "description": "Sacrifice 2 cards",
+  "imageURL": "mage.jpg",
+  "class": "Mage",
+  "victoryRoll": 4,
+  "effects": ["Sacrifice;2;self"]
+}
+
 
 ### Post Magic
 POST http://localhost:3000/card

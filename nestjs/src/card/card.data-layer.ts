@@ -11,7 +11,7 @@ export interface CardExecData {
   player: Player;
   session: Session;
   index?: number;
-  targets?: number[];
+  cardList?: number[];
 }
 
 interface Command {
@@ -53,10 +53,11 @@ class Discard extends Target implements Command {
 class Sacrifice extends Target implements Command {
   state = State.selectSacrifice;
   exec(value: number[], target: Player, session: Session) {
+    const player = getMutablePlayer(target, session);
     for (const index in value) {
-      target.session.discardPile.push(target.field[index]);
+      session.discardPile.push(player.field[index]);
     }
-    target.field.filter((_, index) => !value.includes(index));
+    player.field.filter((_, index) => !value.includes(index));
     return target.session;
   }
 }
@@ -131,18 +132,13 @@ export class CardDataLayer {
       player = getOpposingPlayer(cardExecData.player, cardExecData.session);
     }
     const command = this.commandFactory.build(commandName, player);
-    if (cardExecData.targets) {
-      if (cardExecData.targets.length > Number(value)) {
+    if (cardExecData.cardList) {
+      if (cardExecData.cardList.length > Number(value)) {
         throw new Error('Unplayable');
       }
     }
-    command.exec(cardExecData.targets || Number(value), player, cardExecData.session);
-    if (cardExecData.index + 1 < cardExecData.card.effects.length) {
-      player.state = this.setNextState(cardExecData, cardExecData.index + 1);
-    } else {
-      this.evaluateTurnSwap(player, cardExecData.session);
-    }
-    return cardExecData.session;
+    command.exec(cardExecData.cardList || Number(value), player, cardExecData.session);
+    this.setNextState(cardExecData);
   }
 
   evaluateTurnSwap(player: Player, session: Session) {
@@ -156,22 +152,23 @@ export class CardDataLayer {
     }
   }
 
-  startEffect(cardExecData: CardExecData) {
+  setNextState(cardExecData: CardExecData) {
+    const effect = cardExecData.card.effects[cardExecData.index];
+    if (!effect) {
+      this.evaluateTurnSwap(cardExecData.player, cardExecData.session);
+    }
+    const [commandName, value, _] = effect.split(';');
+    const command = this.commandFactory.build(commandName, cardExecData.player);
     const player = getMutablePlayer(cardExecData.player, cardExecData.session);
-    player.state = this.setNextState(cardExecData, 0);
-    return cardExecData.session;
-  }
-
-  setNextState(cardExecData: CardExecData, index: number) {
-    const effect = cardExecData.card.effects[index];
-    const state = this.commandFactory.build(effect.split(';')[0], cardExecData.player).state;
-    return state;
+    player.state = command.state;
+    player.cardSelectCount = parseInt(value);
+    cardExecData.index += 1;
   }
 
   playCard(cardExecData: CardExecData) {
     const player = getMutablePlayer(cardExecData.player, cardExecData.session);
     const opponent = getOpposingPlayer(cardExecData.player, cardExecData.session);
-    if (cardExecData.card.cardType == 'HeroCard') {
+    if (cardExecData.card.cardType === 'HeroCard') {
       player.field.push(cardExecData.card as HeroCard);
     } else {
       cardExecData.session.discardPile.push(cardExecData.card);
