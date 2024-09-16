@@ -104,7 +104,7 @@
                 <div class="boardContainer">
 
                     <div [ngClass]="{'playCard':true}"  *ngFor="let i of range(7)">
-                        <div [ngClass]="{'actualCardOnBoard':true, 'selectedCardOnBoard':selectedCards!=null && !selectedCards[i]}" *ngIf="canCardShow((session$ | async)!.player.field,i)" (mouseover)="onCardHover(i, false)" (mouseleave)="onCardLeave()" (click)="rollForPickedCard(i)">
+                        <div [ngClass]="{'actualCardOnBoard':true, 'selectedCardOnBoard':selectedCards!=null && !canSelectCard(i)}" *ngIf="canCardShow((session$ | async)!.player.field,i)" (mouseover)="onCardHover(i, false)" (mouseleave)="onCardLeave()" (click)="rollForPickedCard(i)">
                             {{showBoardPlayerCard((session$ | async)!.player.field, i)}}
                         </div>
                     </div>

@@ -34,7 +34,7 @@ export class SessionPageComponent implements OnInit {
   prevState: State | null = null;
   monsterAttack: boolean[] = [false, false, false];
   alreadyAttacking: boolean = false;
-  selectedCards: ICard[] | null = null;
+  selectedCards: number[] = [];
 
   constructor(private sessionService: SessionService) {
     this.opponent$ = sessionService.opponent$;
@@ -315,26 +315,31 @@ export class SessionPageComponent implements OnInit {
           });
         }
         if (this.player$.getValue()?.state == State.selectSacrifice) {
-          if (this.selectedCards == null) {
-            this.selectedCards = [this.player$.getValue()!.field![index]!];
+          if (this.selectedCards.length == 0) {
+            this.selectedCards = [index];
             if (
               this.selectedCards.length ==
               this.player$.getValue()?.cardSelectCount
             ) {
-              this.selectedCards = null;
+              this.selectedCards = [];
             }
           } else {
-            this.selectedCards.push(this.player$.getValue()!.field![index]!);
-            if (
-              this.selectedCards.length ==
-              this.player$.getValue()?.cardSelectCount
-            ) {
-              this.selectedCards = null;
+            if (this.canSelectCard(index)) {
+              this.selectedCards.push(index);
+              if (
+                this.selectedCards.length ==
+                this.player$.getValue()?.cardSelectCount
+              ) {
+                this.selectedCards = [];
+              }
             }
           }
         }
       }
     }
+  }
+  canSelectCard(index: number) {
+    return this.selectedCards!.findIndex((data) => data == index) == -1;
   }
 
   SelectForDiscard(id: number) {
