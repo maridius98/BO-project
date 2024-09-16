@@ -10,6 +10,7 @@ import { ICard, IPlayer, ISession, State } from '../../interfaces';
   styleUrls: ['./session-page.component.css'],
 })
 export class SessionPageComponent implements OnInit {
+  isDialogVisible: boolean = false;
   playerDice: number[] = [1, 1];
   tmpDice: number[] = [1, 1];
   opponentDice: number[] = [1, 1];
@@ -33,6 +34,7 @@ export class SessionPageComponent implements OnInit {
   prevState: State | null = null;
   monsterAttack: boolean[] = [false, false, false];
   alreadyAttacking: boolean = false;
+  selectedCards: ICard[] | null = null;
 
   constructor(private sessionService: SessionService) {
     this.opponent$ = sessionService.opponent$;
@@ -65,8 +67,11 @@ export class SessionPageComponent implements OnInit {
         }, 3000);
       }
     });
-    this.session$.subscribe((data) => {
+    this.session$.subscribe(async (data) => {
       if (data != null) {
+        this.isDialogVisible = true;
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+        this.isDialogVisible = false;
         if (data.player.roll > 0 && data.opponent!.roll > 0) {
           this.rotateDiv = true;
 
@@ -303,10 +308,38 @@ export class SessionPageComponent implements OnInit {
   rollForPickedCard(index: number) {
     if (this.player$.getValue() != null) {
       if (this.player$.getValue()!._id != undefined) {
-        this.chosen = true;
-        this.sessionService.Roll(this.player$.getValue()!._id!).then(() => {
-          this.boardCardId = index;
-        });
+        if (this.player$.getValue()?.state == State.makeMove) {
+          this.chosen = true;
+          this.sessionService.Roll(this.player$.getValue()!._id!).then(() => {
+            this.boardCardId = index;
+          });
+        }
+        if (this.player$.getValue()?.state == State.selectSacrifice) {
+          if (this.selectedCards == null) {
+            this.selectedCards = [this.player$.getValue()!.field![index]!];
+            if (
+              this.selectedCards.length ==
+              this.player$.getValue()?.cardSelectCount
+            ) {
+              this.selectedCards = null;
+            }
+          } else {
+            this.selectedCards.push(this.player$.getValue()!.field![index]!);
+            if (
+              this.selectedCards.length ==
+              this.player$.getValue()?.cardSelectCount
+            ) {
+              this.selectedCards = null;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  SelectForDiscard(id: number) {
+    if (this.player$.getValue() != null) {
+      if (this.player$.getValue()?.state == State.selectDestroy) {
       }
     }
   }
@@ -344,6 +377,39 @@ export class SessionPageComponent implements OnInit {
 
   async DrawCard() {
     await this.sessionService.DrawCard(this.player$.getValue()!._id);
+  }
+
+  DialogText(player: IPlayer | null) {
+    if (player != null) {
+      let dialog = '';
+      let n = player.cardSelectCount;
+      switch (player.state) {
+        case State.selectDiscard:
+          if (n == 1) dialog = `Select ${n} card to discard.`;
+          else dialog = `Select ${n} cards to discard.`;
+          break;
+        case State.selectSacrifice:
+          if (n == 1) dialog = `Select ${n} card from the field to sacrifice.`;
+          else dialog = `Select ${n} cards from the field to sacrifice.`;
+          break;
+        case State.selectDestroy:
+          if (n == 1) dialog = `Select ${n} card from enemy field to destroy.`;
+          else dialog = `Select ${n} cards from enemy field to destroy.`;
+          break;
+        case State.wait:
+          dialog = `Wait for enemy to make a move!`;
+          break;
+        case State.canChallenge:
+          dialog = `Challenge enemy card?`;
+          break;
+        case State.makeMove:
+          dialog = `Make a move!`;
+          break;
+      }
+      if (dialog != '') return dialog;
+    }
+    this.isDialogVisible = false;
+    return '';
   }
 
   ReturnDices(session: ISession | null): number[] {

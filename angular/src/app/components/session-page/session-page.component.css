@@ -12,6 +12,29 @@
     animation: changeHue 20s infinite;
 }
 
+.dialog-overlay {
+    
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .dialog-content {
+    background: black;
+    color: white;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  }
+  
+
 .showMagicCard{
     position: absolute;
     width: 100%;
@@ -161,6 +184,12 @@
     opacity: 0; /* Početno stanje */
     visibility: hidden; /* Sakriva element */
     transition: opacity 0.5s ease, visibility 0.5s ease; /* Tranzicija */
+}
+
+.selectedCardOnBoard{
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.614),
+    0 0 20px rgba(255, 255, 255, 0.614),
+    0 0 40px rgba(255, 255, 255, 0.614);
 }
 
 .pickedMonster{

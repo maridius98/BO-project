@@ -60,6 +60,7 @@ export interface IPlayer {
   field?: ICard[];
   state: State;
   defeatedMonsters: number;
+  cardSelectCount: number;
 }
 
 export interface IOpponent {

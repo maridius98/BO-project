@@ -1,4 +1,9 @@
 <div class="pageContainer">
+    <div class="dialog-overlay" *ngIf="isDialogVisible">
+        <div class="dialog-content">
+          <h2>{{DialogText(player$|async)}}</h2>
+        </div>
+      </div>
 <div class="pulsingImage"></div>
 <div *ngIf="this.magicCard" [ngClass]="{'showMagicCard':true}">
     <div [ngStyle]="{'box-shadow': 
@@ -66,7 +71,7 @@
                 <div class="boardContainer">
 
                     <div [ngClass]="{'playCard':true}"  *ngFor="let i of range(7)">
-                     <div  class="actualCardOnBoard" *ngIf="canCardShow((session$ | async)!.opponent?.field,i)">
+                     <div  class="actualCardOnBoard" *ngIf="canCardShow((session$ | async)!.opponent?.field,i)" (click)="SelectForDiscard(i)">
                         {{showBoardPlayerCard((session$|async)!.opponent!.field, i)}}
                      </div>
                     </div>
@@ -99,7 +104,7 @@
                 <div class="boardContainer">
 
                     <div [ngClass]="{'playCard':true}"  *ngFor="let i of range(7)">
-                        <div class="actualCardOnBoard" *ngIf="canCardShow((session$ | async)!.player.field,i)" (mouseover)="onCardHover(i, false)" (mouseleave)="onCardLeave()" (click)="rollForPickedCard(i)">
+                        <div [ngClass]="{'actualCardOnBoard':true, 'selectedCardOnBoard':selectedCards!=null && !selectedCards[i]}" *ngIf="canCardShow((session$ | async)!.player.field,i)" (mouseover)="onCardHover(i, false)" (mouseleave)="onCardLeave()" (click)="rollForPickedCard(i)">
                             {{showBoardPlayerCard((session$ | async)!.player.field, i)}}
                         </div>
                     </div>
