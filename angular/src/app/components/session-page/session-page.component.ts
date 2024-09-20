@@ -35,6 +35,7 @@ export class SessionPageComponent implements OnInit {
   monsterAttack: boolean[] = [false, false, false];
   alreadyAttacking: boolean = false;
   selectedCards: number[] = [];
+  selectedDiscardCards: number[] = [];
   inUseCardId: string = '';
   inUseCardIndex: number = -1;
 
@@ -140,7 +141,43 @@ export class SessionPageComponent implements OnInit {
   async chooseCard(cards: ICard[] | undefined, id: number) {
     if (cards != undefined) {
       const card = cards[id];
-      if (card.cardType == 'ChallengeCard') {
+      if (this.player$.getValue()?.state == State.selectDiscard) {
+        let length =
+          this.player$.getValue()!.hand!.length <
+          this.player$.getValue()!.cardSelectCount
+            ? this.player$.getValue()!.hand!.length
+            : this.player$.getValue()!.cardSelectCount;
+        if (this.selectedDiscardCards.length == 0) {
+          this.selectedDiscardCards = [id];
+          if (this.selectedDiscardCards.length == length) {
+            await this.sessionService.UseEffect({
+              cardId: this.inUseCardId,
+              playerId: this.player$.getValue()!._id,
+              target: { effectIndex: 0, target: 'self' },
+              index: 0,
+              cardList: this.selectedDiscardCards,
+            });
+            this.inUseCardId = '';
+            this.inUseCardIndex = -1;
+            //}
+            this.selectedDiscardCards = [];
+          }
+        } else {
+          if (this.canSelectDiscardCard(id)) {
+            this.selectedDiscardCards.push(id);
+            if (this.selectedDiscardCards.length == length) {
+              await this.sessionService.UseEffect({
+                cardId: this.inUseCardId,
+                playerId: this.player$.getValue()!._id,
+                target: { effectIndex: 0, target: 'self' },
+                index: 0,
+                cardList: this.selectedDiscardCards,
+              });
+              this.selectedDiscardCards = [];
+            }
+          }
+        }
+      } else if (card.cardType == 'ChallengeCard') {
         if (this.player$.getValue()?.state == State.canChallenge) {
           this.prevState = State.canChallenge;
           await this.challenge(card, id);
@@ -318,19 +355,19 @@ export class SessionPageComponent implements OnInit {
       });
     }
     if (this.player$.getValue()?.state == State.selectSacrifice) {
-      let length = this.player$.getValue()!.field!.length;
+      let length =
+        this.player$.getValue()!.field!.length <
+        this.player$.getValue()!.cardSelectCount
+          ? this.player$.getValue()!.field!.length
+          : this.player$.getValue()!.cardSelectCount;
       if (this.selectedCards.length == 0) {
         this.selectedCards = [index];
-        if (
-          this.selectedCards.length == this.player$.getValue()?.cardSelectCount
-        ) {
-          //console.log(this.player$.getValue()!.field![length - 1]);
-          //if (this.player$.getValue()!.field![index].cardType === 'MageCard') {
+        if (this.selectedCards.length == length) {
           await this.sessionService.UseEffect({
             cardId: this.inUseCardId,
             playerId: this.player$.getValue()?._id,
             target: { effectIndex: 0, target: 'self' },
-            //index: this.inUseCardIndex,
+            index: 0,
             cardList: this.selectedCards,
           });
           this.inUseCardId = '';
@@ -341,13 +378,10 @@ export class SessionPageComponent implements OnInit {
       } else {
         if (this.canSelectCard(index)) {
           this.selectedCards.push(index);
-          if (
-            this.selectedCards.length ==
-            this.player$.getValue()?.cardSelectCount
-          ) {
+          if (this.selectedCards.length == length) {
             console.log(this.player$.getValue()!.field![length - 1]);
             await this.sessionService.UseEffect({
-              cardId: this.player$.getValue()!.field![length - 1]._id,
+              cardId: this.inUseCardId,
               playerId: this.player$.getValue()?._id,
               target: { effectIndex: 0, target: 'self' },
               index: index,
@@ -361,6 +395,10 @@ export class SessionPageComponent implements OnInit {
   }
   canSelectCard(index: number) {
     return this.selectedCards!.findIndex((data) => data == index) == -1;
+  }
+
+  canSelectDiscardCard(index: number) {
+    return this.selectedDiscardCards!.findIndex((data) => data == index) == -1;
   }
 
   SelectForDiscard(id: number) {
@@ -408,15 +446,27 @@ export class SessionPageComponent implements OnInit {
   DialogText(player: IPlayer | null) {
     if (player != null) {
       let dialog = '';
-      let n = player.cardSelectCount;
+      let n = this.player$.getValue()!.cardSelectCount;
+      let sacrifice =
+        this.player$.getValue()!.field!.length <
+        this.player$.getValue()!.cardSelectCount
+          ? this.player$.getValue()!.field!.length
+          : this.player$.getValue()!.cardSelectCount;
+      let discard =
+        this.player$.getValue()!.hand!.length <
+        this.player$.getValue()!.cardSelectCount
+          ? this.player$.getValue()!.hand!.length
+          : this.player$.getValue()!.cardSelectCount;
       switch (player.state) {
         case State.selectDiscard:
-          if (n == 1) dialog = `Select ${n} card to discard.`;
-          else dialog = `Select ${n} cards to discard.`;
+          if (discard == 1) dialog = `Select ${discard} card to discard.`;
+          else dialog = `Select ${discard} cards to discard.`;
           break;
         case State.selectSacrifice:
-          if (n == 1) dialog = `Select ${n} card from the field to sacrifice.`;
-          else dialog = `Select ${n} cards from the field to sacrifice.`;
+          if (sacrifice == 1)
+            dialog = `Select ${sacrifice} card from the field to sacrifice.`;
+          else
+            dialog = `Select ${sacrifice} cards from the field to sacrifice.`;
           break;
         case State.selectDestroy:
           if (n == 1) dialog = `Select ${n} card from enemy field to destroy.`;
@@ -434,7 +484,6 @@ export class SessionPageComponent implements OnInit {
       }
       if (dialog != '') return dialog;
     }
-    this.isDialogVisible = false;
     return '';
   }
 

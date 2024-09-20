@@ -1,9 +1,9 @@
 <div class="pageContainer">
-    <div class="dialog-overlay" *ngIf="isDialogVisible">
+    <!-- <div class="dialog-overlay" *ngIf="isDialogVisible">
         <div class="dialog-content">
           <h2>{{DialogText(player$|async)}}</h2>
         </div>
-      </div>
+      </div> -->
 <div class="pulsingImage"></div>
 <div *ngIf="this.magicCard" [ngClass]="{'showMagicCard':true}">
     <div [ngStyle]="{'box-shadow': 
@@ -100,6 +100,9 @@
                     
                 </div>
             </div>
+            <div class="MessageDiv">
+                {{DialogText(player$|async)}}
+            </div>
             <div class="playerSection">
                 <div class="boardContainer">
 
@@ -119,7 +122,7 @@
                     <div class="hand">
                         <div class="container">
                             <div [ngClass]="{
-                                'card':true, 'pickCard':this.showPickedCard&&!this.chosen, 'disable':this.chosen}" 
+                                'card':true, 'pickCard':this.showPickedCard&&!this.chosen, 'disable':this.chosen, 'selectedForDiscard':selectedDiscardCards!=null&&!canSelectDiscardCard(i)}" 
                                 *ngFor="let i of range(NumberOfCards((session$ | async)))" 
                                 [style.--i]="i-NumberOfCards((session$ | async))/2" (mouseover)="onCardHover(i, true)" (mouseleave)="onCardLeave()" (click)="chooseCard(session$.getValue()!.player.hand, i)">{{((session$ | async)!.player.hand)![i].name}}</div>
                         </div>
