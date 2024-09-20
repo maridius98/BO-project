@@ -37,7 +37,6 @@ export class SessionPageComponent implements OnInit {
   selectedCards: number[] = [];
   selectedDiscardCards: number[] = [];
   inUseCardId: string = '';
-  inUseCardIndex: number = -1;
 
   constructor(private sessionService: SessionService) {
     this.opponent$ = sessionService.opponent$;
@@ -157,9 +156,6 @@ export class SessionPageComponent implements OnInit {
               index: 0,
               cardList: this.selectedDiscardCards,
             });
-            this.inUseCardId = '';
-            this.inUseCardIndex = -1;
-            //}
             this.selectedDiscardCards = [];
           }
         } else {
@@ -349,7 +345,7 @@ export class SessionPageComponent implements OnInit {
     if (this.player$.getValue()?.state == State.makeMove) {
       this.chosen = true;
       this.inUseCardId = this.player$.getValue()!.field![index]!._id!;
-      this.inUseCardIndex = index;
+
       this.sessionService.Roll(this.player$.getValue()!._id!).then(() => {
         this.boardCardId = index;
       });
@@ -370,8 +366,6 @@ export class SessionPageComponent implements OnInit {
             index: 0,
             cardList: this.selectedCards,
           });
-          this.inUseCardId = '';
-          this.inUseCardIndex = -1;
           //}
           this.selectedCards = [];
         }
