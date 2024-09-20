@@ -138,14 +138,16 @@ export class CardDataLayer {
       }
     }
     command.exec(cardExecData.cardList || Number(value), player, cardExecData.session);
+    cardExecData.index++;
     this.setNextState(cardExecData);
   }
 
   evaluateTurnSwap(player: Player, session: Session) {
+    const mutablePlayer = getMutablePlayer(player, session);
     if (player.actionPoints >= 1) {
-      player.state = State.makeMove;
+      mutablePlayer.state = State.makeMove;
     } else {
-      player.state = State.wait;
+      mutablePlayer.state = State.wait;
       const opposingPlayer = getOpposingPlayer(player, session);
       opposingPlayer.state = State.makeMove;
       opposingPlayer.actionPoints = 3;
@@ -157,6 +159,7 @@ export class CardDataLayer {
     console.log('Inside setnextstate');
     if (!effect) {
       this.evaluateTurnSwap(cardExecData.player, cardExecData.session);
+      return;
     }
     const [commandName, value, _] = effect.split(';');
     const command = this.commandFactory.build(commandName, cardExecData.player);

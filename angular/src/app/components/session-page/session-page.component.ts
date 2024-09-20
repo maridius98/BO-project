@@ -70,7 +70,7 @@ export class SessionPageComponent implements OnInit {
     this.session$.subscribe(async (data) => {
       if (data != null) {
         this.isDialogVisible = true;
-        await new Promise((resolve) => setTimeout(resolve, 1500));
+        await new Promise((resolve) => setTimeout(resolve, 2000));
         this.isDialogVisible = false;
         if (data.player.roll > 0 && data.opponent!.roll > 0) {
           this.rotateDiv = true;
@@ -307,52 +307,47 @@ export class SessionPageComponent implements OnInit {
   }
 
   async rollForPickedCard(index: number) {
-    if (this.player$.getValue() != null) {
-      if (this.player$.getValue()!._id != undefined) {
-        if (this.player$.getValue()?.state == State.makeMove) {
-          this.chosen = true;
-          this.sessionService.Roll(this.player$.getValue()!._id!).then(() => {
-            this.boardCardId = index;
+    if (this.player$.getValue()?.state == State.makeMove) {
+      this.chosen = true;
+      this.sessionService.Roll(this.player$.getValue()!._id!).then(() => {
+        this.boardCardId = index;
+      });
+    }
+    if (this.player$.getValue()?.state == State.selectSacrifice) {
+      let length = this.player$.getValue()!.field!.length;
+      if (this.selectedCards.length == 0) {
+        this.selectedCards = [index];
+        if (
+          this.selectedCards.length == this.player$.getValue()?.cardSelectCount
+        ) {
+          console.log(this.player$.getValue()!.field![length - 1]);
+          //if (this.player$.getValue()!.field![index].cardType === 'MageCard') {
+          await this.sessionService.UseEffect({
+            cardId: this.player$.getValue()!.field![length - 1]._id,
+            playerId: this.player$.getValue()?._id,
+            target: { effectIndex: 0, target: 'self' },
+            index: index,
+            cardList: this.selectedCards,
           });
+          //}
+          this.selectedCards = [];
         }
-        if (this.player$.getValue()?.state == State.selectSacrifice) {
-          let length = this.player$.getValue()!.field!.length;
-          if (this.selectedCards.length == 0) {
-            this.selectedCards = [index];
-            if (
-              this.selectedCards.length ==
-              this.player$.getValue()?.cardSelectCount
-            ) {
-              console.log(this.player$.getValue()!.field![length - 1]);
-              //if (this.player$.getValue()!.field![index].cardType === 'MageCard') {
-              await this.sessionService.UseEffect({
-                cardId: this.player$.getValue()!.field![length - 1]._id,
-                playerId: this.player$.getValue()?._id,
-                target: { effectIndex: 0, target: 'self' },
-                index: index,
-                cardList: this.selectedCards,
-              });
-              //}
-              this.selectedCards = [];
-            }
-          } else {
-            if (this.canSelectCard(index)) {
-              this.selectedCards.push(index);
-              if (
-                this.selectedCards.length ==
-                this.player$.getValue()?.cardSelectCount
-              ) {
-                console.log(this.player$.getValue()!.field![length - 1]);
-                await this.sessionService.UseEffect({
-                  cardId: this.player$.getValue()!.field![length - 1]._id,
-                  playerId: this.player$.getValue()?._id,
-                  target: { effectIndex: 0, target: 'self' },
-                  index: index,
-                  cardList: this.selectedCards,
-                });
-                this.selectedCards = [];
-              }
-            }
+      } else {
+        if (this.canSelectCard(index)) {
+          this.selectedCards.push(index);
+          if (
+            this.selectedCards.length ==
+            this.player$.getValue()?.cardSelectCount
+          ) {
+            console.log(this.player$.getValue()!.field![length - 1]);
+            await this.sessionService.UseEffect({
+              cardId: this.player$.getValue()!.field![length - 1]._id,
+              playerId: this.player$.getValue()?._id,
+              target: { effectIndex: 0, target: 'self' },
+              index: index,
+              cardList: this.selectedCards,
+            });
+            this.selectedCards = [];
           }
         }
       }
