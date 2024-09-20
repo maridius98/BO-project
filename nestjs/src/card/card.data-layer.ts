@@ -45,7 +45,7 @@ class Discard extends Target implements Command {
     for (const index in value) {
       session.discardPile.push(player.hand[index]);
     }
-    player.hand.filter((_, index) => !value.includes(index));
+    player.hand = player.hand.filter((_, index) => !value.includes(index));
     return session;
   }
 }
@@ -57,7 +57,7 @@ class Sacrifice extends Target implements Command {
     for (const index in value) {
       session.discardPile.push(player.field[index]);
     }
-    player.field.filter((_, index) => !value.includes(index));
+    player.field = player.field.filter((_, index) => !value.includes(index));
     return target.session;
   }
 }
@@ -156,7 +156,6 @@ export class CardDataLayer {
 
   setNextState(cardExecData: CardExecData) {
     const effect = cardExecData.card.effects[cardExecData.index];
-    console.log('Inside setnextstate');
     if (!effect) {
       this.evaluateTurnSwap(cardExecData.player, cardExecData.session);
       return;
@@ -166,7 +165,6 @@ export class CardDataLayer {
     const player = getMutablePlayer(cardExecData.player, cardExecData.session);
     player.state = command.state;
     player.cardSelectCount = parseInt(value);
-    console.log(player.state);
     cardExecData.index += 1;
   }
 
