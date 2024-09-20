@@ -151,14 +151,15 @@ export class SessionPageComponent implements OnInit {
             target: { effectIndex: 0, target: 'self' },
             index: id,
           })
-          .then((flag: boolean) => {
-            if (flag && card.cardType === 'MagicCard') {
-              this.sessionService.UseEffect({
-                cardId: card._id,
-                playerId: this.player$.getValue()?._id,
-                target: { effectIndex: 0, target: 'self' },
-                index: id,
-              });
+          .then(async (flag: boolean) => {
+            if (flag) {
+              if (card.cardType === 'MagicCard')
+                this.sessionService.UseEffect({
+                  cardId: card._id,
+                  playerId: this.player$.getValue()?._id,
+                  target: { effectIndex: 0, target: 'self' },
+                  index: id,
+                });
             }
           });
         this.showPickedCard = false;
@@ -305,7 +306,7 @@ export class SessionPageComponent implements OnInit {
     return 2;
   }
 
-  rollForPickedCard(index: number) {
+  async rollForPickedCard(index: number) {
     if (this.player$.getValue() != null) {
       if (this.player$.getValue()!._id != undefined) {
         if (this.player$.getValue()?.state == State.makeMove) {
@@ -315,12 +316,23 @@ export class SessionPageComponent implements OnInit {
           });
         }
         if (this.player$.getValue()?.state == State.selectSacrifice) {
+          let length = this.player$.getValue()!.field!.length;
           if (this.selectedCards.length == 0) {
             this.selectedCards = [index];
             if (
               this.selectedCards.length ==
               this.player$.getValue()?.cardSelectCount
             ) {
+              console.log(this.player$.getValue()!.field![length - 1]);
+              //if (this.player$.getValue()!.field![index].cardType === 'MageCard') {
+              await this.sessionService.UseEffect({
+                cardId: this.player$.getValue()!.field![length - 1]._id,
+                playerId: this.player$.getValue()?._id,
+                target: { effectIndex: 0, target: 'self' },
+                index: index,
+                cardList: this.selectedCards,
+              });
+              //}
               this.selectedCards = [];
             }
           } else {
@@ -330,6 +342,14 @@ export class SessionPageComponent implements OnInit {
                 this.selectedCards.length ==
                 this.player$.getValue()?.cardSelectCount
               ) {
+                console.log(this.player$.getValue()!.field![length - 1]);
+                await this.sessionService.UseEffect({
+                  cardId: this.player$.getValue()!.field![length - 1]._id,
+                  playerId: this.player$.getValue()?._id,
+                  target: { effectIndex: 0, target: 'self' },
+                  index: index,
+                  cardList: this.selectedCards,
+                });
                 this.selectedCards = [];
               }
             }
