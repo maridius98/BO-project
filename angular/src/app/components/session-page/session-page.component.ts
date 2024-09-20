@@ -35,6 +35,8 @@ export class SessionPageComponent implements OnInit {
   monsterAttack: boolean[] = [false, false, false];
   alreadyAttacking: boolean = false;
   selectedCards: number[] = [];
+  inUseCardId: string = '';
+  inUseCardIndex: number = -1;
 
   constructor(private sessionService: SessionService) {
     this.opponent$ = sessionService.opponent$;
@@ -309,6 +311,8 @@ export class SessionPageComponent implements OnInit {
   async rollForPickedCard(index: number) {
     if (this.player$.getValue()?.state == State.makeMove) {
       this.chosen = true;
+      this.inUseCardId = this.player$.getValue()!.field![index]!._id!;
+      this.inUseCardIndex = index;
       this.sessionService.Roll(this.player$.getValue()!._id!).then(() => {
         this.boardCardId = index;
       });
@@ -320,15 +324,17 @@ export class SessionPageComponent implements OnInit {
         if (
           this.selectedCards.length == this.player$.getValue()?.cardSelectCount
         ) {
-          console.log(this.player$.getValue()!.field![length - 1]);
+          //console.log(this.player$.getValue()!.field![length - 1]);
           //if (this.player$.getValue()!.field![index].cardType === 'MageCard') {
           await this.sessionService.UseEffect({
-            cardId: this.player$.getValue()!.field![length - 1]._id,
+            cardId: this.inUseCardId,
             playerId: this.player$.getValue()?._id,
             target: { effectIndex: 0, target: 'self' },
-            index: index,
+            //index: this.inUseCardIndex,
             cardList: this.selectedCards,
           });
+          this.inUseCardId = '';
+          this.inUseCardIndex = -1;
           //}
           this.selectedCards = [];
         }
