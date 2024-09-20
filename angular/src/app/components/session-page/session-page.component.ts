@@ -37,6 +37,7 @@ export class SessionPageComponent implements OnInit {
   selectedCards: number[] = [];
   selectedDiscardCards: number[] = [];
   inUseCardId: string = '';
+  inUseCardIndex: number = -1;
 
   constructor(private sessionService: SessionService) {
     this.opponent$ = sessionService.opponent$;
@@ -152,10 +153,11 @@ export class SessionPageComponent implements OnInit {
             await this.sessionService.UseEffect({
               cardId: this.inUseCardId,
               playerId: this.player$.getValue()!._id,
-              target: { effectIndex: 0, target: 'self' },
-              index: 0,
+              target: { effectIndex: this.inUseCardIndex, target: 'self' },
+              //index: this.inUseCardIndex,
               cardList: this.selectedDiscardCards,
             });
+            this.inUseCardIndex++;
             this.selectedDiscardCards = [];
           }
         } else {
@@ -165,10 +167,11 @@ export class SessionPageComponent implements OnInit {
               await this.sessionService.UseEffect({
                 cardId: this.inUseCardId,
                 playerId: this.player$.getValue()!._id,
-                target: { effectIndex: 0, target: 'self' },
-                index: 0,
+                target: { effectIndex: this.inUseCardIndex, target: 'self' },
+                //index: s.inUseCardIndex,
                 cardList: this.selectedDiscardCards,
               });
+              this.inUseCardIndex++;
               this.selectedDiscardCards = [];
             }
           }
@@ -179,6 +182,7 @@ export class SessionPageComponent implements OnInit {
           await this.challenge(card, id);
         }
       } else if (this.Turn(this.session$.getValue())) {
+        this.inUseCardIndex = 0;
         this.sessionService
           .playCard({
             cardId: card._id,
@@ -362,10 +366,11 @@ export class SessionPageComponent implements OnInit {
           await this.sessionService.UseEffect({
             cardId: this.inUseCardId,
             playerId: this.player$.getValue()?._id,
-            target: { effectIndex: 0, target: 'self' },
-            index: 0,
+            target: { effectIndex: this.inUseCardIndex, target: 'self' },
+            //index: this.inUseCardIndex,
             cardList: this.selectedCards,
           });
+          this.inUseCardIndex++;
           //}
           this.selectedCards = [];
         }
@@ -377,10 +382,11 @@ export class SessionPageComponent implements OnInit {
             await this.sessionService.UseEffect({
               cardId: this.inUseCardId,
               playerId: this.player$.getValue()?._id,
-              target: { effectIndex: 0, target: 'self' },
-              index: index,
+              target: { effectIndex: this.inUseCardIndex, target: 'self' },
+              //index: ,
               cardList: this.selectedCards,
             });
+            this.inUseCardIndex++;
             this.selectedCards = [];
           }
         }
