@@ -72,7 +72,7 @@ function removeFromField(value: number[], player: Player, session: Session) {
   for (const index in value) {
     session.discardPile.push(player.field[index]);
   }
-  player.field.filter((_, index) => !value.includes(index));
+  player.field = player.field.filter((_, index) => !value.includes(index));
 }
 
 @Injectable()
