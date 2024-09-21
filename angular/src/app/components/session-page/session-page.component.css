@@ -6,11 +6,34 @@
     z-index: 0;
     display: flex;
     flex-direction: row;
-    background-image: url('../../../assets/gameBackground.png');
-    background-size: cover; /* Podesite da slika pokrije ceo div */
+    background-image:url('../../../assets/gameBackground.png');
+    background-size: cover;
     background-position: center;
     animation: changeHue 20s infinite;
 }
+
+.dialog-overlay {
+    
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .dialog-content {
+    background: black;
+    color: white;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  }
+  
 
 .showMagicCard{
     position: absolute;
@@ -22,12 +45,6 @@
     align-items: center;
 }
 
-/* .actualMagicCard{
-    height: 320px;
-    width: 200px;
-    background-color: white;
-    margin-bottom: 10%;
-} */
 
 
 .pulsingImage{
@@ -38,7 +55,7 @@
     z-index: 0.5;
     flex-direction: row;
     background-image: url('../../../assets/dragon.png');
-    background-size: cover; /* Podesite da slika pokrije ceo div */
+    background-size: cover; 
     background-position: center;
     opacity: 0;
     animation: pulse 10s infinite;
@@ -94,9 +111,18 @@
     display: flex;
     flex-direction: column;
 }
+.MessageDiv{
+    height: 10%;
+    width: 80%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 30px;
+    color: white;
+}
 
 .opponentSection{
-    height: 48%;
+    height: 43%;
     background: rgba(156, 32, 32, 0);
     
     display: flex;
@@ -104,7 +130,7 @@
 }
 
 .playerSection{
-    height: 50%;
+    height: 45%;
     background: rgba(23, 23, 108, 0);
 }
 
@@ -148,7 +174,7 @@
     left: -2.5;
     width: 200px;
     height: 320px;
-    background-color: rgb(255, 255, 255); /* Poluprovidna pozadina */
+    background-color: rgb(255, 255, 255); 
     display: flex;
     align-items: center;
     justify-content: center;
@@ -157,10 +183,16 @@
     0 0 20px rgba(0, 0, 0, 0.3),
     0 0 40px rgba(0, 0, 0, 0.3);
     font-size: 24px;
-    z-index: 1; /* Postavljanje sloja iznad ostalih */
-    opacity: 0; /* Početno stanje */
-    visibility: hidden; /* Sakriva element */
-    transition: opacity 0.5s ease, visibility 0.5s ease; /* Tranzicija */
+    z-index: 1;
+    opacity: 0;
+    visibility: hidden; 
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+
+.selectedCardOnBoard{
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.614),
+    0 0 20px rgba(255, 255, 255, 0.614),
+    0 0 40px rgba(255, 255, 255, 0.614);
 }
 
 .pickedMonster{
@@ -169,7 +201,7 @@
     left: -2.5;
     width: 180px;
     height: 400px;
-    background-color: rgb(255, 255, 255); /* Poluprovidna pozadina */
+    background-color: rgb(255, 255, 255); 
     display: flex;
     align-items: center;
     justify-content: center;
@@ -178,19 +210,19 @@
     0 0 20px rgba(0, 0, 0, 0.3),
     0 0 40px rgba(0, 0, 0, 0.3);
     font-size: 24px;
-    z-index: 1; /* Postavljanje sloja iznad ostalih */
-    opacity: 0; /* Početno stanje */
-    visibility: hidden; /* Sakriva element */
-    transition: opacity 0.5s ease, visibility 0.5s ease; /* Tranzicija */
+    z-index: 1; 
+    opacity: 0;
+    visibility: hidden; 
+    transition: opacity 0.5s ease, visibility 0.5s ease;
 }
 
 .pickedCard.show {
-  opacity: 1; /* Vidljivost */
-  visibility: visible; /* Prikazuje element */
+  opacity: 1; 
+  visibility: visible;
 }
 
 .pickedMonster.showMonster{
-    opacity: 1; /* Vidljivost */
+    opacity: 1; 
     visibility: visible;
 }
 
@@ -207,7 +239,6 @@
     margin-top: 5px;
     width: 200px;
     height: 90px;
-    /* border-radius: 20px; */
     background-color: rgb(0, 0, 0);
     color:white;
     display: flex;
@@ -233,8 +264,6 @@
 }
 
 
-
-/* box-shadow:'0 0 0 3px white, 0 0 25px white, 0 0 45px white'; */
 
 .monsterBordContainer{
     display: flex;
@@ -291,7 +320,6 @@
     height: 160px;
     width: 100px;
     background: white;
-    /* border:2px solid rgba(0, 0, 0, 0.6); */
     border: 1px solid  rgba(0, 0, 0, 0.3);
     box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.3),
     0 0 20px rgba(0, 0, 0, 0.3),
@@ -315,13 +343,18 @@
     z-index: 100;
 }
 
+.selectedForDiscard{
+    translate: calc(var(--i)*5px) -20px;
+    z-index: 100;
+}
+
 .opponentHand .container .card:hover{
     cursor: auto;
    
 }
 .opponentHand .container .card{
     background-image: url('../../../assets/backCreme.png');
-    background-size: cover; /* Podesite da slika pokrije ceo div */
+    background-size: cover; 
     background-position: center;
 }
 
@@ -352,7 +385,6 @@
     margin: 10px;
     width: 200px;
     height: 90px;
-    /* border-radius: 20px; */
     border: 2px solid rgba(255, 255, 255, 0.6);
 }
 
@@ -360,7 +392,7 @@
     height: 160px;
     width: 100px;
     background-image: url('../../../assets/backCreme.png');
-    background-size: cover; /* Podesite da slika pokrije ceo div */
+    background-size: cover;
     background-position: center;
     margin: 10px;
     display: flex;
@@ -409,7 +441,7 @@
     width: 160px;
     height: 100px;
     background-image: url('../../../assets/backCremeRotated.png');
-    background-size: cover; /* Podesite da slika pokrije ceo div */
+    background-size: cover; 
     background-position: center;
     margin: 10px;
     display: flex;
@@ -491,7 +523,6 @@
     0 0 20px #4fc2dc79,
     0 0 40px #4fc2dc79;
     border-radius: 10%;
-    /* transition: transform 1s ease-in-out; */
 }
 
 
@@ -513,7 +544,6 @@ to {
     gap: 10px;
     display:flex;
     flex-direction: row;
-    /* position: relative; */
     width: 100%;
 }
 .diceImg{
@@ -548,27 +578,25 @@ to {
     
     0 0 20px #4fc2dc79,
     0 0 40px #4fc2dc79;
-    /* color:rgba(255, 255, 255, 0.771); */
     background-color:rgba(0, 0, 0, 0.3);
     color: black;
 }
-/* .playerSection  */
 .actualCardOnBoard{
     border: 1px solid  rgba(0, 0, 0, 0.3);
     background-color: white;
     width: 100%;
     height: 100%;
-
-}
-.playerSection .actualCardOnBoard{
     cursor: pointer;
 }
+
 .playerSection .actualCardOnBoard:hover{
     border: 1px solid  rgba(0, 0, 0, 0.3);
     box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.6),
     0 0 20px rgba(255, 255, 255, 0.6),
     0 0 40px rgba(255, 255, 255, 0.6);
 }
+
+
 .monsterWon{
     display: flex;
     justify-content: center;
@@ -614,13 +642,6 @@ to {
     0 0 20px rgba(255, 255, 255, 0.6),
     0 0 40px rgba(255, 255, 255, 0.6);
     cursor: pointer;
-    /* position: absolute;
-    height: 160px;
-    width: 100px;
-    background: white;
-    cursor: pointer;
-    transition: 0.5s;
-    transform-origin: 50% 100%; */
 }
 
 .monsterCards .disable:hover{

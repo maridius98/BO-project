@@ -3,4 +3,5 @@ export class PlayCardDto {
   playerId?: string;
   target?: { effectIndex: number; target: string };
   index?: number;
+  cardList?: number[];
 }

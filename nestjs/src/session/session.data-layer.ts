@@ -17,8 +17,18 @@ export class SessionDataLayer {
     session.monsterDeck = this.cardDataLayer.shuffle(monsters);
     session.monsters = session.monsterDeck.splice(0, 3);
     session.players.map((player) => {
+      const mageIndex = session.deck.findIndex(
+        (c) => c.cardType === 'HeroCard' && (c as HeroCard).class == 'Mage',
+      );
+      let mage = null;
+      if (mageIndex != -1) {
+        mage = session.deck.splice(mageIndex, 1)[0];
+      }
       player.hand = session.deck.splice(0, 5);
       if (player.isHost) {
+        if (mage) {
+          player.hand.push(mage);
+        }
         player.state = State.makeMove;
         player.actionPoints = 3;
         session.turn = player.id;
