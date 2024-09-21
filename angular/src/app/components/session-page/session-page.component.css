@@ -12,6 +12,16 @@
     animation: changeHue 20s infinite;
 }
 
+.monsterImage{
+    width: 195px;
+    height: 95px;
+    transform: rotate(-90deg) translate(50px,-50px);
+}
+.monsterImage img{
+    height:  195px;
+    width: 95px;
+}
+
 .dialog-overlay {
     
     position: absolute;
@@ -43,6 +53,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    
 }
 
 
@@ -174,7 +185,8 @@
     left: -2.5;
     width: 200px;
     height: 320px;
-    background-color: rgb(255, 255, 255); 
+    background-size: cover; 
+    background-position: center;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -199,9 +211,8 @@
     position: absolute;
     top: 1;
     left: -2.5;
-    width: 180px;
-    height: 400px;
-    background-color: rgb(255, 255, 255); 
+    width: 190px;
+    height: 360px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -214,6 +225,9 @@
     opacity: 0;
     visibility: hidden; 
     transition: opacity 0.5s ease, visibility 0.5s ease;
+    
+    background-size: cover; 
+    background-position: center;
 }
 
 .pickedCard.show {
@@ -237,8 +251,8 @@
 
 .monsterCards div{
     margin-top: 5px;
-    width: 200px;
-    height: 90px;
+    width: 195px;
+    height: 95px;
     background-color: rgb(0, 0, 0);
     color:white;
     display: flex;
@@ -266,6 +280,7 @@
 
 
 .monsterBordContainer{
+    width: 20%;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -319,7 +334,6 @@
     position: absolute;
     height: 160px;
     width: 100px;
-    background: white;
     border: 1px solid  rgba(0, 0, 0, 0.3);
     box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.3),
     0 0 20px rgba(0, 0, 0, 0.3),
@@ -336,6 +350,8 @@
 .hand .container .card{
     position: absolute;
     z-index: 1;
+    background-size: cover; 
+    background-position: center;
 }
 
 .hand .container .card:hover{
@@ -383,8 +399,8 @@
 .monster{
     
     margin: 10px;
-    width: 200px;
-    height: 90px;
+    width: 195px;
+    height: 95px;
     border: 2px solid rgba(255, 255, 255, 0.6);
 }
 
@@ -414,9 +430,9 @@
 
 .playCard{
     height: 160px;
-    width: 100px;
+    width: 110px;
     border:2px solid rgba(255, 255, 255, 0.6);
-    margin: 10px;
+    margin: 7px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -581,12 +597,19 @@ to {
     background-color:rgba(0, 0, 0, 0.3);
     color: black;
 }
+
+.playerSection .actualCardOnBoard{
+    background-size: cover; 
+    background-position: center;
+}
+
 .actualCardOnBoard{
     border: 1px solid  rgba(0, 0, 0, 0.3);
-    background-color: white;
     width: 100%;
     height: 100%;
     cursor: pointer;
+    background-size: cover;
+    background-position: center;
 }
 
 .playerSection .actualCardOnBoard:hover{

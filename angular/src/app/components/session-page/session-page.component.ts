@@ -147,6 +147,17 @@ export class SessionPageComponent implements OnInit {
     if (!this.chosen) this.showPickedCard = false;
   }
 
+  getSoecialCardUrl(url: string) {
+    return `url(${url})`;
+  }
+
+  getUrl(session: ISession | null, i: number) {
+    if (session) {
+      return `url(${session!.player.hand![i].imageURL})`;
+    }
+    return '';
+  }
+
   async chooseCard(cards: ICard[] | undefined, id: number) {
     if (cards != undefined) {
       const card = cards[id];
@@ -301,21 +312,21 @@ export class SessionPageComponent implements OnInit {
   ) {
     if (isHand) {
       if (session!.player.hand![index!] == undefined) return '';
-      return session!.player.hand![index!].name;
+      return `url(${session!.player.hand![index!].imageURL}`;
     } else {
       if (session!.player.field![index!] == undefined) return '';
-      return session!.player.field![index!]!.name;
+      return `url(${session!.player.field![index!]!.imageURL}`;
     }
   }
 
   pickedMonsterDisplay(session: ISession | null, index: number | null) {
     if (!session!.monsters[index!]) return '';
-    return session!.monsters[index!].name;
+    return `url(${session!.monsters[index!].imageURL})`;
   }
 
   showBoardPlayerCard(cards: ICard[] | undefined, id: number): string {
     if (!cards![id].name) return '';
-    return cards![id].name;
+    return `url(${cards![id].imageURL})`;
   }
 
   canCardShow(cards: ICard[] | undefined, id: number): boolean {
