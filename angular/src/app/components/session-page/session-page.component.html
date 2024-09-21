@@ -71,7 +71,7 @@
                 <div class="boardContainer">
 
                     <div [ngClass]="{'playCard':true}"  *ngFor="let i of range(7)">
-                     <div  class="actualCardOnBoard" *ngIf="canCardShow((session$ | async)!.opponent?.field,i)" (click)="SelectForDiscard(i)">
+                     <div  [ngClass]="{'actualCardOnBoard':true, 'selectedCardOnBoard':selectedDestroyCards!=null && !canSelectDesroyCard(i)}" *ngIf="canCardShow((session$ | async)!.opponent?.field,i)" (click)="SelectForDestroy(i)">
                         {{showBoardPlayerCard((session$|async)!.opponent!.field, i)}}
                      </div>
                     </div>

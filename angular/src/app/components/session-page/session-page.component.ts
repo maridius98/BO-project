@@ -14,7 +14,7 @@ export class SessionPageComponent implements OnInit {
   playerDice: number[] = [1, 1];
   tmpDice: number[] = [1, 1];
   opponentDice: number[] = [1, 1];
-  actionPoints: number = 2;
+  actionPoints: number = -1;
   monsterNumber: number = 3;
   showPickedCard: boolean = false;
   selectedPlayersCardIndex: number = -1;
@@ -36,8 +36,10 @@ export class SessionPageComponent implements OnInit {
   alreadyAttacking: boolean = false;
   selectedCards: number[] = [];
   selectedDiscardCards: number[] = [];
+  selectedDestroyCards: number[] = [];
   inUseCardId: string = '';
   inUseCardIndex: number = -1;
+  playedCardList: string[] = [];
 
   constructor(private sessionService: SessionService) {
     this.opponent$ = sessionService.opponent$;
@@ -72,6 +74,13 @@ export class SessionPageComponent implements OnInit {
     });
     this.session$.subscribe(async (data) => {
       if (data != null) {
+        if (
+          data.player.actionPoints == 3 &&
+          (this.actionPoints == 0 || this.actionPoints == -1)
+        ) {
+          this.playedCardList = [];
+        }
+        this.actionPoints = data.player.actionPoints!;
         this.isDialogVisible = true;
         await new Promise((resolve) => setTimeout(resolve, 2000));
         this.isDialogVisible = false;
@@ -148,6 +157,7 @@ export class SessionPageComponent implements OnInit {
             ? this.player$.getValue()!.hand!.length
             : this.player$.getValue()!.cardSelectCount;
         if (this.selectedDiscardCards.length == 0) {
+          console.log(id);
           this.selectedDiscardCards = [id];
           if (this.selectedDiscardCards.length == length) {
             await this.sessionService.UseEffect({
@@ -162,6 +172,7 @@ export class SessionPageComponent implements OnInit {
           }
         } else {
           if (this.canSelectDiscardCard(id)) {
+            console.log(id);
             this.selectedDiscardCards.push(id);
             if (this.selectedDiscardCards.length == length) {
               await this.sessionService.UseEffect({
@@ -347,12 +358,19 @@ export class SessionPageComponent implements OnInit {
 
   async rollForPickedCard(index: number) {
     if (this.player$.getValue()?.state == State.makeMove) {
-      this.chosen = true;
-      this.inUseCardId = this.player$.getValue()!.field![index]!._id!;
+      if (
+        this.playedCardList.findIndex(
+          (data) => data == this.player$.getValue()!.field![index]!._id!
+        ) == -1
+      ) {
+        this.chosen = true;
+        this.inUseCardId = this.player$.getValue()!.field![index]!._id!;
 
-      this.sessionService.Roll(this.player$.getValue()!._id!).then(() => {
-        this.boardCardId = index;
-      });
+        this.sessionService.Roll(this.player$.getValue()!._id!).then(() => {
+          this.boardCardId = index;
+        });
+        this.playedCardList.push(this.inUseCardId);
+      }
     }
     if (this.player$.getValue()?.state == State.selectSacrifice) {
       let length =
@@ -401,9 +419,47 @@ export class SessionPageComponent implements OnInit {
     return this.selectedDiscardCards!.findIndex((data) => data == index) == -1;
   }
 
-  SelectForDiscard(id: number) {
+  canSelectDesroyCard(index: number) {
+    return this.selectedDestroyCards!.findIndex((data) => data == index) == -1;
+  }
+
+  async SelectForDestroy(index: number) {
     if (this.player$.getValue() != null) {
       if (this.player$.getValue()?.state == State.selectDestroy) {
+        let length =
+          this.opponent$.getValue()!.field!.length <
+          this.player$.getValue()!.cardSelectCount
+            ? this.opponent$.getValue()!.field!.length
+            : this.player$.getValue()!.cardSelectCount;
+
+        if (this.selectedDestroyCards.length == 0) {
+          this.selectedDestroyCards = [index];
+          if (this.selectedDestroyCards.length == length) {
+            await this.sessionService.UseEffect({
+              cardId: this.inUseCardId,
+              playerId: this.player$.getValue()?._id,
+              target: { effectIndex: this.inUseCardIndex, target: 'self' },
+              cardList: this.selectedDestroyCards,
+            });
+            this.inUseCardIndex++;
+            //}
+            this.selectedDestroyCards = [];
+          }
+        } else {
+          if (this.canSelectDesroyCard(index)) {
+            this.selectedDestroyCards.push(index);
+            if (this.selectedDestroyCards.length == length) {
+              await this.sessionService.UseEffect({
+                cardId: this.inUseCardId,
+                playerId: this.opponent$.getValue()?._id, //this.player$.getValue()?._id,
+                target: { effectIndex: this.inUseCardIndex, target: 'self' },
+                cardList: this.selectedDestroyCards,
+              });
+              this.inUseCardIndex++;
+              this.selectedDestroyCards = [];
+            }
+          }
+        }
       }
     }
   }
@@ -457,6 +513,11 @@ export class SessionPageComponent implements OnInit {
         this.player$.getValue()!.cardSelectCount
           ? this.player$.getValue()!.hand!.length
           : this.player$.getValue()!.cardSelectCount;
+      let destroy =
+        this.opponent$.getValue()!.field!.length <
+        this.player$.getValue()!.cardSelectCount
+          ? this.opponent$.getValue()!.field!.length
+          : this.player$.getValue()!.cardSelectCount;
       switch (player.state) {
         case State.selectDiscard:
           if (discard == 1) dialog = `Select ${discard} card to discard.`;
@@ -469,8 +530,9 @@ export class SessionPageComponent implements OnInit {
             dialog = `Select ${sacrifice} cards from the field to sacrifice.`;
           break;
         case State.selectDestroy:
-          if (n == 1) dialog = `Select ${n} card from enemy field to destroy.`;
-          else dialog = `Select ${n} cards from enemy field to destroy.`;
+          if (destroy == 1)
+            dialog = `Select ${destroy} card from enemy field to destroy.`;
+          else dialog = `Select ${destroy} cards from enemy field to destroy.`;
           break;
         case State.wait:
           dialog = `Wait for enemy to make a move!`;
