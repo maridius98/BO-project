@@ -54,7 +54,7 @@ class Sacrifice extends Target implements Command {
   state = State.selectSacrifice;
   exec(value: number[], target: Player, session: Session) {
     const player = getMutablePlayer(target, session);
-    removeFromField(value, player);
+    removeFromField(value, player, session);
     return session;
   }
 }
@@ -63,14 +63,14 @@ class Destroy extends Target implements Command {
   state = State.selectDestroy;
   exec(value: number[], target: Player, session: Session) {
     const player = getOpposingPlayer(target, session);
-    removeFromField(value, player);
+    removeFromField(value, player, session);
     return session;
   }
 }
 
-function removeFromField(value: number[], player: Player) {
+function removeFromField(value: number[], player: Player, session: Session) {
   for (const index in value) {
-    player.session.discardPile.push(player.field[index]);
+    session.discardPile.push(player.field[index]);
   }
   player.field.filter((_, index) => !value.includes(index));
 }
