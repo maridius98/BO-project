@@ -157,14 +157,12 @@ export class SessionPageComponent implements OnInit {
             ? this.player$.getValue()!.hand!.length
             : this.player$.getValue()!.cardSelectCount;
         if (this.selectedDiscardCards.length == 0) {
-          console.log(id);
           this.selectedDiscardCards = [id];
           if (this.selectedDiscardCards.length == length) {
             await this.sessionService.UseEffect({
               cardId: this.inUseCardId,
               playerId: this.player$.getValue()!._id,
               target: { effectIndex: this.inUseCardIndex, target: 'self' },
-              //index: this.inUseCardIndex,
               cardList: this.selectedDiscardCards,
             });
             this.inUseCardIndex++;
@@ -172,14 +170,12 @@ export class SessionPageComponent implements OnInit {
           }
         } else {
           if (this.canSelectDiscardCard(id)) {
-            console.log(id);
             this.selectedDiscardCards.push(id);
             if (this.selectedDiscardCards.length == length) {
               await this.sessionService.UseEffect({
                 cardId: this.inUseCardId,
                 playerId: this.player$.getValue()!._id,
                 target: { effectIndex: this.inUseCardIndex, target: 'self' },
-                //index: s.inUseCardIndex,
                 cardList: this.selectedDiscardCards,
               });
               this.inUseCardIndex++;
@@ -273,17 +269,6 @@ export class SessionPageComponent implements OnInit {
     this.showPickedMonster = true;
     this.chosen = true;
     await this.sessionService.Roll(this.player$.getValue()!._id!, false);
-    // setTimeout(() => {
-    //   this.sessionService.AttackMonster({
-    //     cardId: this.session$.getValue()!.monsters[id]._id!,
-    //     playerId: this.player$.getValue()!._id!,
-    //   });
-    //   setTimeout(() => {
-    //     this.showPickedMonster = false;
-    //     this.chosen = false;
-    //     this.alreadyAttacking = false;
-    //   }, 1500);
-    // }, 1000);
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
     await this.sessionService.AttackMonster({
@@ -385,23 +370,19 @@ export class SessionPageComponent implements OnInit {
             cardId: this.inUseCardId,
             playerId: this.player$.getValue()?._id,
             target: { effectIndex: this.inUseCardIndex, target: 'self' },
-            //index: this.inUseCardIndex,
             cardList: this.selectedCards,
           });
           this.inUseCardIndex++;
-          //}
           this.selectedCards = [];
         }
       } else {
         if (this.canSelectCard(index)) {
           this.selectedCards.push(index);
           if (this.selectedCards.length == length) {
-            console.log(this.player$.getValue()!.field![length - 1]);
             await this.sessionService.UseEffect({
               cardId: this.inUseCardId,
               playerId: this.player$.getValue()?._id,
               target: { effectIndex: this.inUseCardIndex, target: 'self' },
-              //index: ,
               cardList: this.selectedCards,
             });
             this.inUseCardIndex++;
@@ -442,7 +423,6 @@ export class SessionPageComponent implements OnInit {
               cardList: this.selectedDestroyCards,
             });
             this.inUseCardIndex++;
-            //}
             this.selectedDestroyCards = [];
           }
         } else {
