@@ -451,7 +451,7 @@ export class SessionPageComponent implements OnInit {
             if (this.selectedDestroyCards.length == length) {
               await this.sessionService.UseEffect({
                 cardId: this.inUseCardId,
-                playerId: this.opponent$.getValue()?._id, //this.player$.getValue()?._id,
+                playerId: this.player$.getValue()?._id,
                 target: { effectIndex: this.inUseCardIndex, target: 'self' },
                 cardList: this.selectedDestroyCards,
               });
