@@ -54,23 +54,25 @@ class Sacrifice extends Target implements Command {
   state = State.selectSacrifice;
   exec(value: number[], target: Player, session: Session) {
     const player = getMutablePlayer(target, session);
-    for (const index in value) {
-      session.discardPile.push(player.field[index]);
-    }
-    player.field = player.field.filter((_, index) => !value.includes(index));
-    return target.session;
+    removeFromField(value, player);
+    return session;
   }
 }
 
 class Destroy extends Target implements Command {
   state = State.selectDestroy;
   exec(value: number[], target: Player, session: Session) {
-    for (const index in value) {
-      target.session.discardPile.push(target.field[index]);
-    }
-    target.field.filter((_, index) => !value.includes(index));
-    return target.session;
+    const player = getOpposingPlayer(target, session);
+    removeFromField(value, player);
+    return session;
   }
+}
+
+function removeFromField(value: number[], player: Player) {
+  for (const index in value) {
+    player.session.discardPile.push(player.field[index]);
+  }
+  player.field.filter((_, index) => !value.includes(index));
 }
 
 @Injectable()
