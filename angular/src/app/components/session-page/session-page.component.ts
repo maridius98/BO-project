@@ -65,13 +65,12 @@ export class SessionPageComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.playCard$.subscribe((data) => {
+    this.playCard$.subscribe(async (data) => {
       if (data != null && !this.magicCard) {
         this.magicCard = true;
-        setTimeout(() => {
-          this.magicCard = false;
-          this.prevState = null;
-        }, 3000);
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        this.magicCard = false;
+        this.prevState = null;
       }
     });
     this.session$.subscribe(async (data) => {
