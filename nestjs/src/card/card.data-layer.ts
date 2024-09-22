@@ -42,10 +42,12 @@ class Discard extends Target implements Command {
   state = State.selectDiscard;
   exec(value: number[], target: Player, session: Session) {
     const player = getMutablePlayer(target, session);
-    for (const index in value) {
-      session.discardPile.push(player.hand[index]);
+    if (value.length) {
+      for (const index in value) {
+        session.discardPile.push(player.hand[index]);
+      }
+      player.hand = player.hand.filter((_, index) => !value.includes(index));
     }
-    player.hand = player.hand.filter((_, index) => !value.includes(index));
     return session;
   }
 }
@@ -69,6 +71,9 @@ class Destroy extends Target implements Command {
 }
 
 function removeFromField(value: number[], player: Player, session: Session) {
+  if (!value.length) {
+    return;
+  }
   for (const index in value) {
     session.discardPile.push(player.field[index]);
   }

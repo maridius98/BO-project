@@ -52,4 +52,17 @@ export class SessionDataLayer {
       return true;
     }
   }
+
+  has4Classes(player: Player) {
+    const classSet = new Set<string>(player.field.map((m) => m.class));
+    return classSet.size >= 4;
+  }
+
+  checkWinner(session: Session) {
+    session.players.forEach((p) => {
+      if (p.defeatedMonsters == 2 || this.has4Classes(p)) {
+        return p._id.toString();
+      }
+    });
+  }
 }
