@@ -106,6 +106,12 @@ export class SessionGateway implements OnModuleInit {
   @SubscribeMessage('resolveRoll')
   async resolveRoll(@MessageBody() playCardDto: PlayCardDto) {
     const [card, player, session] = await this.fetchData(playCardDto, true);
+    if (
+      card.cardType == 'HeroCard' &&
+      !this.sessionDataLayer.resolveRoll(player, card as HeroCard)
+    ) {
+      return;
+    }
     await this.sessionService.startEffect({
       card,
       player,
