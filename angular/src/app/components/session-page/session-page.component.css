@@ -207,6 +207,18 @@
     0 0 40px rgba(255, 255, 255, 0.614);
 }
 
+.activateDiv{
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.632);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    color: white;
+    cursor: pointer;
+}
+
 .pickedMonster{
     position: absolute;
     top: 1;

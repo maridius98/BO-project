@@ -40,6 +40,8 @@ export class SessionPageComponent implements OnInit {
   inUseCardId: string = '';
   inUseCardIndex: number = -1;
   playedCardList: string[] = [];
+  //activate: boolean = false;
+  activatedCard: number = -1;
 
   constructor(private sessionService: SessionService) {
     this.opponent$ = sessionService.opponent$;
@@ -64,7 +66,7 @@ export class SessionPageComponent implements OnInit {
 
   ngOnInit() {
     this.playCard$.subscribe((data) => {
-      if (data != null) {
+      if (data != null && !this.magicCard) {
         this.magicCard = true;
         setTimeout(() => {
           this.magicCard = false;
@@ -158,7 +160,8 @@ export class SessionPageComponent implements OnInit {
     return '';
   }
 
-  async chooseCard(cards: ICard[] | undefined, id: number) {
+  async chooseCard(cards: ICard[] | undefined, id: number, roll: boolean) {
+    console.log('here');
     if (cards != undefined) {
       const card = cards[id];
       if (this.player$.getValue()?.state == State.selectDiscard) {
@@ -170,27 +173,13 @@ export class SessionPageComponent implements OnInit {
         if (this.selectedDiscardCards.length == 0) {
           this.selectedDiscardCards = [id];
           if (this.selectedDiscardCards.length == length) {
-            await this.sessionService.UseEffect({
-              cardId: this.inUseCardId,
-              playerId: this.player$.getValue()!._id,
-              target: { effectIndex: this.inUseCardIndex, target: 'self' },
-              cardList: this.selectedDiscardCards,
-            });
-            this.inUseCardIndex++;
-            this.selectedDiscardCards = [];
+            this.Discard();
           }
         } else {
           if (this.canSelectDiscardCard(id)) {
             this.selectedDiscardCards.push(id);
             if (this.selectedDiscardCards.length == length) {
-              await this.sessionService.UseEffect({
-                cardId: this.inUseCardId,
-                playerId: this.player$.getValue()!._id,
-                target: { effectIndex: this.inUseCardIndex, target: 'self' },
-                cardList: this.selectedDiscardCards,
-              });
-              this.inUseCardIndex++;
-              this.selectedDiscardCards = [];
+              this.Discard();
             }
           }
         }
@@ -199,7 +188,10 @@ export class SessionPageComponent implements OnInit {
           this.prevState = State.canChallenge;
           await this.challenge(card, id);
         }
-      } else if (this.Turn(this.session$.getValue())) {
+      } else if (
+        this.Turn(this.session$.getValue()) &&
+        this.player$.getValue()?.state == State.makeMove
+      ) {
         this.inUseCardIndex = 0;
         this.sessionService
           .playCard({
@@ -210,7 +202,11 @@ export class SessionPageComponent implements OnInit {
           })
           .then(async (flag: boolean) => {
             if (flag) {
-              if (card.cardType === 'MagicCard')
+              if (this.activatedCard != -1 && roll == true) {
+                this.rollForPickedCard(
+                  this.player$.getValue()!.field!.length - 1
+                );
+              } else if (card.cardType === 'MagicCard')
                 this.sessionService.UseEffect({
                   cardId: card._id,
                   playerId: this.player$.getValue()?._id,
@@ -220,8 +216,10 @@ export class SessionPageComponent implements OnInit {
             }
           });
         this.showPickedCard = false;
+        this.sessionService.evaluateTurnSwap();
       }
     }
+    this.activatedCard = -1;
   }
 
   async challenge(card: ICard, id: number) {
@@ -377,31 +375,19 @@ export class SessionPageComponent implements OnInit {
       if (this.selectedCards.length == 0) {
         this.selectedCards = [index];
         if (this.selectedCards.length == length) {
-          await this.sessionService.UseEffect({
-            cardId: this.inUseCardId,
-            playerId: this.player$.getValue()?._id,
-            target: { effectIndex: this.inUseCardIndex, target: 'self' },
-            cardList: this.selectedCards,
-          });
-          this.inUseCardIndex++;
-          this.selectedCards = [];
+          this.Sacrifice();
         }
       } else {
         if (this.canSelectCard(index)) {
           this.selectedCards.push(index);
           if (this.selectedCards.length == length) {
-            await this.sessionService.UseEffect({
-              cardId: this.inUseCardId,
-              playerId: this.player$.getValue()?._id,
-              target: { effectIndex: this.inUseCardIndex, target: 'self' },
-              cardList: this.selectedCards,
-            });
-            this.inUseCardIndex++;
-            this.selectedCards = [];
+            this.Sacrifice();
           }
         }
       }
     }
+    this.activatedCard = -1;
+    this.sessionService.evaluateTurnSwap();
   }
   canSelectCard(index: number) {
     return this.selectedCards!.findIndex((data) => data == index) == -1;
@@ -427,27 +413,13 @@ export class SessionPageComponent implements OnInit {
         if (this.selectedDestroyCards.length == 0) {
           this.selectedDestroyCards = [index];
           if (this.selectedDestroyCards.length == length) {
-            await this.sessionService.UseEffect({
-              cardId: this.inUseCardId,
-              playerId: this.player$.getValue()?._id,
-              target: { effectIndex: this.inUseCardIndex, target: 'self' },
-              cardList: this.selectedDestroyCards,
-            });
-            this.inUseCardIndex++;
-            this.selectedDestroyCards = [];
+            this.Destroy();
           }
         } else {
           if (this.canSelectDesroyCard(index)) {
             this.selectedDestroyCards.push(index);
             if (this.selectedDestroyCards.length == length) {
-              await this.sessionService.UseEffect({
-                cardId: this.inUseCardId,
-                playerId: this.player$.getValue()?._id,
-                target: { effectIndex: this.inUseCardIndex, target: 'self' },
-                cardList: this.selectedDestroyCards,
-              });
-              this.inUseCardIndex++;
-              this.selectedDestroyCards = [];
+              this.Destroy();
             }
           }
         }
@@ -487,7 +459,11 @@ export class SessionPageComponent implements OnInit {
   }
 
   async DrawCard() {
-    await this.sessionService.DrawCard(this.player$.getValue()!._id);
+    if (this.player$.getValue()?.state == State.makeMove) {
+      this.activatedCard = -1;
+
+      await this.sessionService.DrawCard(this.player$.getValue()!._id);
+    }
   }
 
   DialogText(player: IPlayer | null) {
@@ -544,12 +520,63 @@ export class SessionPageComponent implements OnInit {
     if (session!.opponent!.roll == 0) {
       return [this.opponentDice[0], this.opponentDice[1]];
     }
+    this.opponentDice[0] = Math.floor(session!.opponent!.roll / 2);
+    this.opponentDice[1] = session!.opponent!.roll - this.opponentDice[0];
     this.rotateOppDiv = true;
     setTimeout(() => {
       this.rotateOppDiv = false;
     }, 1000);
-    this.opponentDice[0] = Math.floor(session!.opponent!.roll / 2);
-    this.opponentDice[1] = session!.opponent!.roll - this.opponentDice[0];
     return [this.opponentDice[0], this.opponentDice[1]];
+  }
+
+  openPrompt(hand: ICard[] | undefined, id: number) {
+    if (hand) {
+      if (
+        hand[id].cardType == 'HeroCard' &&
+        this.player$.getValue()?.state == State.makeMove
+      ) {
+        this.activatedCard = id;
+      } else {
+        this.chooseCard(hand, id, false);
+      }
+    }
+  }
+
+  async ChooseAndRoll(hand: ICard[] | undefined, id: number) {
+    await this.chooseCard(hand, id, true);
+    this.activatedCard = -1;
+  }
+
+  async Sacrifice() {
+    await this.sessionService.UseEffect({
+      cardId: this.inUseCardId,
+      playerId: this.player$.getValue()?._id,
+      target: { effectIndex: this.inUseCardIndex, target: 'self' },
+      cardList: this.selectedCards,
+    });
+    this.inUseCardIndex++;
+    this.selectedCards = [];
+  }
+
+  async Destroy() {
+    await this.sessionService.UseEffect({
+      cardId: this.inUseCardId,
+      playerId: this.player$.getValue()?._id,
+      target: { effectIndex: this.inUseCardIndex, target: 'self' },
+      cardList: this.selectedDestroyCards,
+    });
+    this.inUseCardIndex++;
+    this.selectedDestroyCards = [];
+  }
+
+  async Discard() {
+    await this.sessionService.UseEffect({
+      cardId: this.inUseCardId,
+      playerId: this.player$.getValue()!._id,
+      target: { effectIndex: this.inUseCardIndex, target: 'self' },
+      cardList: this.selectedDiscardCards,
+    });
+    this.inUseCardIndex++;
+    this.selectedDiscardCards = [];
   }
 }

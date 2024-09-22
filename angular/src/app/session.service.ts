@@ -111,4 +111,5 @@ export class SessionService {
   async AttackMonster(playedMonsterCard: IPlayerCard | undefined) {
     await this.socket.emit('monsterAttack', playedMonsterCard);
   }
+  async evaluateTurnSwap() {}
 }
