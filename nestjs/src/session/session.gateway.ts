@@ -103,6 +103,14 @@ export class SessionGateway implements OnModuleInit {
     this.emitToAllClients(session);
   }
 
+  @SubscribeMessage('evaluteTurnSwap')
+  async evaluateTurnSwap(@MessageBody() playerId: string) {
+    const player = await this.playerService.findOne(playerId);
+    const session = await this.sessionService.findOne(player.session._id);
+    await this.sessionService.evaluateTurnSwap(player, session);
+    this.emitToAllClients(session);
+  }
+
   @SubscribeMessage('resolveRoll')
   async resolveRoll(@MessageBody() playCardDto: PlayCardDto) {
     const [card, player, session] = await this.fetchData(playCardDto, true);
