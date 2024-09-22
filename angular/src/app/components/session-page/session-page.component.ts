@@ -76,6 +76,12 @@ export class SessionPageComponent implements OnInit {
     });
     this.session$.subscribe(async (data) => {
       if (data != null) {
+        // if (
+        //   data.player.actionPoints == 0 &&
+        //   this.player$.getValue()!.state == State.makeMove
+        // ) {
+        //   this.sessionService.evaluateTurnSwap(this.player$.getValue()!._id!);
+        // }
         if (
           data.player.actionPoints == 3 &&
           (this.actionPoints == 0 || this.actionPoints == -1)
@@ -83,9 +89,9 @@ export class SessionPageComponent implements OnInit {
           this.playedCardList = [];
         }
         this.actionPoints = data.player.actionPoints!;
-        this.isDialogVisible = true;
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-        this.isDialogVisible = false;
+
+        //await new Promise((resolve) => setTimeout(resolve, 1000));
+
         if (data.player.roll > 0 && data.opponent!.roll > 0) {
           this.rotateDiv = true;
 
@@ -162,6 +168,7 @@ export class SessionPageComponent implements OnInit {
 
   async chooseCard(cards: ICard[] | undefined, id: number, roll: boolean) {
     console.log('here');
+
     if (cards != undefined) {
       const card = cards[id];
       if (this.player$.getValue()?.state == State.selectDiscard) {
@@ -202,10 +209,11 @@ export class SessionPageComponent implements OnInit {
           })
           .then(async (flag: boolean) => {
             if (flag) {
-              if (this.activatedCard != -1 && roll == true) {
+              if (roll == true) {
                 this.rollForPickedCard(
                   this.player$.getValue()!.field!.length - 1
                 );
+                this.activatedCard = -1;
               } else if (card.cardType === 'MagicCard')
                 this.sessionService.UseEffect({
                   cardId: card._id,
@@ -213,13 +221,16 @@ export class SessionPageComponent implements OnInit {
                   target: { effectIndex: 0, target: 'self' },
                   index: id,
                 });
+              else
+                this.sessionService.evaluateTurnSwap(
+                  this.player$.getValue()!._id!
+                );
             }
+            this.activatedCard = -1;
           });
         this.showPickedCard = false;
-        this.sessionService.evaluateTurnSwap();
       }
     }
-    this.activatedCard = -1;
   }
 
   async challenge(card: ICard, id: number) {
@@ -387,7 +398,6 @@ export class SessionPageComponent implements OnInit {
       }
     }
     this.activatedCard = -1;
-    this.sessionService.evaluateTurnSwap();
   }
   canSelectCard(index: number) {
     return this.selectedCards!.findIndex((data) => data == index) == -1;
@@ -458,11 +468,11 @@ export class SessionPageComponent implements OnInit {
     }
   }
 
-  async DrawCard() {
+  DrawCard() {
     if (this.player$.getValue()?.state == State.makeMove) {
       this.activatedCard = -1;
 
-      await this.sessionService.DrawCard(this.player$.getValue()!._id);
+      this.sessionService.DrawCard(this.player$.getValue()!._id);
     }
   }
 
@@ -538,13 +548,19 @@ export class SessionPageComponent implements OnInit {
         this.activatedCard = id;
       } else {
         this.chooseCard(hand, id, false);
+        this.activatedCard = -1;
       }
     }
   }
 
-  async ChooseAndRoll(hand: ICard[] | undefined, id: number) {
-    await this.chooseCard(hand, id, true);
-    this.activatedCard = -1;
+  activateDiv(sesija: ISession | null, i: number): boolean {
+    if (this.activatedCard == i) return true;
+    return false;
+  }
+
+  ChooseAndRoll(hand: ICard[] | undefined, id: number) {
+    // this.activatedCard = -1;
+    this.chooseCard(hand, id, true);
   }
 
   async Sacrifice() {
