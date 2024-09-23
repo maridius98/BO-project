@@ -1,6 +1,6 @@
 <div class="pageContainer">
 <div class="pulsingImage"></div>
-<div *ngIf="this.magicCard" [ngClass]="{'showMagicCard':true}">
+<div *ngIf="(this.magicCard$ | async)" [ngClass]="{'showMagicCard':true}">
     <div [ngStyle]="{'box-shadow': 
     TurnForSpecialCards((playCard$ | async))==1 ? 
     '0 0 0 2px #4fc3dc, 0 0 20px #4fc3dc, 0 0 40px #4fc3dc' : 
@@ -12,13 +12,11 @@
     'background-position':'center',
     'margin-bottom': '5%',
     'border': TurnForSpecialCards((playCard$ | async))==1 ? '2px solid #4fc3dc' : '2px solid #ff2d75'}">
-        
     </div>
 </div>
     <div class="leftSideContainer">
         <div class="sideCards">
             <div class="monsterCards"  (click)="offPickedImage()">
-
                 <div *ngFor="let i of range(monsterNumber)" [ngClass]="{'monster':true, 'pickCard':this.showPickedMonster&&!this.chosen, 'disable':this.chosen}" (mouseover)="onMonsterHover(i)" (mouseleave)="onMonsterLeave()" (click)="chooseMonster(i)">
                     <div class="prompt" *ngIf="monsterAttack[i]">
                         <label>
