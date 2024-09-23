@@ -112,6 +112,7 @@ export class SessionService {
     await this.socket.emit('monsterAttack', playedMonsterCard);
   }
   async evaluateTurnSwap(id: string) {
+    console.log('here');
     await this.socket.emit('evaluteTurnSwap', id);
   }
 }
