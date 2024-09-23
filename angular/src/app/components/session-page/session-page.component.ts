@@ -69,11 +69,9 @@ export class SessionPageComponent implements OnInit {
     this.playCard$.subscribe(async (data) => {
       if (data != null) {
         this.magicCard$.next(data._id!);
-        console.log('YES DA');
         await new Promise((resolve) => setTimeout(resolve, 3000));
         if (this.magicCard$.getValue() == data._id!) {
           this.magicCard$.next('');
-          console.log('WE ARE MOVING MAGIC CARD TO NONE!');
         }
         this.prevState = null;
       }

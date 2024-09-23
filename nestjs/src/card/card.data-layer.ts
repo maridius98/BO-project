@@ -112,7 +112,7 @@ export class CardDataLayer {
   }
 
   getNextIndex(card: Card, prevIndex: number) {
-    if (card.effects.length == prevIndex) {
+    if (card.effects.length === prevIndex - 1) {
       return -1;
     }
     return prevIndex + 1;

@@ -131,7 +131,7 @@ export class SessionGateway implements OnModuleInit {
     });
     let wasDraw = false;
     const playerFromSession = getMutablePlayer(player, session);
-    if (playerFromSession.state == State.skip) {
+    if (playerFromSession.state === State.skip) {
       wasDraw = true;
       await this.sessionService.playEffect({
         card,
@@ -140,6 +140,7 @@ export class SessionGateway implements OnModuleInit {
         index: 0,
       });
     }
+    console.log(wasDraw);
     this.emitToAllClients(session);
     return wasDraw;
   }

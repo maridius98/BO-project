@@ -89,11 +89,20 @@ export class SessionService {
   }
 
   async ResolveRoll(playCardDto: PlayCardDto) {
-    return await this.socket.emit('resolveRoll', playCardDto);
+    return new Promise((resolve) => {
+      this.socket.emit('resolveRoll', playCardDto, (res: boolean) => {
+        resolve(res);
+      });
+    });
   }
 
   async UseEffect(playCardDto: PlayCardDto): Promise<number> {
-    return await this.socket.emit('useEffect', playCardDto);
+    return new Promise((resolve) => {
+      this.socket.emit('useEffect', playCardDto, (res: number) => {
+        resolve(res);
+        console.log(res);
+      });
+    });
   }
 
   async Challenge(playCardDto: PlayCardDto) {
