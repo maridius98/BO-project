@@ -41,7 +41,7 @@ export class SessionPageComponent implements OnInit {
   inUseCardId: string = '';
   inUseCardIndex: number = -1;
   playedCardList: string[] = [];
-  //activate: boolean = false;
+  wasPrevChallenge: boolean = false;
   activatedCard: number = -1;
 
   constructor(private sessionService: SessionService) {
@@ -68,6 +68,9 @@ export class SessionPageComponent implements OnInit {
   ngOnInit() {
     this.playCard$.subscribe(async (data) => {
       if (data != null) {
+        if (data.cardType == 'ChallengeCard') {
+          this.wasPrevChallenge = true;
+        }
         this.magicCard$.next(data._id!);
         await new Promise((resolve) => setTimeout(resolve, 3000));
         if (this.magicCard$.getValue() == data._id!) {
@@ -94,7 +97,8 @@ export class SessionPageComponent implements OnInit {
 
         //await new Promise((resolve) => setTimeout(resolve, 1000));
 
-        if (data.player.roll > 0 && data.opponent!.roll > 0) {
+        if (this.wasPrevChallenge) {
+          this.wasPrevChallenge = false;
           this.rotateDiv = true;
 
           this.playerDice[0] = Math.floor(data.player.roll / 2);
@@ -626,6 +630,7 @@ export class SessionPageComponent implements OnInit {
   }
 
   async Discard() {
+    console.log('discard');
     await this.useEffect(this.selectedDiscardCards);
     this.selectedDiscardCards = [];
   }
