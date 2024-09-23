@@ -379,7 +379,7 @@ export class SessionPageComponent implements OnInit {
       ) {
         this.chosen = true;
         this.inUseCardId = this.player$.getValue()!.field![index]!._id!;
-
+        this.inUseCardIndex = 0;
         await this.sessionService
           .Roll(this.player$.getValue()!._id!)
           .then(() => {
