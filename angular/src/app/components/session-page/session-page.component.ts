@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { SessionService } from '../../session.service';
 import { BehaviorSubject } from 'rxjs';
 import { ICard, IPlayer, ISession, State } from '../../interfaces';
@@ -7,6 +7,7 @@ import { ICard, IPlayer, ISession, State } from '../../interfaces';
   selector: 'app-session-page',
   standalone: false,
   templateUrl: './session-page.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./session-page.component.css'],
 })
 export class SessionPageComponent implements OnInit {
