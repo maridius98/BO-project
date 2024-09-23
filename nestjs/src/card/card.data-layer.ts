@@ -111,6 +111,13 @@ export class CardDataLayer {
     return updatedSession;
   }
 
+  getNextIndex(card: Card, prevIndex: number) {
+    if (card.effects.length == prevIndex) {
+      return -1;
+    }
+    return prevIndex + 1;
+  }
+
   shuffle(cards: Card[], length = cards.length) {
     const shuffledCards = [...cards];
     for (let i = shuffledCards.length - 1; i > 0; i--) {
@@ -124,8 +131,10 @@ export class CardDataLayer {
   }
 
   playEffect(cardExecData: CardExecData) {
+    console.log(cardExecData.card);
+    console.log('index is ' + cardExecData.index);
     if (cardExecData.card instanceof HeroCard) {
-      if (cardExecData.player.roll < cardExecData.card.victoryRoll) {
+      if (false /*cardExecData.player.roll < cardExecData.card.victoryRoll*/) {
         cardExecData.player.state = State.makeMove;
         return cardExecData.session;
       }
