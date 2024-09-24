@@ -134,7 +134,7 @@ export class CardDataLayer {
     console.log(cardExecData.card);
     console.log('index is ' + cardExecData.index);
     if (cardExecData.card instanceof HeroCard) {
-      if (cardExecData.player.roll < cardExecData.card.victoryRoll) {
+      if (false /*cardExecData.player.roll < cardExecData.card.victoryRoll*/) {
         cardExecData.player.state = State.makeMove;
         return cardExecData.session;
       }

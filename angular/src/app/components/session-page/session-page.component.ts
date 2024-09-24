@@ -214,28 +214,30 @@ export class SessionPageComponent implements OnInit {
             index: id,
           })
           .then(async (flag: boolean) => {
-            if (flag) {
+            if (!flag) {
+              await new Promise((resolve) => setTimeout(resolve, 3000));
+            }
+            if (flag || this.sessionService.challengeCardId$.getValue()) {
               if (roll == true) {
-                this.rollForPickedCard(
+                await this.rollForPickedCard(
                   this.player$.getValue()!.field!.length - 1
                 );
-
                 this.boardCardId = this.player$.getValue()!.field!.length - 1;
                 this.activatedCard = -1;
-                this.sessionService.evaluateTurnSwap(
-                  this.player$.getValue()!._id!
-                );
               } else if (card.cardType === 'MagicCard')
-                this.sessionService.UseEffect({
+                await this.sessionService.UseEffect({
                   cardId: card._id,
                   playerId: this.player$.getValue()?._id,
                   target: { effectIndex: 0, target: 'self' },
                   index: id,
                 });
+
+              this.activatedCard = -1;
             }
-            this.sessionService.evaluateTurnSwap(this.player$.getValue()!._id!);
-            this.activatedCard = -1;
           });
+        await this.sessionService.evaluateTurnSwap(
+          this.player$.getValue()!._id!
+        );
         this.showPickedCard = false;
       }
     }

@@ -48,6 +48,7 @@ export class SessionDataLayer {
   }
 
   resolveRoll(player: Player, card: HeroCard) {
+    return true; //to remove
     if (player.roll >= card.victoryRoll) {
       return true;
     }

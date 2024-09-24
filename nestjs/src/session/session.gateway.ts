@@ -17,7 +17,7 @@ import { SessionDataLayer } from './session.data-layer';
 import { Session } from './entities/session.entity';
 import { HeroCard } from 'src/card/entities/heroCard.entity';
 import { stringifySafe, validateModel } from 'src/utility';
-import { CardDataLayer } from 'src/card/card.data-layer';
+import { CardDataLayer, CardExecData } from 'src/card/card.data-layer';
 import { IPlayer, Lobby } from 'src/fe.intefaces';
 import { Card } from 'src/card/entities/card.entity';
 import { MagicCard } from 'src/card/entities/magicCard.entity';
@@ -106,6 +106,7 @@ export class SessionGateway implements OnModuleInit {
 
   @SubscribeMessage('evaluteTurnSwap')
   async evaluateTurnSwap(@MessageBody() playerId: string) {
+    console.log('evaluating turn swap');
     const player = await this.playerService.findOne(playerId);
     const session = await this.sessionService.findOne(player.session._id);
     await this.sessionService.evaluateTurnSwap(player, session);
@@ -123,26 +124,7 @@ export class SessionGateway implements OnModuleInit {
       this.emitToAllClients(session);
       return;
     }
-    await this.sessionService.startEffect({
-      card,
-      player,
-      session,
-      index: 0,
-    });
-    let wasDraw = false;
-    const playerFromSession = getMutablePlayer(player, session);
-    if (playerFromSession.state === State.skip) {
-      wasDraw = true;
-      await this.sessionService.playEffect({
-        card,
-        player,
-        session,
-        index: 0,
-      });
-    }
-    console.log(wasDraw);
-    this.emitToAllClients(session);
-    return wasDraw;
+    return await this.startEffect({ player, card, session });
   }
 
   @SubscribeMessage('drawCard')
@@ -165,9 +147,7 @@ export class SessionGateway implements OnModuleInit {
     if (card.cardType != 'HeroCard') {
       this.emitPlayedCard(session.code, card);
     }
-    if (card.cardType === 'HeroCard' || card.cardType === 'MagicCard') {
-      this.server.emit(`challengeCardId:${session.code}`, card._id);
-    }
+    this.emitChallengeCard(card, session);
     this.emitToAllClients(updatedSession);
 
     await new Promise((resolve) => setTimeout(resolve, 3000));
@@ -208,6 +188,9 @@ export class SessionGateway implements OnModuleInit {
     const [card, player, session] = await this.fetchData(playCardDto);
     const challengingPlayer = getMutablePlayer(player, session);
     const challengedPlayer = getOpposingPlayer(player, session);
+    console.log(
+      `CHALLENGING PLAYER: ${challengingPlayer.roll} ... CHALLENGED PLAYER: ${challengedPlayer.roll}`,
+    );
     if (challengingPlayer.roll >= challengedPlayer.roll) {
       if (card.cardType === 'HeroCard') {
         const challengedCard = challengedPlayer.field.find((c) => {
@@ -216,9 +199,9 @@ export class SessionGateway implements OnModuleInit {
         session.discardPile.push(challengedCard);
         challengedPlayer.field.splice(challengedPlayer.field.indexOf(challengedCard), 1);
       }
+      this.emitChallengeCard(card, session, true);
     }
-    challengedPlayer.state = State.makeMove;
-    challengingPlayer.state = State.wait;
+    this.cardDataLayer.evaluateTurnSwap(challengedPlayer, session);
     challengedPlayer.roll = 0;
     challengingPlayer.roll = 0;
     await this.sessionService.update(session);
@@ -249,6 +232,38 @@ export class SessionGateway implements OnModuleInit {
     for (const [id, session] of splitSessions) {
       this.server.emit(`session:${id}`, stringifySafe(session));
     }
+  }
+
+  emitChallengeCard(card: Card, session: Session, clear = false) {
+    if (card.cardType === 'HeroCard' || card.cardType === 'MagicCard') {
+      if (!clear) {
+        this.server.emit(`challengeCardId:${session.code}`, card._id);
+      } else {
+        this.server.emit(`challengeCardId:${session.code}`, '');
+      }
+    }
+  }
+
+  async startEffect(CardExecData: CardExecData) {
+    await this.sessionService.startEffect({
+      card: CardExecData.card,
+      player: CardExecData.player,
+      session: CardExecData.session,
+      index: 0,
+    });
+    let wasDraw = false;
+    const playerFromSession = getMutablePlayer(CardExecData.player, CardExecData.session);
+    if (playerFromSession.state === State.skip) {
+      wasDraw = true;
+      await this.sessionService.playEffect({
+        card: CardExecData.card,
+        player: CardExecData.player,
+        session: CardExecData.session,
+        index: 0,
+      });
+    }
+    this.emitToAllClients(CardExecData.session);
+    return wasDraw;
   }
 
   emitPlayedCard(sessionCode: string, card: Card) {
