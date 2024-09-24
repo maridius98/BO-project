@@ -160,11 +160,12 @@ export class CardDataLayer {
 
   evaluateTurnSwap(player: Player, session: Session) {
     const mutablePlayer = getMutablePlayer(player, session);
+    const opposingPlayer = getOpposingPlayer(player, session);
     if (player.actionPoints >= 1) {
       mutablePlayer.state = State.makeMove;
+      opposingPlayer.state = State.wait;
     } else {
       mutablePlayer.state = State.wait;
-      const opposingPlayer = getOpposingPlayer(player, session);
       opposingPlayer.state = State.makeMove;
       opposingPlayer.actionPoints = 3;
     }
