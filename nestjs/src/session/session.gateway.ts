@@ -84,11 +84,6 @@ export class SessionGateway implements OnModuleInit {
     this.emitToAllClients(generatedSession);
   }
 
-  @SubscribeMessage('updateSession')
-  update(@MessageBody() updateSessionDto: UpdateSessionDto) {
-    //return this.sessionService.update(updateSessionDto.id, updateSessionDto);
-  }
-
   @SubscribeMessage('roll')
   async roll(@MessageBody() [playerId, rollBoth = false]: [string, boolean]) {
     const player = await this.playerService.findOne(playerId);
@@ -122,9 +117,11 @@ export class SessionGateway implements OnModuleInit {
       !this.sessionDataLayer.resolveRoll(player, card as HeroCard)
     ) {
       await this.sessionService.evaluateTurnSwap(player, session);
+      getMutablePlayer(player, session).roll = 0;
       this.emitToAllClients(session);
-      return;
+      return false;
     }
+    getMutablePlayer(player, session).roll = 0;
     return await this.startEffect({ player, card, session });
   }
 
@@ -204,8 +201,6 @@ export class SessionGateway implements OnModuleInit {
       this.emitChallengeCard(card, session, true);
     }
     this.cardDataLayer.evaluateTurnSwap(challengedPlayer, session);
-    challengedPlayer.roll = 0;
-    challengingPlayer.roll = 0;
     await this.sessionService.update(session);
     this.emitToAllClients(session);
   }

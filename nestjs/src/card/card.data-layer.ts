@@ -134,8 +134,8 @@ export class CardDataLayer {
     console.log(cardExecData.card);
     console.log('index is ' + cardExecData.index);
     if (cardExecData.card instanceof HeroCard) {
-      if (false /*cardExecData.player.roll < cardExecData.card.victoryRoll*/) {
-        cardExecData.player.state = State.makeMove;
+      if (cardExecData.player.roll < cardExecData.card.victoryRoll) {
+        this.evaluateTurnSwap(cardExecData.player, cardExecData.session);
         return cardExecData.session;
       }
     }
