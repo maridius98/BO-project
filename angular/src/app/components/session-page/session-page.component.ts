@@ -254,7 +254,9 @@ export class SessionPageComponent implements OnInit {
 
               this.activatedCard = -1;
             }
-            this.sessionService.evaluateTurnSwap(this.player$.getValue()!._id!);
+            await this.sessionService.evaluateTurnSwap(
+              this.player$.getValue()!._id!
+            );
           });
 
         this.showPickedCard = false;
@@ -402,6 +404,7 @@ export class SessionPageComponent implements OnInit {
         this.inUseCardId = this.player$.getValue()!.field![index]!._id!;
         this.inUseCardIndex = 0;
         await this.sessionService.Roll(this.player$.getValue()!._id!);
+        await new Promise((resolve) => setTimeout(resolve, 500));
         this.boardCardId = index;
         this.playedCardList.push(this.inUseCardId);
       }
