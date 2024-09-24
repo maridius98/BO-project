@@ -93,8 +93,9 @@ export class SessionService {
     return savedSession;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} session`;
+  async delete(session: Session) {
+    await this.playerService.remove(session);
+    await this.model.deleteOne({ code: session.code });
   }
 
   private randomCode() {

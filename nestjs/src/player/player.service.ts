@@ -44,7 +44,7 @@ export class PlayerService {
     return await this.model.updateOne({ _id: _id }, { $set: rest });
   }
 
-  remove(id: string) {
-    return `This action removes a #${id} player`;
+  async remove(session: Session) {
+    await this.model.deleteMany({ session: session });
   }
 }
