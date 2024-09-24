@@ -28,6 +28,11 @@ export class SessionService {
     return await newSession.save();
   }
 
+  async evaluateTurnSwap(player: Player, session: Session) {
+    this.cardDataLayer.evaluateTurnSwap(player, session);
+    await this.update(session);
+  }
+
   async attackMonster(cardData: CardExecData) {
     const session = this.cardDataLayer.attackMonster(cardData);
     await this.update(session);

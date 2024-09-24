@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { SessionService } from '../../session.service';
 import { BehaviorSubject } from 'rxjs';
 import { ICard, IPlayer, ISession, State } from '../../interfaces';
@@ -7,6 +7,7 @@ import { ICard, IPlayer, ISession, State } from '../../interfaces';
   selector: 'app-session-page',
   standalone: false,
   templateUrl: './session-page.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./session-page.component.css'],
 })
 export class SessionPageComponent implements OnInit {
@@ -30,7 +31,7 @@ export class SessionPageComponent implements OnInit {
   playCard$: BehaviorSubject<ICard | null>;
   isInHand: boolean = false;
   boardCardId: number = -1;
-  magicCard: boolean = false;
+  magicCard$ = new BehaviorSubject<string>('');
   prevState: State | null = null;
   monsterAttack: boolean[] = [false, false, false];
   alreadyAttacking: boolean = false;
@@ -40,6 +41,8 @@ export class SessionPageComponent implements OnInit {
   inUseCardId: string = '';
   inUseCardIndex: number = -1;
   playedCardList: string[] = [];
+  wasPrevChallenge: boolean = false;
+  activatedCard: number = -1;
 
   constructor(private sessionService: SessionService) {
     this.opponent$ = sessionService.opponent$;
@@ -63,17 +66,27 @@ export class SessionPageComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.playCard$.subscribe((data) => {
+    this.playCard$.subscribe(async (data) => {
       if (data != null) {
-        this.magicCard = true;
-        setTimeout(() => {
-          this.magicCard = false;
-          this.prevState = null;
-        }, 3000);
+        if (data.cardType == 'ChallengeCard') {
+          this.wasPrevChallenge = true;
+        }
+        this.magicCard$.next(data._id!);
+        await new Promise((resolve) => setTimeout(resolve, 3000));
+        if (this.magicCard$.getValue() == data._id!) {
+          this.magicCard$.next('');
+        }
+        this.prevState = null;
       }
     });
     this.session$.subscribe(async (data) => {
       if (data != null) {
+        // if (
+        //   data.player.actionPoints == 0 &&
+        //   this.player$.getValue()!.state == State.makeMove
+        // ) {
+        //   this.sessionService.evaluateTurnSwap(this.player$.getValue()!._id!);
+        // }
         if (
           data.player.actionPoints == 3 &&
           (this.actionPoints == 0 || this.actionPoints == -1)
@@ -81,10 +94,11 @@ export class SessionPageComponent implements OnInit {
           this.playedCardList = [];
         }
         this.actionPoints = data.player.actionPoints!;
-        this.isDialogVisible = true;
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-        this.isDialogVisible = false;
-        if (data.player.roll > 0 && data.opponent!.roll > 0) {
+
+        //await new Promise((resolve) => setTimeout(resolve, 1000));
+
+        if (this.wasPrevChallenge) {
+          this.wasPrevChallenge = false;
           this.rotateDiv = true;
 
           this.playerDice[0] = Math.floor(data.player.roll / 2);
@@ -105,7 +119,7 @@ export class SessionPageComponent implements OnInit {
                 this.rotateDiv = false;
               }, 1000);
             } else {
-              this.DiceRoll();
+              if (this.boardCardId > -1) this.DiceRoll();
             }
           }
         }
@@ -136,18 +150,31 @@ export class SessionPageComponent implements OnInit {
   }
 
   onCardHover(value: number, inHand: boolean): void {
-    if (!this.chosen) {
-      this.selectedValue = value;
-      this.isInHand = inHand;
-      this.showPickedCard = true;
-    }
+    //if (!this.chosen) {
+    this.selectedValue = value;
+    this.isInHand = inHand;
+    this.showPickedCard = true;
+    //}
   }
 
   onCardLeave() {
     if (!this.chosen) this.showPickedCard = false;
   }
 
-  async chooseCard(cards: ICard[] | undefined, id: number) {
+  getSoecialCardUrl(url: string) {
+    return `url(${url})`;
+  }
+
+  getUrl(session: ISession | null, i: number) {
+    if (session) {
+      return `url(${session!.player.hand![i].imageURL})`;
+    }
+    return '';
+  }
+
+  async chooseCard(cards: ICard[] | undefined, id: number, roll: boolean) {
+    console.log('here');
+
     if (cards != undefined) {
       const card = cards[id];
       if (this.player$.getValue()?.state == State.selectDiscard) {
@@ -159,27 +186,13 @@ export class SessionPageComponent implements OnInit {
         if (this.selectedDiscardCards.length == 0) {
           this.selectedDiscardCards = [id];
           if (this.selectedDiscardCards.length == length) {
-            await this.sessionService.UseEffect({
-              cardId: this.inUseCardId,
-              playerId: this.player$.getValue()!._id,
-              target: { effectIndex: this.inUseCardIndex, target: 'self' },
-              cardList: this.selectedDiscardCards,
-            });
-            this.inUseCardIndex++;
-            this.selectedDiscardCards = [];
+            this.Discard();
           }
         } else {
           if (this.canSelectDiscardCard(id)) {
             this.selectedDiscardCards.push(id);
             if (this.selectedDiscardCards.length == length) {
-              await this.sessionService.UseEffect({
-                cardId: this.inUseCardId,
-                playerId: this.player$.getValue()!._id,
-                target: { effectIndex: this.inUseCardIndex, target: 'self' },
-                cardList: this.selectedDiscardCards,
-              });
-              this.inUseCardIndex++;
-              this.selectedDiscardCards = [];
+              this.Discard();
             }
           }
         }
@@ -188,7 +201,10 @@ export class SessionPageComponent implements OnInit {
           this.prevState = State.canChallenge;
           await this.challenge(card, id);
         }
-      } else if (this.Turn(this.session$.getValue())) {
+      } else if (
+        this.Turn(this.session$.getValue()) &&
+        this.player$.getValue()?.state == State.makeMove
+      ) {
         this.inUseCardIndex = 0;
         this.sessionService
           .playCard({
@@ -199,7 +215,17 @@ export class SessionPageComponent implements OnInit {
           })
           .then(async (flag: boolean) => {
             if (flag) {
-              if (card.cardType === 'MagicCard')
+              if (roll == true) {
+                this.rollForPickedCard(
+                  this.player$.getValue()!.field!.length - 1
+                );
+
+                this.boardCardId = this.player$.getValue()!.field!.length - 1;
+                this.activatedCard = -1;
+                this.sessionService.evaluateTurnSwap(
+                  this.player$.getValue()!._id!
+                );
+              } else if (card.cardType === 'MagicCard')
                 this.sessionService.UseEffect({
                   cardId: card._id,
                   playerId: this.player$.getValue()?._id,
@@ -207,6 +233,8 @@ export class SessionPageComponent implements OnInit {
                   index: id,
                 });
             }
+            this.sessionService.evaluateTurnSwap(this.player$.getValue()!._id!);
+            this.activatedCard = -1;
           });
         this.showPickedCard = false;
       }
@@ -301,21 +329,21 @@ export class SessionPageComponent implements OnInit {
   ) {
     if (isHand) {
       if (session!.player.hand![index!] == undefined) return '';
-      return session!.player.hand![index!].name;
+      return `url(${session!.player.hand![index!].imageURL}`;
     } else {
       if (session!.player.field![index!] == undefined) return '';
-      return session!.player.field![index!]!.name;
+      return `url(${session!.player.field![index!]!.imageURL}`;
     }
   }
 
   pickedMonsterDisplay(session: ISession | null, index: number | null) {
     if (!session!.monsters[index!]) return '';
-    return session!.monsters[index!].name;
+    return `url(${session!.monsters[index!].imageURL})`;
   }
 
   showBoardPlayerCard(cards: ICard[] | undefined, id: number): string {
     if (!cards![id].name) return '';
-    return cards![id].name;
+    return `url(${cards![id].imageURL})`;
   }
 
   canCardShow(cards: ICard[] | undefined, id: number): boolean {
@@ -342,6 +370,7 @@ export class SessionPageComponent implements OnInit {
   }
 
   async rollForPickedCard(index: number) {
+    this.showPickedCard = false;
     if (this.player$.getValue()?.state == State.makeMove) {
       if (
         this.playedCardList.findIndex(
@@ -350,10 +379,12 @@ export class SessionPageComponent implements OnInit {
       ) {
         this.chosen = true;
         this.inUseCardId = this.player$.getValue()!.field![index]!._id!;
-
-        this.sessionService.Roll(this.player$.getValue()!._id!).then(() => {
-          this.boardCardId = index;
-        });
+        this.inUseCardIndex = 0;
+        await this.sessionService
+          .Roll(this.player$.getValue()!._id!)
+          .then(() => {
+            this.boardCardId = index;
+          });
         this.playedCardList.push(this.inUseCardId);
       }
     }
@@ -366,31 +397,18 @@ export class SessionPageComponent implements OnInit {
       if (this.selectedCards.length == 0) {
         this.selectedCards = [index];
         if (this.selectedCards.length == length) {
-          await this.sessionService.UseEffect({
-            cardId: this.inUseCardId,
-            playerId: this.player$.getValue()?._id,
-            target: { effectIndex: this.inUseCardIndex, target: 'self' },
-            cardList: this.selectedCards,
-          });
-          this.inUseCardIndex++;
-          this.selectedCards = [];
+          this.Sacrifice();
         }
       } else {
         if (this.canSelectCard(index)) {
           this.selectedCards.push(index);
           if (this.selectedCards.length == length) {
-            await this.sessionService.UseEffect({
-              cardId: this.inUseCardId,
-              playerId: this.player$.getValue()?._id,
-              target: { effectIndex: this.inUseCardIndex, target: 'self' },
-              cardList: this.selectedCards,
-            });
-            this.inUseCardIndex++;
-            this.selectedCards = [];
+            this.Sacrifice();
           }
         }
       }
     }
+    this.activatedCard = -1;
   }
   canSelectCard(index: number) {
     return this.selectedCards!.findIndex((data) => data == index) == -1;
@@ -416,27 +434,13 @@ export class SessionPageComponent implements OnInit {
         if (this.selectedDestroyCards.length == 0) {
           this.selectedDestroyCards = [index];
           if (this.selectedDestroyCards.length == length) {
-            await this.sessionService.UseEffect({
-              cardId: this.inUseCardId,
-              playerId: this.player$.getValue()?._id,
-              target: { effectIndex: this.inUseCardIndex, target: 'self' },
-              cardList: this.selectedDestroyCards,
-            });
-            this.inUseCardIndex++;
-            this.selectedDestroyCards = [];
+            this.Destroy();
           }
         } else {
           if (this.canSelectDesroyCard(index)) {
             this.selectedDestroyCards.push(index);
             if (this.selectedDestroyCards.length == length) {
-              await this.sessionService.UseEffect({
-                cardId: this.inUseCardId,
-                playerId: this.player$.getValue()?._id,
-                target: { effectIndex: this.inUseCardIndex, target: 'self' },
-                cardList: this.selectedDestroyCards,
-              });
-              this.inUseCardIndex++;
-              this.selectedDestroyCards = [];
+              this.Destroy();
             }
           }
         }
@@ -444,7 +448,8 @@ export class SessionPageComponent implements OnInit {
     }
   }
 
-  DiceRoll() {
+  async DiceRoll() {
+    console.log(this.chosen);
     if (this.chosen) {
       if (
         this.playerDice[0] == this.tmpDice[0] &&
@@ -456,27 +461,51 @@ export class SessionPageComponent implements OnInit {
         this.playerDice[0] = this.tmpDice[0];
         this.playerDice[1] = this.tmpDice[1];
       }
-
+      console.log(this.rotateDiv);
       this.chosen = false;
       this.showPickedCard = false;
       this.showPickedMonster = false;
-      setTimeout(() => {
-        this.rotateDiv = false;
-
-        this.sessionService.ResolveRoll({
-          cardId:
-            this.session$.getValue()?.player!.field![this.boardCardId]._id!,
-          playerId: this.player$.getValue()?._id,
-          target: { effectIndex: 0, target: 'self' },
-          index: this.boardCardId,
-        });
-        this.boardCardId = -1;
-      }, 1000);
+      const card = this.session$.getValue()!.player!.field![this.boardCardId];
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      this.rotateDiv = false;
+      console.log(this.rotateDiv);
+      const wasDraw = await this.sessionService.ResolveRoll({
+        cardId: card._id,
+        playerId: this.player$.getValue()?._id,
+        target: { effectIndex: 0, target: 'self' },
+        index: this.boardCardId,
+      });
+      if (wasDraw) {
+        console.log('draw');
+        this.inUseCardIndex++;
+      }
+      this.boardCardId = -1;
     }
+
+    // this.chosen = false;
+    // this.showPickedCard = false;
+    // this.showPickedMonster = false;
+    // setTimeout(() => {
+    //   this.rotateDiv = false;
+    //   console.log(this.boardCardId);
+    //   this.sessionService.ResolveRoll({
+    //     cardId: this.session$.getValue()!.player!.field![this.boardCardId]._id!,
+    //     playerId: this.player$.getValue()!._id,
+    //     target: { effectIndex: 0, target: 'self' },
+    //     index: this.boardCardId,
+    //   });
+    //   setTimeout(() => (this.boardCardId = -1), 100);
+    // }, 1000);
+
+    //}
   }
 
-  async DrawCard() {
-    await this.sessionService.DrawCard(this.player$.getValue()!._id);
+  DrawCard() {
+    if (this.player$.getValue()?.state == State.makeMove) {
+      this.activatedCard = -1;
+
+      this.sessionService.DrawCard(this.player$.getValue()!._id);
+    }
   }
 
   DialogText(player: IPlayer | null) {
@@ -500,17 +529,27 @@ export class SessionPageComponent implements OnInit {
           : this.player$.getValue()!.cardSelectCount;
       switch (player.state) {
         case State.selectDiscard:
-          if (discard == 1) dialog = `Select ${discard} card to discard.`;
+          if (discard == 0) {
+            this.selectedDiscardCards = [];
+            this.Discard();
+          } else if (discard == 1)
+            dialog = `Select ${discard} card to discard.`;
           else dialog = `Select ${discard} cards to discard.`;
           break;
         case State.selectSacrifice:
-          if (sacrifice == 1)
+          if (sacrifice == 0) {
+            this.selectedCards = [];
+            this.Sacrifice();
+          } else if (sacrifice == 1)
             dialog = `Select ${sacrifice} card from the field to sacrifice.`;
           else
             dialog = `Select ${sacrifice} cards from the field to sacrifice.`;
           break;
         case State.selectDestroy:
-          if (destroy == 1)
+          if (destroy == 0) {
+            this.selectedDestroyCards = [];
+            this.Destroy();
+          } else if (destroy == 1)
             dialog = `Select ${destroy} card from enemy field to destroy.`;
           else dialog = `Select ${destroy} cards from enemy field to destroy.`;
           break;
@@ -533,12 +572,66 @@ export class SessionPageComponent implements OnInit {
     if (session!.opponent!.roll == 0) {
       return [this.opponentDice[0], this.opponentDice[1]];
     }
+    this.opponentDice[0] = Math.floor(session!.opponent!.roll / 2);
+    this.opponentDice[1] = session!.opponent!.roll - this.opponentDice[0];
     this.rotateOppDiv = true;
     setTimeout(() => {
       this.rotateOppDiv = false;
     }, 1000);
-    this.opponentDice[0] = Math.floor(session!.opponent!.roll / 2);
-    this.opponentDice[1] = session!.opponent!.roll - this.opponentDice[0];
     return [this.opponentDice[0], this.opponentDice[1]];
+  }
+
+  openPrompt(hand: ICard[] | undefined, id: number) {
+    if (hand) {
+      if (
+        hand[id].cardType == 'HeroCard' &&
+        this.player$.getValue()?.state == State.makeMove
+      ) {
+        this.activatedCard = id;
+      } else {
+        this.chooseCard(hand, id, false);
+        this.activatedCard = -1;
+      }
+    }
+  }
+
+  activateDiv(sesija: ISession | null, i: number): boolean {
+    if (this.activatedCard == i) return true;
+    return false;
+  }
+
+  ChooseAndRoll(hand: ICard[] | undefined, id: number) {
+    // this.activatedCard = -1;
+    this.chooseCard(hand, id, true);
+  }
+
+  async useEffect(cardList: number[]) {
+    const nextIndex = await this.sessionService.UseEffect({
+      cardId: this.inUseCardId,
+      playerId: this.player$.getValue()?._id,
+      target: { effectIndex: this.inUseCardIndex, target: 'self' },
+      cardList,
+    });
+    if (nextIndex == -1) {
+      this.inUseCardIndex = 0;
+    } else {
+      this.inUseCardIndex = nextIndex;
+    }
+  }
+
+  async Sacrifice() {
+    await this.useEffect(this.selectedCards);
+    this.selectedCards = [];
+  }
+
+  async Destroy() {
+    await this.useEffect(this.selectedDestroyCards);
+    this.selectedDestroyCards = [];
+  }
+
+  async Discard() {
+    console.log('discard');
+    await this.useEffect(this.selectedDiscardCards);
+    this.selectedDiscardCards = [];
   }
 }

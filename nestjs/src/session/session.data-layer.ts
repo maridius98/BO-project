@@ -7,6 +7,7 @@ import { CardExecData } from 'src/card/card.data-layer';
 import { HeroCard } from 'src/card/entities/heroCard.entity';
 import { PersonalSession } from './entities/personalSession';
 import { State } from 'src/utility';
+import { Player } from 'src/player/entities/player.entity';
 
 @Injectable()
 export class SessionDataLayer {
@@ -44,5 +45,24 @@ export class SessionDataLayer {
     splitSessions.set(session.players[0]._id, new PersonalSession(session, 0));
     splitSessions.set(session.players[1]._id, new PersonalSession(session, 1));
     return splitSessions;
+  }
+
+  resolveRoll(player: Player, card: HeroCard) {
+    if (player.roll >= card.victoryRoll) {
+      return true;
+    }
+  }
+
+  has4Classes(player: Player) {
+    const classSet = new Set<string>(player.field.map((m) => m.class));
+    return classSet.size >= 4;
+  }
+
+  checkWinner(session: Session) {
+    session.players.forEach((p) => {
+      if (p.defeatedMonsters == 2 || this.has4Classes(p)) {
+        return p._id.toString();
+      }
+    });
   }
 }

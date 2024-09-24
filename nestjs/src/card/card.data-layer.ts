@@ -42,10 +42,12 @@ class Discard extends Target implements Command {
   state = State.selectDiscard;
   exec(value: number[], target: Player, session: Session) {
     const player = getMutablePlayer(target, session);
-    for (const index in value) {
-      session.discardPile.push(player.hand[index]);
+    if (value.length) {
+      for (const index in value) {
+        session.discardPile.push(player.hand[index]);
+      }
+      player.hand = player.hand.filter((_, index) => !value.includes(index));
     }
-    player.hand = player.hand.filter((_, index) => !value.includes(index));
     return session;
   }
 }
@@ -69,6 +71,9 @@ class Destroy extends Target implements Command {
 }
 
 function removeFromField(value: number[], player: Player, session: Session) {
+  if (!value.length) {
+    return;
+  }
   for (const index in value) {
     session.discardPile.push(player.field[index]);
   }
@@ -106,6 +111,13 @@ export class CardDataLayer {
     return updatedSession;
   }
 
+  getNextIndex(card: Card, prevIndex: number) {
+    if (card.effects.length === prevIndex - 1) {
+      return -1;
+    }
+    return prevIndex + 1;
+  }
+
   shuffle(cards: Card[], length = cards.length) {
     const shuffledCards = [...cards];
     for (let i = shuffledCards.length - 1; i > 0; i--) {
@@ -119,6 +131,8 @@ export class CardDataLayer {
   }
 
   playEffect(cardExecData: CardExecData) {
+    console.log(cardExecData.card);
+    console.log('index is ' + cardExecData.index);
     if (cardExecData.card instanceof HeroCard) {
       if (cardExecData.player.roll < cardExecData.card.victoryRoll) {
         cardExecData.player.state = State.makeMove;

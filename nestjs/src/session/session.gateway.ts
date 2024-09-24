@@ -45,6 +45,7 @@ export class SessionGateway implements OnModuleInit {
     private readonly playerService: PlayerService,
     private readonly cardService: CardService,
     private readonly sessionDataLayer: SessionDataLayer,
+    private readonly cardDataLayer: CardDataLayer,
   ) {}
 
   @SubscribeMessage('createLobby')
@@ -103,17 +104,35 @@ export class SessionGateway implements OnModuleInit {
     this.emitToAllClients(session);
   }
 
+  @SubscribeMessage('evaluteTurnSwap')
+  async evaluateTurnSwap(@MessageBody() playerId: string) {
+    const player = await this.playerService.findOne(playerId);
+    const session = await this.sessionService.findOne(player.session._id);
+    await this.sessionService.evaluateTurnSwap(player, session);
+    this.emitToAllClients(session);
+  }
+
   @SubscribeMessage('resolveRoll')
   async resolveRoll(@MessageBody() playCardDto: PlayCardDto) {
     const [card, player, session] = await this.fetchData(playCardDto, true);
+    if (
+      card.cardType == 'HeroCard' &&
+      !this.sessionDataLayer.resolveRoll(player, card as HeroCard)
+    ) {
+      await this.sessionService.evaluateTurnSwap(player, session);
+      this.emitToAllClients(session);
+      return;
+    }
     await this.sessionService.startEffect({
       card,
       player,
       session,
       index: 0,
     });
+    let wasDraw = false;
     const playerFromSession = getMutablePlayer(player, session);
-    if (playerFromSession.state == State.skip) {
+    if (playerFromSession.state === State.skip) {
+      wasDraw = true;
       await this.sessionService.playEffect({
         card,
         player,
@@ -121,7 +140,9 @@ export class SessionGateway implements OnModuleInit {
         index: 0,
       });
     }
+    console.log(wasDraw);
     this.emitToAllClients(session);
+    return wasDraw;
   }
 
   @SubscribeMessage('drawCard')
@@ -215,6 +236,7 @@ export class SessionGateway implements OnModuleInit {
       cardList: playCardDto.cardList,
     });
     this.emitToAllClients(session);
+    return this.cardDataLayer.getNextIndex(card, playCardDto.target.effectIndex);
   }
 
   @SubscribeMessage('removeSession')

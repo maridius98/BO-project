@@ -89,11 +89,20 @@ export class SessionService {
   }
 
   async ResolveRoll(playCardDto: PlayCardDto) {
-    await this.socket.emit('resolveRoll', playCardDto);
+    return new Promise((resolve) => {
+      this.socket.emit('resolveRoll', playCardDto, (res: boolean) => {
+        resolve(res);
+      });
+    });
   }
 
-  async UseEffect(playCardDto: PlayCardDto) {
-    await this.socket.emit('useEffect', playCardDto);
+  async UseEffect(playCardDto: PlayCardDto): Promise<number> {
+    return new Promise((resolve) => {
+      this.socket.emit('useEffect', playCardDto, (res: number) => {
+        resolve(res);
+        console.log(res);
+      });
+    });
   }
 
   async Challenge(playCardDto: PlayCardDto) {
@@ -110,5 +119,9 @@ export class SessionService {
 
   async AttackMonster(playedMonsterCard: IPlayerCard | undefined) {
     await this.socket.emit('monsterAttack', playedMonsterCard);
+  }
+  async evaluateTurnSwap(id: string) {
+    console.log('here');
+    await this.socket.emit('evaluteTurnSwap', id);
   }
 }
