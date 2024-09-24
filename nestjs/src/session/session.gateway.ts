@@ -63,6 +63,7 @@ export class SessionGateway implements OnModuleInit {
       player,
       session,
     });
+    this.finishGame(session);
     this.emitToAllClients(updatedSesssion);
   }
 
@@ -81,11 +82,6 @@ export class SessionGateway implements OnModuleInit {
     const session = await this.sessionService.findByCode(code);
     const generatedSession = await this.sessionService.createSessionData(session._id);
     this.emitToAllClients(generatedSession);
-  }
-
-  @SubscribeMessage('updateSession')
-  update(@MessageBody() updateSessionDto: UpdateSessionDto) {
-    //return this.sessionService.update(updateSessionDto.id, updateSessionDto);
   }
 
   @SubscribeMessage('roll')
@@ -121,9 +117,11 @@ export class SessionGateway implements OnModuleInit {
       !this.sessionDataLayer.resolveRoll(player, card as HeroCard)
     ) {
       await this.sessionService.evaluateTurnSwap(player, session);
+      getMutablePlayer(player, session).roll = 0;
       this.emitToAllClients(session);
-      return;
+      return false;
     }
+    getMutablePlayer(player, session).roll = 0;
     return await this.startEffect({ player, card, session });
   }
 
@@ -162,6 +160,7 @@ export class SessionGateway implements OnModuleInit {
     });
     console.log("State didn't get changed...");
     await this.sessionService.update(updatedSession);
+    this.finishGame(updatedSession);
     this.emitToAllClients(updatedSession);
     return true;
   }
@@ -202,8 +201,6 @@ export class SessionGateway implements OnModuleInit {
       this.emitChallengeCard(card, session, true);
     }
     this.cardDataLayer.evaluateTurnSwap(challengedPlayer, session);
-    challengedPlayer.roll = 0;
-    challengingPlayer.roll = 0;
     await this.sessionService.update(session);
     this.emitToAllClients(session);
   }
@@ -220,11 +217,6 @@ export class SessionGateway implements OnModuleInit {
     });
     this.emitToAllClients(session);
     return this.cardDataLayer.getNextIndex(card, playCardDto.target.effectIndex);
-  }
-
-  @SubscribeMessage('removeSession')
-  remove(@MessageBody() id: number) {
-    return this.sessionService.remove(id);
   }
 
   emitToAllClients(session: Session) {
@@ -268,6 +260,14 @@ export class SessionGateway implements OnModuleInit {
 
   emitPlayedCard(sessionCode: string, card: Card) {
     this.server.emit(`playedCard:${sessionCode}`, stringifySafe(card));
+  }
+
+  async finishGame(session: Session) {
+    const playerName = this.sessionDataLayer.checkWinner(session);
+    if (playerName) {
+      this.server.emit(`gameFinished:${session.code}`, playerName);
+      await this.sessionService.delete(session);
+    }
   }
 
   async fetchData(

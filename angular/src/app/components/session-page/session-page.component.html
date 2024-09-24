@@ -1,4 +1,5 @@
-<div class="pageContainer">
+<app-win *ngIf="win" ></app-win>
+<div *ngIf="!win" class="pageContainer">
 <div class="pulsingImage"></div>
 <div *ngIf="(this.magicCard$ | async)" [ngClass]="{'showMagicCard':true}">
     <div [ngStyle]="{'box-shadow': 

@@ -1,4 +1,9 @@
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnInit,
+  Output,
+} from '@angular/core';
 import { SessionService } from '../../session.service';
 import { BehaviorSubject } from 'rxjs';
 import { ICard, IPlayer, ISession, State } from '../../interfaces';
@@ -11,6 +16,8 @@ import { ICard, IPlayer, ISession, State } from '../../interfaces';
   styleUrls: ['./session-page.component.css'],
 })
 export class SessionPageComponent implements OnInit {
+  win: boolean = false;
+  parametar: string = 'hi';
   isDialogVisible: boolean = false;
   playerDice: number[] = [1, 1];
   tmpDice: number[] = [1, 1];
@@ -26,6 +33,7 @@ export class SessionPageComponent implements OnInit {
   rotateDiv: boolean = false;
   rotateOppDiv: boolean = false;
   opponent$: BehaviorSubject<IPlayer | null>;
+  winner$ = new BehaviorSubject<string>('');
   session$: BehaviorSubject<ISession | null>;
   player$: BehaviorSubject<IPlayer | null>;
   playCard$: BehaviorSubject<ICard | null>;
@@ -51,6 +59,7 @@ export class SessionPageComponent implements OnInit {
 
     this.playCard$ = sessionService.playCard$;
     this.challengeCardId$ = sessionService.challengeCardId$;
+    this.winner$ = sessionService.winner$;
   }
 
   TurnForSpecialCards(card: ICard | null): number {
@@ -66,6 +75,17 @@ export class SessionPageComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.winner$.subscribe((data) => {
+      if (data != '') {
+        if (this.player$.getValue()!._id !== data) {
+          this.parametar = this.player$.getValue()!.username;
+        } else {
+          this.parametar = this.opponent$.getValue()!.username;
+        }
+        console.log(this.parametar);
+        this.win = true;
+      }
+    });
     this.playCard$.subscribe(async (data) => {
       if (data != null) {
         if (data.cardType == 'ChallengeCard') {
@@ -234,10 +254,9 @@ export class SessionPageComponent implements OnInit {
 
               this.activatedCard = -1;
             }
+            this.sessionService.evaluateTurnSwap(this.player$.getValue()!._id!);
           });
-        await this.sessionService.evaluateTurnSwap(
-          this.player$.getValue()!._id!
-        );
+
         this.showPickedCard = false;
       }
     }
@@ -382,11 +401,8 @@ export class SessionPageComponent implements OnInit {
         this.chosen = true;
         this.inUseCardId = this.player$.getValue()!.field![index]!._id!;
         this.inUseCardIndex = 0;
-        await this.sessionService
-          .Roll(this.player$.getValue()!._id!)
-          .then(() => {
-            this.boardCardId = index;
-          });
+        await this.sessionService.Roll(this.player$.getValue()!._id!);
+        this.boardCardId = index;
         this.playedCardList.push(this.inUseCardId);
       }
     }

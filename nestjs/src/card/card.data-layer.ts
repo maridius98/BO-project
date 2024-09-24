@@ -134,8 +134,8 @@ export class CardDataLayer {
     console.log(cardExecData.card);
     console.log('index is ' + cardExecData.index);
     if (cardExecData.card instanceof HeroCard) {
-      if (false /*cardExecData.player.roll < cardExecData.card.victoryRoll*/) {
-        cardExecData.player.state = State.makeMove;
+      if (cardExecData.player.roll < cardExecData.card.victoryRoll) {
+        this.evaluateTurnSwap(cardExecData.player, cardExecData.session);
         return cardExecData.session;
       }
     }
@@ -160,11 +160,12 @@ export class CardDataLayer {
 
   evaluateTurnSwap(player: Player, session: Session) {
     const mutablePlayer = getMutablePlayer(player, session);
+    const opposingPlayer = getOpposingPlayer(player, session);
     if (player.actionPoints >= 1) {
       mutablePlayer.state = State.makeMove;
+      opposingPlayer.state = State.wait;
     } else {
       mutablePlayer.state = State.wait;
-      const opposingPlayer = getOpposingPlayer(player, session);
       opposingPlayer.state = State.makeMove;
       opposingPlayer.actionPoints = 3;
     }

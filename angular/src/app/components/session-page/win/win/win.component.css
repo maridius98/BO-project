@@ -1,0 +1,99 @@
+.winBody{
+    width: 100vw;
+    height: 100vh;
+}
+video{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: -1;
+    /* filter: blur(10px); */
+}
+.video-container{
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    z-index: -1;
+    background: black;
+}
+
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* background-color: #230c2690; */
+    z-index: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.contentDiv{
+    height: 100%;
+    width: 50%;
+    background-color: #431749b4   ;
+    display: flex;
+    flex-direction: column;
+    /* justify-content: center; */
+    align-items: center;
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.70),
+    0 0 20px rgba(0, 0, 0, 0.7),
+    0 0 40px rgba(0, 0, 0, 0.7);
+    
+}
+.returnButton{
+    height: 20%;
+    width: 100%;
+    background-color: #09020ab4;
+    color: white;
+    font-size: 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    cursor: auto;
+    text-shadow: 0 0 15px #b241c1b4,
+    0 0 25px #b241c1b4,
+    0 0 45px #b241c1b4,
+    0 0 85px #b241c1b4,
+    0 0 125px #b241c1b4;
+}
+
+
+.winner{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 1.5rem;
+    margin-top: 73%;
+    height: 15%;
+    width: 27%;
+    margin-left: 2%;
+    background-color: rgba(0, 0, 0, 0.549);
+}
+
+.cupImage{
+    display: flex;
+    flex-direction: column;
+    /* justify-content: center; */
+    align-items: center;
+    height: 80%;
+    width: 600px;
+    overflow: hidden;
+
+  
+  background-image: url('../../../../../assets/winCup.png'); 
+  background-size: cover;
+  background-position: center; 
+  background-repeat: no-repeat; 
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.591),
+    0 0 20px rgba(255, 255, 255, 0.591),
+    0 0 40px rgba(255, 255, 255, 0.591);
+}

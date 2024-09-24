@@ -16,6 +16,7 @@ export class SessionService {
   session$ = new BehaviorSubject<ISession | null>(null);
   playCard$ = new BehaviorSubject<ICard | null>(null);
   challengeCardId$ = new BehaviorSubject<string>('');
+  winner$ = new BehaviorSubject<string>('');
   constructor(private socket: Socket) {}
 
   sub() {
@@ -47,6 +48,14 @@ export class SessionService {
       .fromEvent(`challengeCardId:${this.sessionCode}`)
       .pipe(map((data) => data as string))
       .subscribe((data: string) => this.challengeCardId$.next(data));
+
+    this.socket
+      .fromEvent(`gameFinished:${this.sessionCode}`)
+      .pipe(map((data) => data as string))
+      .subscribe((data: string) => {
+        this.winner$.next(data);
+        console.log('we have a winner!');
+      });
   }
 
   getSessionCode(): string {
@@ -120,6 +129,7 @@ export class SessionService {
   async AttackMonster(playedMonsterCard: IPlayerCard | undefined) {
     await this.socket.emit('monsterAttack', playedMonsterCard);
   }
+
   async evaluateTurnSwap(id: string) {
     console.log('here');
     await this.socket.emit('evaluteTurnSwap', id);
