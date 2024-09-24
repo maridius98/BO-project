@@ -8,6 +8,7 @@ import { FormsModule } from '@angular/forms';
 import { SessionPageComponent } from './components/session-page/session-page.component';
 import { LoginPageComponent } from './components/login-page/login-page.component';
 import { LobbyPageComponent } from './components/lobby-page/lobby-page.component';
+import { WinComponent } from './components/session-page/win/win/win.component';
 
 const config: SocketIoConfig = { url: 'http://localhost:3000', options: {} };
 
@@ -17,6 +18,7 @@ const config: SocketIoConfig = { url: 'http://localhost:3000', options: {} };
     SessionPageComponent,
     LoginPageComponent,
     LobbyPageComponent,
+    WinComponent,
   ],
   imports: [
     BrowserModule,
