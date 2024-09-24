@@ -58,11 +58,8 @@ export class SessionDataLayer {
     return classSet.size >= 4;
   }
 
-  checkWinner(session: Session) {
-    session.players.forEach((p) => {
-      if (p.defeatedMonsters == 2 || this.has4Classes(p)) {
-        return p._id.toString();
-      }
-    });
+  checkWinner(session: Session): string | boolean {
+    const winner = session.players.find((p) => p.defeatedMonsters == 2 || this.has4Classes(p));
+    return winner ? winner._id.toString() : false;
   }
 }

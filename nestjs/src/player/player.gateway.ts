@@ -1,8 +1,4 @@
-import {
-  WebSocketGateway,
-  SubscribeMessage,
-  MessageBody,
-} from '@nestjs/websockets';
+import { WebSocketGateway, SubscribeMessage, MessageBody } from '@nestjs/websockets';
 import { PlayerService } from './player.service';
 import { CreatePlayerDto } from './dto/create-player.dto';
 import { UpdatePlayerDto } from './dto/update-player.dto';
@@ -29,10 +25,5 @@ export class PlayerGateway {
   @SubscribeMessage('updatePlayer')
   update(@MessageBody() updatePlayerDto: UpdatePlayerDto) {
     //return this.playerService.update(updatePlayerDto.id, updatePlayerDto);
-  }
-
-  @SubscribeMessage('removePlayer')
-  remove(@MessageBody() id: string) {
-    return this.playerService.remove(id);
   }
 }
