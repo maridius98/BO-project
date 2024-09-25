@@ -108,15 +108,27 @@ export class SessionPageComponent implements OnInit {
         }
         this.actionPoints = data.player.actionPoints!;
 
-        if (this.wasPrevChallenge) {
-          this.wasPrevChallenge = false;
-          this.rotateDiv = true;
-
-          this.playerDice[0] = Math.floor(data.player.roll / 2);
-          this.playerDice[1] = data.player.roll - this.playerDice[0];
-          setTimeout(() => {
+        if (
+          this.wasPrevChallenge &&
+          data.opponent!.roll > 0 &&
+          data.player.roll > 0
+        ) {
+          this.tmpDice[0] = Math.floor(data.player.roll / 2);
+          this.tmpDice[1] = data.player.roll - this.tmpDice[0];
+          if (
+            this.playerDice[0] == this.tmpDice[0] &&
+            this.playerDice[1] == this.tmpDice[1]
+          ) {
             this.rotateDiv = false;
-          }, 1000);
+          } else {
+            this.rotateDiv = true;
+            this.playerDice[0] = this.tmpDice[0];
+            this.playerDice[1] = this.tmpDice[1];
+            setTimeout(() => {
+              this.rotateDiv = false;
+            }, 1000);
+          }
+          this.wasPrevChallenge = false;
         } else {
           if (data.player.roll > 0) {
             this.tmpDice[0] = Math.floor(data.player.roll / 2);
@@ -459,8 +471,9 @@ export class SessionPageComponent implements OnInit {
   async DiceRoll() {
     if (this.chosen) {
       if (
-        this.playerDice[0] == this.tmpDice[0] &&
-        this.playerDice[1] == this.tmpDice[1]
+        (this.playerDice[0] == this.tmpDice[0] &&
+          this.playerDice[1] == this.tmpDice[1]) ||
+        this.tmpDice[0] == 0
       ) {
         this.rotateDiv = false;
       } else {
@@ -468,6 +481,7 @@ export class SessionPageComponent implements OnInit {
         this.playerDice[0] = this.tmpDice[0];
         this.playerDice[1] = this.tmpDice[1];
       }
+
       this.chosen = false;
       this.showPickedCard = false;
       this.showPickedMonster = false;
