@@ -596,7 +596,7 @@ export class SessionPageComponent implements OnInit {
     }
   }
 
-  activateDiv(sesija: ISession | null, i: number): boolean {
+  activateDiv(session: ISession | null, i: number): boolean {
     if (this.activatedCard == i) return true;
     return false;
   }
