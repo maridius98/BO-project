@@ -117,9 +117,11 @@ export class SessionGateway implements OnModuleInit {
       !this.sessionDataLayer.resolveRoll(player, card as HeroCard)
     ) {
       await this.sessionService.evaluateTurnSwap(player, session);
+      getMutablePlayer(player, session).roll = 0;
       this.emitToAllClients(session);
       return false;
     }
+    getMutablePlayer(player, session).roll = 0;
     return await this.startEffect({ player, card, session });
   }
 
@@ -198,6 +200,8 @@ export class SessionGateway implements OnModuleInit {
       }
       this.emitChallengeCard(card, session, true);
     }
+    challengedPlayer.roll = 0;
+    challengingPlayer.roll = 0;
     this.cardDataLayer.evaluateTurnSwap(challengedPlayer, session);
     await this.sessionService.update(session);
     this.emitToAllClients(session);
