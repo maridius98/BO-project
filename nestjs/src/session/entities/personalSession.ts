@@ -89,11 +89,8 @@ export class RevealedPlayer extends IPlayer {
   }
 
   cardSelectCount: number;
-  username: string;
   isHost: boolean;
-  actionPoints: number;
   hand: ICard[];
-  field: ICard[];
 }
 
 export class Opponent extends IPlayer {
@@ -102,8 +99,5 @@ export class Opponent extends IPlayer {
     this.handSize = player.hand.length;
   }
 
-  username: string;
-  actionPoints: number;
   handSize: number;
-  field: ICard[];
 }
